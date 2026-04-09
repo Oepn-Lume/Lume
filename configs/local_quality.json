@@ -1,8 +1,53 @@
 {
   "battery_model_ready": true,
-  "local_quality_score": 0.78,
-  "bootstrap_perplexity": 1.737,
-  "full_fidelity_perplexity": 2.502,
-  "code_execution_perplexity": 5.592,
-  "notes": "Local Battery Model is good enough for low-complexity, high-similarity tasks, but code-execution quality remains the weakest area."
+  "local_quality_score": 0.441,
+  "model_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\transformers-lora-v2-realcloud",
+  "max_examples": 4,
+  "bootstrap_perplexity": 2.135535587603762,
+  "full_fidelity_perplexity": 1.9121237727857927,
+  "hybrid_refinement_perplexity": null,
+  "code_execution_perplexity": 5.493670175083184,
+  "evaluations": {
+    "bootstrap": {
+      "examples_evaluated": 4,
+      "avg_loss": 0.7587174759246409,
+      "perplexity": 2.135535587603762,
+      "avg_char_match": 0.048210704757312026,
+      "exact_prefix_match_rate": 0.0,
+      "dataset_path": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\datasets\\real_cloud_bootstrap_sft.jsonl",
+      "device": "cuda",
+      "training_mode": "transformers_peft_lora"
+    },
+    "full_fidelity": {
+      "examples_evaluated": 4,
+      "avg_loss": 0.6482145472546108,
+      "perplexity": 1.9121237727857927,
+      "avg_char_match": 0.03539466221945207,
+      "exact_prefix_match_rate": 0.0,
+      "dataset_path": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\datasets\\real_cloud_full_fidelity_sft.jsonl",
+      "device": "cuda",
+      "training_mode": "transformers_peft_lora"
+    },
+    "code_execution": {
+      "examples_evaluated": 3,
+      "avg_loss": 1.703596552213033,
+      "perplexity": 5.493670175083184,
+      "avg_char_match": 0.06195152689968109,
+      "exact_prefix_match_rate": 0.0,
+      "dataset_path": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\datasets\\real_code_execution_sft.jsonl",
+      "device": "cuda",
+      "training_mode": "transformers_peft_lora"
+    },
+    "hybrid_refinement": {
+      "examples_evaluated": 0,
+      "avg_loss": null,
+      "perplexity": null,
+      "avg_char_match": 0.0,
+      "exact_prefix_match_rate": 0.0,
+      "dataset_path": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\datasets\\hybrid_refinement_sft.jsonl",
+      "device": "cuda",
+      "training_mode": "transformers_peft_lora"
+    }
+  },
+  "notes": "Auto-generated routing quality snapshot based on local model evaluation across bootstrap, full-fidelity, hybrid-refinement, and code-execution datasets."
 }
