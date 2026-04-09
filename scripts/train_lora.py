@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 import sys
 
@@ -12,6 +13,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from lume.distill import TrainingConfig, train_local_model
+from lume.evaluation import build_quality_snapshot
 
 
 def parse_args() -> argparse.Namespace:
@@ -41,6 +43,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--gradient-accumulation-steps", type=int, default=1)
     parser.add_argument("--warmup-ratio", type=float, default=0.03)
     parser.add_argument("--weight-decay", type=float, default=0.0)
+    parser.add_argument(
+        "--quality-output",
+        default=str(ROOT / "configs" / "local_quality.json"),
+    )
+    parser.add_argument("--skip-quality-update", action="store_true")
+    parser.add_argument("--quality-max-examples", type=int, default=8)
     return parser.parse_args()
 
 
@@ -69,6 +77,18 @@ def main() -> None:
     )
     output_root = train_local_model(config)
     print(output_root)
+    if args.skip_quality_update:
+        return
+    snapshot = build_quality_snapshot(
+        Path(output_root),
+        Path(args.datasets_root),
+        max_examples=args.quality_max_examples,
+        device=args.device,
+    )
+    quality_path = Path(args.quality_output)
+    quality_path.parent.mkdir(parents=True, exist_ok=True)
+    quality_path.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    print(quality_path)
 
 
 if __name__ == "__main__":

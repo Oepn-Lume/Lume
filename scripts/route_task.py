@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 import sys
 
@@ -25,6 +26,10 @@ def parse_args() -> argparse.Namespace:
         "--task-runs-root",
         default=str(ROOT / "data" / "task_runs"),
     )
+    parser.add_argument(
+        "--local-quality-config",
+        default=str(ROOT / "configs" / "local_quality.json"),
+    )
     parser.add_argument("--privacy-sensitive", action="store_true")
     parser.add_argument("--cloud-unavailable", action="store_true")
     return parser.parse_args()
@@ -38,8 +43,13 @@ def main() -> None:
         task_runs_root=Path(args.task_runs_root),
         cloud_available=not args.cloud_unavailable,
         privacy_sensitive=args.privacy_sensitive,
+        local_quality_path=Path(args.local_quality_config),
     )
-    print(decision.to_dict())
+    payload = {
+        "decision": decision.to_dict(),
+        "local_quality_config": str(Path(args.local_quality_config)),
+    }
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
