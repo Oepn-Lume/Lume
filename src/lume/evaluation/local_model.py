@@ -61,7 +61,7 @@ def generate_text(
 ) -> str:
     """Generate text from the trained local model."""
     mode = _training_mode(model_root)
-    if mode == "transformers_peft_lora":
+    if mode.startswith("transformers_peft_"):
         model, tokenizer, _config = load_peft_model(model_root, device=device)
         device_obj = torch.device(_resolve_device(device))
         inputs = tokenizer(prompt, return_tensors="pt").to(device_obj)
@@ -133,7 +133,7 @@ def evaluate_model(
     char_match_scores: list[float] = []
     exact_prefix_matches = 0
 
-    if mode == "transformers_peft_lora":
+    if mode.startswith("transformers_peft_"):
         model, tokenizer, config = load_peft_model(model_root, device=device)
         model.eval()
         max_length = int(config.get("max_length", getattr(tokenizer, "model_max_length", 512)))

@@ -12,6 +12,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from lume.distill import build_distill_datasets
+from lume.rl import build_rlef_datasets
 
 
 def parse_args() -> argparse.Namespace:
@@ -37,6 +38,12 @@ def main() -> None:
         Path(args.task_runs_root),
         Path(args.datasets_root),
         Path(args.raw_logs_root),
+    )
+    written_paths.extend(
+        build_rlef_datasets(
+            Path(args.task_runs_root),
+            Path(args.datasets_root),
+        )
     )
     for path in written_paths:
         print(path)
