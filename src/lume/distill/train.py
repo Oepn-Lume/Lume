@@ -302,6 +302,14 @@ def _save_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", "utf-8")
 
 
+def _load_pretrained_with_local_fallback(loader: Any, model_id_or_path: Any, **kwargs: Any) -> Any:
+    """Prefer local cached artifacts to avoid noisy network probes in offline environments."""
+    try:
+        return loader.from_pretrained(model_id_or_path, local_files_only=True, **kwargs)
+    except Exception:
+        return loader.from_pretrained(model_id_or_path, **kwargs)
+
+
 def _train_tiny_fallback(config: TrainingConfig) -> Path:
     datasets_root = Path(config.datasets_root)
     output_root = Path(config.output_root)
@@ -416,12 +424,12 @@ def _train_transformers_lora(config: TrainingConfig) -> Path:
     device = _resolve_device(config.device)
     device_obj = torch.device(device)
 
-    tokenizer = AutoTokenizer.from_pretrained(config.model_name_or_path)
+    tokenizer = _load_pretrained_with_local_fallback(AutoTokenizer, config.model_name_or_path)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right"
 
-    base_model = AutoModelForCausalLM.from_pretrained(config.model_name_or_path)
+    base_model = _load_pretrained_with_local_fallback(AutoModelForCausalLM, config.model_name_or_path)
     if getattr(base_model.config, "pad_token_id", None) is None and tokenizer.pad_token_id is not None:
         base_model.config.pad_token_id = tokenizer.pad_token_id
 
@@ -559,11 +567,14 @@ def load_peft_model(model_root: Path, *, device: str = "auto") -> tuple[Any, Any
         raise RuntimeError("transformers/peft are not available in the current environment.")
     config = json.loads((model_root / "training_config.json").read_text("utf-8"))
     base_model_name = config["base_model_name_or_path"]
-    tokenizer = AutoTokenizer.from_pretrained(model_root / "tokenizer")
+    tokenizer = _load_pretrained_with_local_fallback(AutoTokenizer, model_root / "tokenizer")
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    base_model = AutoModelForCausalLM.from_pretrained(base_model_name)
-    model = PeftModel.from_pretrained(base_model, model_root / "adapter")
+    base_model = _load_pretrained_with_local_fallback(AutoModelForCausalLM, base_model_name)
+    try:
+        model = PeftModel.from_pretrained(base_model, model_root / "adapter", local_files_only=True)
+    except Exception:
+        model = PeftModel.from_pretrained(base_model, model_root / "adapter")
     device_obj = torch.device(_resolve_device(device))
     model.to(device_obj)
     model.eval()
