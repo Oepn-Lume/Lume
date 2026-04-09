@@ -34,6 +34,9 @@ Other entry modes:
 # Sync Codex sessions into datasets and optionally retrain
 python main.py sync
 
+# Run the full continuous retraining loop
+python main.py cycle
+
 # Run the end-to-end demo pipeline for a task
 python main.py pipeline --task "write a short summary"
 ```
@@ -106,7 +109,7 @@ Lume operates on a continuous improvement cycle:
 | **Evaluation Reports** | Persist local quality snapshots, reports, and historical evaluation records. | ✅ |
 | **Hybrid Refinement Logging** | Record local drafts versus cloud refinements as structured artifacts. | ✅ |
 | **RLEF Layer** | Reinforcement Learning from Execution Feedback datasets and minimal preference optimization. | 🏗️ In Progress |
-| **Continuous Retraining** | Automated `Build -> Train -> Evaluate -> Route` cycles. | 📅 Planned |
+| **Continuous Retraining** | Run `Build -> Train -> Evaluate -> Route` through `python main.py cycle`. | ✅ |
 
 ---
 

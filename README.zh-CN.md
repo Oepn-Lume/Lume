@@ -38,6 +38,9 @@ python main.py
 # 同步 Codex 会话到数据集，并按需触发训练
 python main.py sync
 
+# 运行完整的连续训练周期
+python main.py cycle
+
 # 跑一个端到端任务演示
 python main.py pipeline --task "write a short summary"
 ```
@@ -116,7 +119,7 @@ Lume 当前的最小闭环是：
 | **Evaluation Reports** | 保存质量快照、评估报告和历史结果 | ✅ |
 | **Hybrid Refinement Logging** | 记录本地草稿与云端精修之间的结构化差异 | ✅ |
 | **RLEF Layer** | 基于真实执行反馈的数据集和最小偏好优化链路 | 🏗️ 开发中 |
-| **Continuous Retraining** | 自动化 `Build -> Train -> Evaluate -> Route` 周期 | 📅 计划中 |
+| **Continuous Retraining** | 通过 `python main.py cycle` 运行 `Build -> Train -> Evaluate -> Route` 周期 | ✅ |
 
 ---
 

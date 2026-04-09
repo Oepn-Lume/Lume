@@ -16,7 +16,7 @@ def parse_args() -> argparse.Namespace:
         "mode",
         nargs="?",
         default="shadow",
-        choices=["shadow", "sync", "pipeline"],
+        choices=["shadow", "sync", "pipeline", "cycle"],
         help="Launch mode. Defaults to shadow.",
     )
     parser.add_argument("--task", help="Task text for pipeline mode.")
@@ -59,6 +59,18 @@ def main() -> None:
         if args.skip_train:
             command.append("--skip-train")
         raise SystemExit(_run(command))
+
+    if args.mode == "cycle":
+        raise SystemExit(
+            _run(
+                [
+                    python_exe,
+                    str(ROOT / "scripts" / "run_continuous_cycle.py"),
+                    "--device",
+                    args.device,
+                ]
+            )
+        )
 
     task = args.task or "write a short summary"
     raise SystemExit(
