@@ -1,190 +1,102 @@
-# Lume Treasury：你的私人智力金库
+# 🪙 Lume Treasury：你的私人智力金库
 
 > **云端对话，本地储蓄。别再消费 AI，去拥有它。**
 
-如需英文版，请查看 [README.md](./README.md)。
+英文版请看 [README.md](./README.md)。
 
-`Lume Treasury` 是一个本地优先（Local-first）的 AI 系统原型，目标是把高价值云端调用转化为可复用、可积累、可继承的本地智能资产。
+**Lume Treasury** 是一个本地优先的 AI 系统，目标是把高价值的云端对话和推理过程，沉淀成你自己可以长期持有的本地智能资产。
 
-它不只是一个工具项目，更是一套围绕以下目标展开的运行体系：
-
-- 捕捉真实云端返回的智能内容
-- 将这些能力蒸馏到本地模型与记忆层
-- 把可重复任务逐步路由到本地 Battery Model
-- 降低对“租赁式智能”的长期依赖
+在传统的 Token 经济里，你一次次付费调用模型，模型平台越来越强，而你只留下账单。`Lume Treasury` 想做的事情正相反：**把每一次高价值云端交互，都变成你本地“智力金库”的增量储备。**
 
 ---
 
 ## 运行条件
 
-运行 `Lume Treasury` 前，需要在本地安装以下两个组件：
+开始使用 `Lume Treasury` 之前，需要先在本地安装这两个组件：
 
-- `Codex`：作为本地执行与编码运行时  
+- **Codex**：作为本地执行与编码运行时  
   链接：[https://openai.com/codex/](https://openai.com/codex/)
-- `Ollama`：用于本地提供 Battery Model，例如 `gemma4:31b`  
+- **Ollama**：用于本地提供 Battery Model，比如 `gemma4:31b`  
   链接：[https://ollama.com/](https://ollama.com/)
 
-推荐环境：
+---
 
-- Windows + PowerShell
-- 适合本地训练的 NVIDIA GPU，例如 `RTX 5090`
-- 安装了 `torch`、`transformers`、`peft` 的 Python 环境
+## 💎 核心观点：Token 不是消耗品，而是资产
+
+在默认 API 模式下，Token 像燃料一样烧掉就没了。
+
+在 **Lume Treasury** 里，Token 被视为对私人智能资产的投入。
+
+- **Shadow Mode**：静默记录云端推理、工具输出和执行轨迹
+- **Intelligence Backflow**：把昂贵的云端逻辑蒸馏成你自己的 LoRA 适配器
+- **Execution Feedback**：根据真实任务结果，比如“代码有没有跑通”，来强化本地模型
+- **Asset Reuse**：一旦某种模式被本地吸收，后续相似任务就优先由本地模型接管，节省成本和延迟
 
 ---
 
-## 核心思想：Token 资产化
+## 🔋 Battery Model（Gemma4 + Sentinel-LoRA）
 
-在传统 API 模式下，Token 是一次性消耗的燃料。
+**Battery Model** 是 Lume 的离线续航核心。它不只是一个模型，而是一项会持续增长的本地资产。
 
-在 `Lume Treasury` 里，Token 被视为对本地智力资产的投资。
-
-- `Shadow Mode`：捕捉真实云端返回的对话、启动指导、执行轨迹、补丁事件和工具输出
-- `Intelligence Backflow`：将付费获得的云端能力蒸馏成数据集、记忆结构和 LoRA 适配器
-- `Execution Feedback`：根据真实任务结果判断什么应该被强化、保留或剔除
-- `Asset Reuse`：一旦模式被本地吸收，重复工作优先交给本地模型处理
-
-目标很简单：每一次昂贵的云端调用，都应该给本地留下持续收益。
+- **Base**：通过 `Ollama` 运行的 `Gemma4 31B`
+- **Adapter**：`Sentinel-LoRA`，从你的真实云端会话、编码风格和执行轨迹中蒸馏得到
+- **SOH（State of Health）**：衡量本地模型相对于强云端基线是否仍然健康、稳定、对齐
+- **目标**：你每用一次云端，本地节点就更强一点。数字主权从这里开始。
 
 ---
 
-## Battery Model
+## 🧠 为什么要做 Lume？
 
-`Battery Model = Gemma4 31B + Sentinel-LoRA`
+我们正在经历一种“算力殖民”：
 
-Battery Model 是 `Lume Treasury` 的离线续航核心，也是低延迟本地接管层。
+你付费调用模型，平台拿走数据和收益，而你拿到的是一次性的回答。
 
-- `Base`：通过 `Ollama` 本地运行的 `Gemma4 31B`
-- `Adapter`：由真实云端会话、启动指导、执行轨迹和代码产物蒸馏得到的 `Sentinel-LoRA`
-- `Role`：在云端不可达、成本过高或没有必要时继续接管高频任务
-- `SOH (State of Health)`：通过持续放电式测试评估本地模型与强云端基线之间的对齐程度
+`Lume Treasury` 要做的是把这个逻辑翻过来：
 
-这就是 `Lume Treasury` 对“数字主权”的工程化表达：你用过的云端智能，会不断沉淀为本地节点的长期能力。
-
----
-
-## 精选文章
-
-### Intellectual Sovereignty: How Lume Turns Every AI Chat into a Permanent Asset
-
-我们正在经历一种“算力殖民”。你付费提问，云端模型变得更强，而你只留下账单和一次性结果。`Lume Treasury` 提出的方向相反：每一次高价值云端交互，都应该成为你本地智能资产的一次投资。
-
-想象一下，你与前沿模型的深度对话，可以在后台被静默复制、结构化并蒸馏成你机器上的一个“影子脑”。它会记住你的编码风格、推理偏好和工作方式，并在下一次任务中继续发挥作用，而不是随会话一起消失。
-
-#### 从一次性 Token 到永久资产
-
-在默认 API 经济里，Token 是燃料；在 `Lume Treasury` 里，Token 是资本开支。
-
-- `Silent Capture`：`Shadow Logging` 不只记录最终答案，也记录规划步骤、决策分叉、修正过程和工具输出
-- `Asymmetric Distillation`：`Sentinel-LoRA` 从云端轨迹中提取紧凑、可复用的任务逻辑，而不是试图复制整套云端模型
-- `Battery Model`：`Gemma4 31B + Sentinel-LoRA` 构成离线续航层，在云端不可用、成本过高或没有必要时接管工作
-
-#### 状态健康度
-
-`Lume Treasury` 把“本地模型是否诚实可靠”当作一个工程问题来处理。`SOH` 通过反复放电式评估对照更强基线，而真实执行反馈会继续追问：代码是否真的运行？输出是否站得住？任务是否真的成功？
-
-这能让本地模型尽量贴近现实，而不是只会产出看起来漂亮的文字。
-
-#### 结论
-
-`Lume Treasury` 不只是一个工具链，它也是一种关于数字主权的立场。
-
-它试图把租来的云端智能，转化为你真正拥有的本地能力，让用户从“AI 租户”逐步变成“智能资产所有者”。
-
-**项目信息**
-
-- Organization: `Oepn-Lume`
-- GitHub: [https://github.com/Oepn-Lume/Lume](https://github.com/Oepn-Lume/Lume)
-- Core Tenets: `Local-first AI`、`Token Assetization`、`Digital Sovereignty`
-- Email: `dspwatch@gmail.com`
-- Source inspiration: [X post by @wuyifree](https://x.com/wuyifree/status/2042179788329341352)
+1. **静默捕捉**：记录规划步骤、决策分叉、修正过程和隐藏的执行逻辑
+2. **非对称蒸馏**：不是复制整个云端模型，而是提取你真正会反复用到的逻辑
+3. **本地觉醒**：让你的电脑不再只是一个终端，而是逐渐成为一个懂你、会做事的本地伙伴
 
 ---
 
-## 快速开始
+## 🚀 工作流水线：持续进化的闭环
 
-### 1. 导入真实 Codex / 云端轨迹
+Lume 当前的最小闭环是：
 
-```powershell
-python scripts/import_codex_sessions.py
-```
-
-### 2. 构建蒸馏数据集
-
-```powershell
-python scripts/build_distill_dataset.py
-```
-
-### 3. 训练本地适配器
-
-```powershell
-C:\Users\yh-PC-003\Desktop\codex\wan22\venv\Scripts\python.exe scripts\train_lora.py --device cuda --model-name-or-path uer/gpt2-chinese-cluecorpussmall
-```
+1. **Capture**：记录真实的 Codex 与云端轨迹
+2. **Synthesize**：构建高保真蒸馏数据集（`jsonl`）
+3. **Train**：执行本地 LoRA 训练
+4. **Route**：让系统自动判断“这个任务现在能不能交给本地 Battery Model”
 
 ---
 
-## 项目布局
+## 🛠 项目进度与里程碑
 
-- `configs/`：模型、路由与保留策略配置
-- `data/`：原始日志、生成语料、训练集、营销产物和蒸馏检查点
-- `docs/`：白皮书、实施方案和 Battery Model 文档
-- `scripts/`：数据构建、训练、评估、同步、发布和营销入口
-- `src/lume/logging/`：影子日志与 Codex 会话导入
-- `src/lume/distill/`：对话、执行、历史代码蒸馏模块
-- `src/lume/execution/`：运行时包装器和云端/本地执行桥接层
-- `src/lume/memory/`：Wiki 记忆构建器
-- `src/lume/routing/`：云端与本地路径之间的路由规则
-
----
-
-## 当前工作流水线
-
-当前最小可运行闭环是：
-
-`Codex sessions / task runs -> raw logs -> datasets -> LoRA training -> Gemma4 Battery Model generation/evaluation`
-
-当前偏生产的推荐栈：
-
-- 本地基座模型：`gemma4:31b`
-- 本地提供方：`Ollama`
-- 当前 LoRA 候选：`data/distilled/transformers-lora-v2-realcloud/adapter`
-- 真实云端语料层：
-  - `real_cloud_dialogue_sft.jsonl`
-  - `real_cloud_bootstrap_sft.jsonl`
-  - `real_cloud_full_fidelity_sft.jsonl`
-  - `real_code_execution_sft.jsonl`
+| 功能 | 说明 | 状态 |
+| :--- | :--- | :--- |
+| **Shadow Logging** | 记录工具调用、任务产物和云端可见推理轨迹 | ✅ |
+| **LLM Wiki Memory** | 把任务运行结果沉淀成可复用的结构化记忆页面 | ✅ |
+| **Battery Routing** | 根据复杂度和本地质量在云端与本地之间切换 | ✅ |
+| **Battery Model Runtime** | 通过 `Ollama` 运行 `gemma4:31b` 作为本地规划层 | ✅ |
+| **LoRA Training** | 在本地硬件上进行 PEFT 训练 | ✅ |
+| **Evaluation Reports** | 保存质量快照、评估报告和历史结果 | ✅ |
+| **Hybrid Refinement Logging** | 记录本地草稿与云端精修之间的结构化差异 | ✅ |
+| **RLEF Layer** | 基于真实执行反馈的数据集和最小偏好优化链路 | 🏗️ 开发中 |
+| **Continuous Retraining** | 自动化 `Build -> Train -> Evaluate -> Route` 周期 | 📅 计划中 |
 
 ---
 
-## 项目进度
+## 🤝 开发者承诺
 
-这一节用于维护已经落地的功能进展。后续每实现一个新能力，都应继续追加到这里。
-
-- [x] `Shadow Logging`：已经能记录真实 Codex 会话、云端可见消息、工具调用和任务产物
-- [x] `LLM Wiki Memory`：已经能把任务运行结果沉淀成结构化 wiki 页面和更新日志
-- [x] `Dataset Builder`：已经能从日志生成对话、执行、记忆、hybrid 对比、历史代码和真实云端数据集
-- [x] `Battery Routing`：路由器已经能基于相似度、复杂度和本地质量快照在 `cloud / local / hybrid` 之间切换
-- [x] `Battery Model Runtime`：`Gemma4 31B` 已通过 `Ollama` 接入运行时，作为本地规划层参与执行
-- [x] `LoRA Training`：已经支持 `transformers + PEFT/LoRA` 本地训练，并可调用 `RTX 5090`
-- [x] `Evaluation Reports`：已经支持本地模型评估报告、质量快照和质量历史记录
-- [x] `Hybrid Refinement Logging`：已经能把本地草稿和云端精修结果结构化保存
-- [x] `RLEF Dataset Layer`：已经能把真实执行结果和 hybrid 偏好转换成 `rlef_reward.jsonl` 与 `rlef_preference.jsonl`
-- [x] `Minimal Preference Optimization`：已经实现第一版基于偏好数据的 `DPO` 风格 LoRA 训练路径
-- [ ] `RLEF Scale-Up`：继续扩大偏好样本和执行反馈覆盖面，增强强化学习信号
-- [ ] `Reward-Aware Routing`：把偏好胜率和真实执行奖励反向接入路由决策
-- [ ] `Continuous Retraining`：自动化周期性 `build -> train -> evaluate -> route-update` 闭环
+- **Privacy First**：原始数据默认保留在本地
+- **Execution over Theater**：所有能力都应该有日志、数据集、测试或检查点支撑
+- **Hardware Equity**：优先适配用户真正拥有的硬件
+- **Low-Anxiety Ops**：提供守望者报告，而不是制造信息洪流
 
 ---
 
-## 开发者承诺
+## 📬 联系方式
 
-- `Privacy First`：原始用户数据默认应保留在本地
-- `Execution over Theater`：所有能力都应由日志、数据集、测试和检查点支撑
-- `Hardware Equity`：面向 `RTX` 和 `Apple Silicon` 等现实本地硬件路径优化
-- `Low-Anxiety Operations`：提供守望者报告，而不是制造信息洪流
-
----
-
-## 联系方式
-
-- Release contact: `dspwatch@gmail.com`
-- Organization: [Oepn-Lume](https://github.com/Oepn-Lume)
+- **GitHub**：[Oepn-Lume/Lume](https://github.com/Oepn-Lume/Lume)
+- **Email**：`dspwatch@gmail.com`
+- **理念来源**：围绕 “Token Assetization” 这条核心命题持续推进

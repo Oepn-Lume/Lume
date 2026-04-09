@@ -2,9 +2,7 @@
 
 > **"Cloud conversations, local savings. Stop consuming AI. Start owning it."**
 
-For the Chinese version, see [README.zh-CN.md](./README.zh-CN.md).
-
-**Lume Treasury** is a local-first AI system that reclaims the value of your cloud AI usage. In the current token economy, intelligence is rented and ephemeral. Lume changes the paradigm: **every interaction with a frontier model is treated as a capital investment in your own local brain.**
+**Lume Treasury** is a local-first AI system that reclaims the value of cloud AI usage. In the current token economy, intelligence is rented and ephemeral. Lume changes the paradigm: **every interaction with a frontier model is treated as a capital investment in your own local brain.**
 
 ---
 
@@ -17,20 +15,14 @@ Before running `Lume Treasury`, make sure these two local components are install
 - **Ollama**: used to serve the local Battery Model such as `gemma4:31b`  
   Link: [https://ollama.com/](https://ollama.com/)
 
-Recommended environment:
-
-- Windows with PowerShell
-- NVIDIA GPU such as `RTX 5090` for local training
-- Python environment with `torch`, `transformers`, and `peft`
-
 ---
 
 ## 💎 The Core Thesis: Token as an Asset
 
-In the default API economy, tokens are fuel: burned and forgotten. In **Lume**, tokens are **Capital Expenditure (CapEx)** for your private intelligence.
+In the default API economy, tokens are fuel: burned and forgotten. In **Lume**, tokens are **Capital Expenditure (CapEx)** for private intelligence.
 
 - **Shadow Mode**: Silently captures cloud reasoning, tool outputs, and execution traces.
-- **Intelligence Backflow**: Distills expensive cloud logic into your private LoRA adapters.
+- **Intelligence Backflow**: Distills expensive cloud logic into private LoRA adapters.
 - **Execution Feedback**: Uses real-world task success signals such as “Did the code run?” to reinforce local performance.
 - **Asset Reuse**: Once a pattern is absorbed, the local model takes over, saving money and latency.
 
@@ -41,19 +33,19 @@ In the default API economy, tokens are fuel: burned and forgotten. In **Lume**, 
 The **Battery Model** is Lume’s offline survival core. It is not just a model; it is a **growing asset**.
 
 - **Base**: `Gemma4 31B` served via `Ollama`
-- **Adapter**: `Sentinel-LoRA`, distilled from your specific cloud sessions and coding patterns
-- **SOH (State of Health)**: A metric that evaluates how healthy and aligned your local model is compared with stronger cloud baselines
-- **The Goal**: Your local node gets stronger every time you use the cloud. **Digital sovereignty starts here.**
+- **Adapter**: `Sentinel-LoRA`, distilled from specific cloud sessions and coding patterns
+- **SOH (State of Health)**: A metric that evaluates how healthy and aligned the local model is compared with stronger cloud baselines
+- **The Goal**: The local node gets stronger every time the cloud is used. **Digital sovereignty starts here.**
 
 ---
 
 ## 🧠 Why Lume? (The Alchemy of Ownership)
 
-We are living through **compute colonization**. You pay to improve their models, and you are left with the bill. Lume flips the script:
+We are living through **compute colonization**. People pay to improve somebody else’s model and keep the bill. Lume flips the script:
 
 1. **Silent Capture**: Records planning steps, decision forks, corrections, and the hidden logic of AI work.
-2. **Asymmetric Distillation**: Lume does not try to clone the cloud. It extracts the **logic** you actually use.
-3. **Local Awakening**: Your computer stops being a dumb terminal and starts becoming an expert partner.
+2. **Asymmetric Distillation**: Lume does not try to clone the cloud. It extracts the **logic** that is actually useful.
+3. **Local Awakening**: The computer stops being a dumb terminal and starts becoming an expert partner.
 
 ---
 
@@ -63,7 +55,7 @@ Lume operates on a continuous improvement cycle:
 
 1. **Capture**: Log real Codex and cloud traces.
 2. **Synthesize**: Build high-fidelity distillation datasets (`jsonl`).
-3. **Train**: Run local LoRA training, optimized for **RTX 5090** and practical local hardware paths.
+3. **Train**: Run local LoRA training.
 4. **Route**: Let the system decide whether the local Battery Model can handle the task now.
 
 ---
@@ -76,7 +68,7 @@ Lume operates on a continuous improvement cycle:
 | **LLM Wiki Memory** | Distill task runs into reusable structured memory pages. | ✅ |
 | **Battery Routing** | Hybrid cloud/local execution based on complexity and local quality. | ✅ |
 | **Battery Model Runtime** | Run `gemma4:31b` through `Ollama` as the local planning layer. | ✅ |
-| **LoRA Training** | PEFT training on local hardware (`RTX` and similar setups). | ✅ |
+| **LoRA Training** | PEFT training on local hardware. | ✅ |
 | **Evaluation Reports** | Persist local quality snapshots, reports, and historical evaluation records. | ✅ |
 | **Hybrid Refinement Logging** | Record local drafts versus cloud refinements as structured artifacts. | ✅ |
 | **RLEF Layer** | Reinforcement Learning from Execution Feedback datasets and minimal preference optimization. | 🏗️ In Progress |
