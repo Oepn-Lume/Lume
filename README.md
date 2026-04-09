@@ -17,6 +17,29 @@ Before running `Lume Treasury`, make sure these two local components are install
 
 ---
 
+## 🚀 Quick Start
+
+```bash
+# Clone and enter the repo
+git clone https://github.com/Oepn-Lume/Lume.git
+cd Lume
+
+# Start shadow mode and begin capturing cloud-returned intelligence
+python scripts/start_shadow_logger.py
+```
+
+---
+
+## 🛠 Hardware Matrix
+
+| Hardware Platform | Recommended Model | Run Mode |
+| :--- | :--- | :--- |
+| **NVIDIA RTX 5090** | Gemma4 31B (Full) | 4-bit / 8-bit local training |
+| **Mac Pro (M2/M3 Ultra)** | Gemma4 31B | Metal acceleration / Ollama |
+| **RTX 3060 / 4070** | Gemma4 9B | LoRA inference |
+
+---
+
 ## 💎 The Core Thesis: Token as an Asset
 
 In the default API economy, tokens are fuel: burned and forgotten. In **Lume**, tokens are **Capital Expenditure (CapEx)** for private intelligence.

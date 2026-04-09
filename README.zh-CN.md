@@ -21,6 +21,29 @@
 
 ---
 
+## 🚀 快速开始
+
+```bash
+# 克隆并进入仓库
+git clone https://github.com/Oepn-Lume/Lume.git
+cd Lume
+
+# 启动影子模式，开始捕获云端返回的智能轨迹
+python scripts/start_shadow_logger.py
+```
+
+---
+
+## 🛠 硬件支持矩阵
+
+| 硬件平台 | 推荐模型 | 运行模式 |
+| :--- | :--- | :--- |
+| **NVIDIA RTX 5090** | Gemma4 31B（完整形态） | 4-bit / 8-bit 本地训练 |
+| **Mac Pro（M2 / M3 Ultra）** | Gemma4 31B | Metal 加速 / Ollama |
+| **RTX 3060 / 4070** | Gemma4 9B | LoRA 推理 |
+
+---
+
 ## 💎 核心观点：Token 不是消耗品，而是资产
 
 在默认 API 模式下，Token 像燃料一样烧掉就没了。
