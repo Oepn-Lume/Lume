@@ -1,379 +1,271 @@
-# Lume Sentinel 2026
+# Lume Sentinel 2026: Digital Sovereignty and Intelligence Assetization Protocol
 
-`Lume` is a local-first prototype for turning high-value AI usage into reusable assets.
+> **Do not live as a tenant of Token spending. Turn cloud intelligence into local evolution.**
+
+`Lume` is a local-first AI systems prototype designed to convert high-value cloud usage into reusable local assets.
+
+It is not only a tooling project. It is an operating model for:
+
+- capturing real cloud-returned intelligence
+- distilling it into local capability
+- routing repeatable work into a local Battery Model
+- reducing long-term dependence on rented intelligence
+
+---
+
+## Core Thesis: Token as an Asset
+
+In the default API economy, Tokens are consumed and disappear.
+
+In `Lume`, Tokens are treated as capital expenditure for local intelligence.
+
+- `Shadow Mode`: capture real cloud-returned dialogue, bootstrap guidance, execution traces, patch events, and tool outputs
+- `Intelligence Backflow`: distill paid cloud capability into local datasets, memory structures, and LoRA adapters
+- `Execution Feedback`: use real task outcomes as signals for what should be reinforced, retained, or rejected
+- `Asset Reuse`: route recurring work to the local model once patterns have been absorbed
+
+The goal is simple: every expensive cloud interaction should leave behind a persistent local advantage.
+
+---
 
 ## Battery Model
 
-The working project definition is:
+`Battery Model = Gemma4 31B + Sentinel-LoRA`
 
-`Battery Model = Gemma4 31B + LoRA`
+The Battery Model is Lume's offline survival core and low-latency continuation layer.
 
-That means:
+- `Base`: `Gemma4 31B` served locally through `Ollama`
+- `Adapter`: `Sentinel-LoRA`, distilled from real cloud sessions, bootstrap guidance, execution traces, and code outputs
+- `Role`: continue useful work when cloud access is unavailable, too expensive, or unnecessary
+- `SOH (State of Health)`: evaluate local alignment against stronger cloud baselines through repeated discharge-style testing
 
-- `Gemma4 31B` is the local base model served by `Ollama`
-- `LoRA` adapters are distilled from real cloud-returned sessions, bootstrap guidance, execution traces, and code outputs
-- the `Battery Model` is the local continuation layer for offline, low-latency, and high-frequency tasks
+This is the practical meaning of digital sovereignty inside `Lume`: the local node keeps getting stronger as more paid intelligence is converted into local capability.
 
-Cloud models still provide first-pass premium reasoning. `Shadow Logging`, dataset building, and LoRA training convert that paid capability into reusable local assets.
+---
 
 ## Starfire Protocol
 
-`Lume Starfire Protocol` is the release-and-distribution layer that turns repository changes into collaborative signal.
+`Lume Starfire Protocol` is the collaboration and release layer for distributed intelligence growth.
 
-Current implementation scope:
+Its role is to connect local nodes without forcing users to surrender raw private data.
 
-- repository messaging for the `Battery Model` narrative
-- a GitHub Actions workflow skeleton for contribution intake and validation
-- a safe `X` marketing executor that defaults to `dry-run`
-- local watchman reporting so launch operations stay observable and low-anxiety
+- `Federated Direction`: keep private data local while sharing reviewed artifacts, adapters, and validated improvements
+- `Proof of Logic`: require contributed changes to survive automated validation instead of trusting raw claims
+- `Distributed Aggregation`: use repository workflows and review gates to converge improvements into shareable release branches
+- `Signal Layer`: turn technical progress into public narrative, contribution invitations, and operator-readable launch reports
 
-The protocol is designed to keep execution grounded:
+The protocol is designed to let isolated local nodes become part of a larger intelligence network without collapsing privacy boundaries.
 
-- if the workspace is not a Git repository, release actions stop before branch/push steps
-- if X credentials are not configured, the marketing executor renders plans and reports without posting
-- if contributed artifacts fail validation, the workflow fails closed
+---
 
-## Contact
+## Quick Start
 
-- Release contact: `dspwatch@gmail.com`
+### 1. Import real Codex/cloud traces
 
-## Layout
+```powershell
+python scripts/import_codex_sessions.py
+```
 
-- `docs/`: whitepaper, implementation plan, architecture appendix
-- `configs/`: model, routing, retention configs
-- `data/`: logs, wiki memory, datasets, distilled adapters
-- `scripts/`: import, build, train, evaluate, generate entrypoints
-- `src/lume/`: core Python modules
-- `examples/`: example outputs and sample payloads
-- `tests/`: test drafts and smoke checks
+### 2. Build distillation datasets
 
-## Core Pipeline
+```powershell
+python scripts/build_distill_dataset.py
+```
+
+### 3. Train the local adapter
+
+```powershell
+C:\Users\yh-PC-003\Desktop\codex\wan22\venv\Scripts\python.exe scripts\train_lora.py --device cuda --model-name-or-path uer/gpt2-chinese-cluecorpussmall
+```
+
+### 4. Prepare the Starfire launch thread
+
+```powershell
+python scripts/x_agent_executor.py --repo-url "https://github.com/Oepn-Lume/Lume"
+```
+
+---
+
+## Project Layout
+
+- `configs/`: model, routing, and retention configuration
+- `data/`: raw logs, generated corpora, datasets, marketing outputs, and distilled checkpoints
+- `docs/`: whitepaper, implementation plan, Starfire and Battery Model documents
+- `scripts/`: dataset building, training, evaluation, sync, release, and marketing entrypoints
+- `src/lume/logging/`: shadow logging and Codex session import
+- `src/lume/distill/`: dialogue, execution, and historical code distillation
+- `src/lume/execution/`: runtime wrappers and cloud/local execution bridges
+- `src/lume/memory/`: Wiki memory builders
+- `src/lume/routing/`: routing rules between cloud and local paths
+
+---
+
+## Working Pipeline
 
 The current minimum working loop is:
 
 `Codex sessions / task runs -> raw logs -> datasets -> LoRA training -> Gemma4 Battery Model generation/evaluation`
 
-Main steps:
+Current production-oriented stack:
 
-1. Import or sync session logs
-   - `python scripts/import_codex_sessions.py`
-   - `python scripts/sync_codex_training_data.py --skip-train`
-2. Build datasets
-   - `python scripts/build_distill_dataset.py`
-3. Train a local adapter
-   - `python scripts/train_lora.py`
-4. Generate or evaluate
-   - `python scripts/generate_local_response.py --prompt "写一篇爱国散文诗"`
-   - `python scripts/evaluate_local_model.py`
+- local base model: `gemma4:31b`
+- local provider: `Ollama`
+- current LoRA candidate: `data/distilled/transformers-lora-v2-realcloud/adapter`
+- real-cloud corpus layers:
+  - `real_cloud_dialogue_sft.jsonl`
+  - `real_cloud_bootstrap_sft.jsonl`
+  - `real_cloud_full_fidelity_sft.jsonl`
+  - `real_code_execution_sft.jsonl`
 
-Recommended Battery Model stack:
+---
 
-- Base model: `gemma4:31b` via `Ollama`
-- Adapter: `data/distilled/transformers-lora-v2-realcloud/adapter`
-- Primary purpose: bootstrap guidance, full-fidelity runtime behavior, and execution-style continuation
+## Developer Commitments
 
-## Shadow Logging
+- `Privacy First`: raw user data should stay local by default
+- `Execution over Theater`: claims should be backed by traces, datasets, tests, and checkpoints
+- `Hardware Equity`: optimize for practical local hardware paths, including `RTX` and `Apple Silicon`
+- `Low-Anxiety Operations`: provide watchman reports, not information floods
 
-Available logging paths:
+---
 
-- Batch import from JSON or CLI arguments:
-  - `python scripts/collect_shadow_logs.py`
-- Runtime incremental recording:
-  - `src/lume/logging/recorder.py`
-  - `src/lume/execution/session.py`
-  - `src/lume/execution/runtime.py`
-- Codex desktop session import:
-  - `python scripts/import_codex_sessions.py`
-- Continuous Codex sync:
-  - `python scripts/watch_codex_training_data.py --interval-seconds 30`
+## Contact
 
-Structured task logs are written to `data/task_runs/<task_id>/`.
+- Release contact: `dspwatch@gmail.com`
+- Organization: [Oepn-Lume](https://github.com/Oepn-Lume)
 
-## Wiki Memory
+---
 
-Wiki memory is built from task logs:
+# Lume Sentinel 2026：数字主权与智力资产化协议
 
-- Build task pages:
-  - `python scripts/build_wiki_entries.py`
-- Output:
-  - `data/wiki/index.md`
-  - `data/wiki/log.md`
-  - `data/wiki/tasks/*.md`
+> **不要做 Token 的佃农，在本地开启你的强化学习式进化。**
 
-## Training
+`Lume` 是一个本地优先（Local-first）的 AI 系统原型，目标是把高价值的云端智能消耗转化为可复用、可沉淀、可继承的本地资产。
 
-The default trainer is now a real `transformers + PEFT/LoRA` flow.
+它不只是一个工具项目，而是一套围绕以下目标展开的运行体系：
 
-Recommended GPU command:
+- 捕捉真实云端返回的智力内容
+- 将这些能力蒸馏到本地模型与记忆层
+- 把可重复任务逐步路由到本地 Battery Model
+- 降低对租赁型智能的长期依赖
+
+---
+
+## 核心思想：Token 资产化
+
+在传统 API 模式下，Token 是一次性燃料，用完即失。
+
+在 `Lume` 体系中，Token 被视为对本地智力资产的投资。
+
+- `影子模式（Shadow Mode）`：捕捉真实云端返回的对话、启动指导、执行轨迹、补丁事件和工具输出
+- `智力回流（Intelligence Backflow）`：把这些付费能力转化为本地数据集、记忆结构和 LoRA 适配器
+- `执行反馈（Execution Feedback）`：根据真实任务结果判断哪些模式值得强化、保留或剔除
+- `资产重用（Asset Reuse）`：当模式被本地吸收后，将重复工作路由给本地模型执行
+
+这套系统的核心目标很直接：每一次昂贵的云端调用，都应该留下可持续的本地收益。
+
+---
+
+## 电池模型（Battery Model）
+
+`Battery Model = Gemma4 31B + Sentinel-LoRA`
+
+电池模型是 `Lume` 的离线生存核心，也是低延迟续航层。
+
+- `基座`：通过 `Ollama` 在本地运行的 `Gemma4 31B`
+- `适配器`：`Sentinel-LoRA`，由真实云端会话、启动指导、执行轨迹与代码产物蒸馏得到
+- `角色`：在云端不可达、成本过高或没有必要调用云端时，继续承接高频任务
+- `SOH（State of Health）`：通过持续的放电测试评估本地模型和强云端基线之间的对齐程度
+
+这就是 `Lume` 中“数字主权”的工程化含义：你用过的云端智能，会不断沉淀为本地节点的长期能力。
+
+---
+
+## 星火协议（Starfire Protocol）
+
+`Lume Starfire Protocol` 是面向分布式智力共创的协作与发布协议。
+
+它的目标是在不暴露原始私有数据的前提下，把一个个本地节点连接成更大的智力网络。
+
+- `联邦式方向`：让私有数据留在本地，只共享经过审查的产物、适配器和验证通过的改进
+- `逻辑证明（Proof of Logic）`：要求所有贡献先通过自动验证，而不是只依赖口头声明
+- `分布式聚合`：借助仓库工作流和评审门槛，将改进汇聚为可共享的发布分支
+- `信号层（Signal Layer）`：把技术进展转化为公共叙事、共创邀请和可读的守望者报告
+
+这套协议的目标，是让一个个孤立的本地节点在不牺牲隐私的前提下，逐步连接成“数字太阳”。
+
+---
+
+## 快速开始
+
+### 1. 导入真实 Codex / 云端轨迹
+
+```powershell
+python scripts/import_codex_sessions.py
+```
+
+### 2. 构建蒸馏数据集
+
+```powershell
+python scripts/build_distill_dataset.py
+```
+
+### 3. 训练本地适配器
 
 ```powershell
 C:\Users\yh-PC-003\Desktop\codex\wan22\venv\Scripts\python.exe scripts\train_lora.py --device cuda --model-name-or-path uer/gpt2-chinese-cluecorpussmall
 ```
 
-Current Battery Model workflow:
-
-1. Run `Gemma4 31B` locally through `Ollama`
-2. Distill real Codex/cloud traces into LoRA adapters
-3. Evaluate whether the adapter improves bootstrap and execution-style generations
-4. Route suitable tasks to the local Battery Model
-
-Useful options:
-
-- `--training-mode transformers_peft_lora`
-- `--model-name-or-path uer/gpt2-chinese-cluecorpussmall`
-- `--model-name-or-path sshleifer/tiny-gpt2`
-- `--max-samples 256`
-- `--epochs 2`
-
-Outputs are saved under `data/distilled/<run-name>/` and include:
-
-- `adapter/`
-- `tokenizer/`
-- `training_config.json`
-- `metrics.json`
-- `sample_generation.txt`
-
-Current best real-cloud LoRA checkpoint:
-
-- `data/distilled/transformers-lora-v2-realcloud/`
-
-This checkpoint is the current adapter candidate for the `Gemma4 31B` Battery Model path, even though the rapid-iteration trainer still uses a smaller transformer base during some experiments.
-
-If a constrained environment cannot use `transformers/peft`, you can still force the old fallback:
+### 4. 生成星火协议首发线程
 
 ```powershell
-python scripts/train_lora.py --training-mode tiny_lm_fallback
-```
-
-## Synthetic Data Factory
-
-Generate synthetic SFT samples:
-
-```powershell
-python scripts/generate_100k_dataset.py --task-count 1000 --provider mock
-```
-
-If a cloud key is available later:
-
-```powershell
-python scripts/generate_100k_dataset.py --task-count 1000 --provider openai
-```
-
-Synthetic outputs land in:
-
-- `data/generated_corpus/generated_raw/`
-- `data/generated_corpus/generated_scored/`
-- `data/generated_corpus/generated_final/`
-
-For a real-cloud-only campaign that must not fall back to mock data:
-
-```powershell
-C:\Users\yh-PC-003\Desktop\codex\wan22\venv\Scripts\python.exe scripts\generate_real_cloud_dataset.py --target-count 1000 --batch-size 50
-```
-
-This campaign stops immediately if a real provider is unavailable and only writes records that are marked `real_cloud=true`.
-
-## Continuous Training Refresh
-
-Incremental Codex sync plus retraining:
-
-```powershell
-python scripts/sync_codex_training_data.py --device cuda --model-name-or-path uer/gpt2-chinese-cluecorpussmall
-```
-
-Continuous watch mode:
-
-```powershell
-python scripts/watch_codex_training_data.py --interval-seconds 30
+python scripts/x_agent_executor.py --repo-url "https://github.com/Oepn-Lume/Lume"
 ```
 
 ---
 
-# Lume Sentinel 2026 中文版
+## 项目布局
 
-`Lume` 是一个以本地优先为核心的原型系统，目标是把高价值 AI 使用过程转化为可复用、可积累、可沉淀的长期资产。
+- `configs/`：模型、路由与保留策略配置
+- `data/`：原始日志、生成语料、训练集、营销产物和蒸馏检查点
+- `docs/`：白皮书、实施方案、星火协议与 Battery Model 文档
+- `scripts/`：数据构建、训练、评估、同步、发布与营销脚本入口
+- `src/lume/logging/`：影子日志与 Codex 会话导入
+- `src/lume/distill/`：对话、执行与历史代码蒸馏模块
+- `src/lume/execution/`：运行时包装器和云端/本地执行桥接层
+- `src/lume/memory/`：Wiki 记忆构建器
+- `src/lume/routing/`：云端与本地路径之间的路由规则
 
-## Battery Model
+---
 
-当前项目的正式定义是：
-
-`Battery Model = Gemma4 31B + LoRA`
-
-这意味着：
-
-- `Gemma4 31B` 是通过 `Ollama` 提供服务的本地基础模型
-- `LoRA` 适配器来自真实云端返回会话、启动指导、执行轨迹与代码产物的蒸馏
-- `Battery Model` 是系统在离线、低延迟和高频场景下的本地续航层
-
-云端模型仍然负责首发高质量推理，而 `Shadow Logging`、数据集构建和 LoRA 训练负责把这些付费能力转化为本地可复用资产。
-
-## 星火协议
-
-`Lume Starfire Protocol` 是面向发布、协作和传播的外层协议，用来把仓库变更转化为可扩散的协作信号。
-
-当前已经落地的范围包括：
-
-- 围绕 `Battery Model` 的仓库叙事与发布口径
-- 用于贡献接入与验证的 `GitHub Actions` 工作流骨架
-- 默认 `dry-run` 的安全型 `X` 平台营销执行器
-- 用于降低运营焦虑的本地守望者报告
-
-这套协议遵循几个约束：
-
-- 如果工作区还不是 Git 仓库，发布动作会在分支与推送前停止
-- 如果没有配置 X 平台凭据，营销执行器只生成预览和报告，不会真实发帖
-- 如果贡献产物未通过验证，工作流会直接失败并拒绝放行
-
-## 联系方式
-
-- 发布联系邮箱：`dspwatch@gmail.com`
-
-## 目录结构
-
-- `docs/`：白皮书、实施方案、架构附录
-- `configs/`：模型、路由、保留策略配置
-- `data/`：日志、Wiki 记忆、训练数据、蒸馏产物
-- `scripts/`：导入、构建、训练、评估、生成脚本入口
-- `src/lume/`：核心 Python 模块
-- `examples/`：示例输出和样本数据
-- `tests/`：测试草稿与 smoke check
-
-## 核心流水线
+## 当前工作流水线
 
 当前最小可运行闭环是：
 
 `Codex sessions / task runs -> raw logs -> datasets -> LoRA training -> Gemma4 Battery Model generation/evaluation`
 
-主要步骤：
+当前面向生产的推荐栈是：
 
-1. 导入或同步会话日志
-   - `python scripts/import_codex_sessions.py`
-   - `python scripts/sync_codex_training_data.py --skip-train`
-2. 构建数据集
-   - `python scripts/build_distill_dataset.py`
-3. 训练本地适配器
-   - `python scripts/train_lora.py`
-4. 生成或评估
-   - `python scripts/generate_local_response.py --prompt "写一篇爱国散文诗"`
-   - `python scripts/evaluate_local_model.py`
+- 本地基座模型：`gemma4:31b`
+- 本地提供方：`Ollama`
+- 当前 LoRA 候选：`data/distilled/transformers-lora-v2-realcloud/adapter`
+- 真实云端语料层：
+  - `real_cloud_dialogue_sft.jsonl`
+  - `real_cloud_bootstrap_sft.jsonl`
+  - `real_cloud_full_fidelity_sft.jsonl`
+  - `real_code_execution_sft.jsonl`
 
-推荐的 Battery Model 组合：
+---
 
-- 基座模型：通过 `Ollama` 提供的 `gemma4:31b`
-- 当前适配器：`data/distilled/transformers-lora-v2-realcloud/adapter`
-- 主要用途：承接启动指导、全量运行时行为以及执行风格续写
+## 开发者承诺
 
-## Shadow Logging
+- `隐私优先`：原始用户数据默认留在本地
+- `执行优先于表演`：所有能力都应由日志、数据集、测试和检查点支撑
+- `硬件平权`：面向 `RTX` 和 `Apple Silicon` 等现实本地硬件路径优化
+- `减少焦虑`：提供守望者报告，而不是制造信息洪流
 
-当前支持的日志路径：
+---
 
-- 通过 JSON 或 CLI 参数进行批量导入
-  - `python scripts/collect_shadow_logs.py`
-- 运行时增量记录
-  - `src/lume/logging/recorder.py`
-  - `src/lume/execution/session.py`
-  - `src/lume/execution/runtime.py`
-- 导入 Codex Desktop 会话
-  - `python scripts/import_codex_sessions.py`
-- 持续同步 Codex 数据
-  - `python scripts/watch_codex_training_data.py --interval-seconds 30`
+## 联系方式
 
-结构化任务日志会写入 `data/task_runs/<task_id>/`。
-
-## Wiki Memory
-
-Wiki 记忆层从任务日志中构建：
-
-- 构建任务页面
-  - `python scripts/build_wiki_entries.py`
-- 输出位置
-  - `data/wiki/index.md`
-  - `data/wiki/log.md`
-  - `data/wiki/tasks/*.md`
-
-## 训练
-
-默认训练器已经切换为真实的 `transformers + PEFT/LoRA` 流程。
-
-推荐 GPU 命令：
-
-```powershell
-C:\Users\yh-PC-003\Desktop\codex\wan22\venv\Scripts\python.exe scripts\train_lora.py --device cuda --model-name-or-path uer/gpt2-chinese-cluecorpussmall
-```
-
-当前 Battery Model 的工作流是：
-
-1. 通过 `Ollama` 本地运行 `Gemma4 31B`
-2. 将真实 Codex/云端轨迹蒸馏成 LoRA 适配器
-3. 评估适配器是否提升了启动指导和执行风格生成效果
-4. 将合适任务路由到本地 Battery Model
-
-常用参数：
-
-- `--training-mode transformers_peft_lora`
-- `--model-name-or-path uer/gpt2-chinese-cluecorpussmall`
-- `--model-name-or-path sshleifer/tiny-gpt2`
-- `--max-samples 256`
-- `--epochs 2`
-
-训练输出保存在 `data/distilled/<run-name>/`，包括：
-
-- `adapter/`
-- `tokenizer/`
-- `training_config.json`
-- `metrics.json`
-- `sample_generation.txt`
-
-当前最佳的真实云端 LoRA 检查点是：
-
-- `data/distilled/transformers-lora-v2-realcloud/`
-
-这份检查点是当前 `Gemma4 31B` Battery Model 路径上的适配器候选，虽然快速迭代训练时仍会使用更小的 transformer 基座做实验。
-
-如果在受限环境下无法使用 `transformers/peft`，仍然可以手动切回旧的 fallback：
-
-```powershell
-python scripts/train_lora.py --training-mode tiny_lm_fallback
-```
-
-## Synthetic Data Factory
-
-生成 synthetic SFT 样本：
-
-```powershell
-python scripts/generate_100k_dataset.py --task-count 1000 --provider mock
-```
-
-如果后续配置了云端 key：
-
-```powershell
-python scripts/generate_100k_dataset.py --task-count 1000 --provider openai
-```
-
-synthetic 输出会落到：
-
-- `data/generated_corpus/generated_raw/`
-- `data/generated_corpus/generated_scored/`
-- `data/generated_corpus/generated_final/`
-
-如果要运行一个严格的真实云端数据 campaign，并且绝不回退到 mock：
-
-```powershell
-C:\Users\yh-PC-003\Desktop\codex\wan22\venv\Scripts\python.exe scripts\generate_real_cloud_dataset.py --target-count 1000 --batch-size 50
-```
-
-当真实 provider 不可用时，这个 campaign 会立即停止，只保留标记为 `real_cloud=true` 的记录。
-
-## 持续训练刷新
-
-增量同步 Codex 数据并重训：
-
-```powershell
-python scripts/sync_codex_training_data.py --device cuda --model-name-or-path uer/gpt2-chinese-cluecorpussmall
-```
-
-持续监听模式：
-
-```powershell
-python scripts/watch_codex_training_data.py --interval-seconds 30
-```
+- 发布联系邮箱：`dspwatch@gmail.com`
+- 组织主页：[Oepn-Lume](https://github.com/Oepn-Lume)
