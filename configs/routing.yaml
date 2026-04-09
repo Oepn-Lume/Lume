@@ -5,8 +5,9 @@ rules:
   privacy_sensitive_task: "hybrid"
   high_similarity_task: "local"
   cloud_unavailable: "local"
+  quality_gated_task: "hybrid"
 
 thresholds:
   similarity_for_local: 0.85
+  local_quality_for_local: 0.7
   budget_warning: 0.8
-

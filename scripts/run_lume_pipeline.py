@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import difflib
 import hashlib
 import os
 from pathlib import Path
 import re
 import sys
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
@@ -15,9 +17,33 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from lume.distill import build_distill_datasets
-from lume.execution import ObservedRuntime, OpenAICloudHandler, RuntimeModels
+from lume.execution import ObservedRuntime, OllamaLocalHandler, OpenAICloudHandler, RuntimeModels
 from lume.memory import build_wiki
 from lume.routing import route_task
+
+
+def _parse_simple_yaml(path: Path) -> dict[str, Any]:
+    data: dict[str, Any] = {}
+    current_section: str | None = None
+    for raw_line in path.read_text("utf-8").splitlines():
+        line = raw_line.rstrip()
+        if not line or line.lstrip().startswith("#"):
+            continue
+        if not raw_line.startswith(" ") and ":" in line:
+            key, value = line.split(":", 1)
+            key = key.strip()
+            value = value.strip().strip('"')
+            if value:
+                data[key] = value
+                current_section = None
+            else:
+                data[key] = {}
+                current_section = key
+            continue
+        if current_section and raw_line.startswith("  ") and ":" in line:
+            key, value = line.split(":", 1)
+            data[current_section][key.strip()] = value.strip().strip('"')
+    return data
 
 
 def slugify(text: str) -> str:
@@ -42,6 +68,23 @@ def codex_handler(instruction: str) -> str:
         "Codex output: executed the requested task, persisted the result to a file, "
         "and updated the Lume memory and training pipeline artifacts."
     )
+
+
+def choose_planning_strategy(
+    decision_mode: str,
+    *,
+    local_available: bool,
+    cloud_available: bool,
+) -> str:
+    if decision_mode == "local" and local_available:
+        return "local"
+    if decision_mode == "hybrid" and local_available:
+        return "hybrid"
+    if cloud_available:
+        return "cloud"
+    if local_available:
+        return "local"
+    return "simulated"
 
 
 def generate_task_output(task: str) -> str:
@@ -81,19 +124,35 @@ def parse_args() -> argparse.Namespace:
         "--routing-config",
         default=str(ROOT / "configs" / "routing.yaml"),
     )
+    parser.add_argument(
+        "--models-config",
+        default=str(ROOT / "configs" / "models.yaml"),
+    )
+    parser.add_argument(
+        "--local-quality-config",
+        default=str(ROOT / "configs" / "local_quality.json"),
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
     task_runs_root = Path(args.task_runs_root)
+    models_config = _parse_simple_yaml(Path(args.models_config))
+    local_config = models_config.get("local", {})
     openai_cloud = OpenAICloudHandler(model="gpt-5")
     cloud_available = openai_cloud.available
+    planning_cloud_available = True
+    ollama_local = OllamaLocalHandler(
+        model=local_config.get("battery_model_name", "gemma4:31b"),
+    )
+    local_available = ollama_local.available
     decision = route_task(
         args.task,
         routing_config_path=Path(args.routing_config),
         task_runs_root=task_runs_root,
-        cloud_available=cloud_available,
+        cloud_available=planning_cloud_available,
+        local_quality_path=Path(args.local_quality_config),
     )
     task_id = slugify(args.task) + "-pipeline-demo"
     metadata = {
@@ -101,28 +160,95 @@ def main() -> None:
         "routing_reasons": decision.reasons,
         "cloud_provider": "openai" if cloud_available else "simulated",
         "cloud_simulated": not cloud_available,
+        "local_provider": local_config.get("battery_model_provider", "ollama"),
+        "local_available": local_available,
+        "routing_decision": decision.to_dict(),
     }
+    strategy = choose_planning_strategy(
+        decision.mode,
+        local_available=local_available,
+        cloud_available=planning_cloud_available,
+    )
     runtime = ObservedRuntime(
         task_id=task_id,
         user_goal=args.task,
         route_mode=decision.mode,
         output_root=task_runs_root,
         models=RuntimeModels(
-            primary="gpt-cloud-demo",
+            primary=strategy,
             cloud="gpt-cloud-demo",
             codex="codex-demo",
+            local=local_config.get("battery_model_name", "gemma4:31b"),
         ),
         cloud_handler=openai_cloud.complete if cloud_available else cloud_handler,
         codex_handler=codex_handler,
+        local_handler=ollama_local.complete if local_available else None,
         metadata=metadata,
     )
 
     runtime.user(args.task)
-    plan = runtime.cloud.complete(
-        f"Create a plan for the task: {args.task}",
-        message_type="reasoning",
-        metadata={"stage": "planning", "complexity": decision.task_complexity},
-    )
+    planning_prompt = f"Create a plan for the task: {args.task}"
+    if strategy == "local" and runtime.local:
+        plan = runtime.local.complete(
+            planning_prompt,
+            message_type="local_reasoning",
+            metadata={"stage": "planning", "complexity": decision.task_complexity},
+        )
+    elif strategy == "hybrid" and runtime.local:
+        local_draft = runtime.local.complete(
+            planning_prompt,
+            message_type="local_reasoning",
+            metadata={"stage": "planning", "complexity": decision.task_complexity},
+        )
+        plan = runtime.cloud.complete(
+            f"Refine this local Battery Model draft into a higher-confidence plan:\n\n{local_draft}",
+            message_type="reasoning",
+            metadata={"stage": "planning", "complexity": decision.task_complexity, "hybrid": True},
+        )
+        diff_lines = list(
+            difflib.unified_diff(
+                local_draft.splitlines(),
+                plan.splitlines(),
+                fromfile="local_draft",
+                tofile="cloud_refinement",
+                lineterm="",
+            )
+        )
+        runtime.session.artifact(
+            "hybrid_refinement",
+            {
+                "task_id": task_id,
+                "route_mode": decision.mode,
+                "local_model": local_config.get("battery_model_name", "gemma4:31b"),
+                "cloud_model": "gpt-cloud-demo",
+                "local_draft": local_draft,
+                "cloud_refinement": plan,
+                "diff": diff_lines,
+                "local_length": len(local_draft),
+                "cloud_length": len(plan),
+                "metadata": {
+                    "complexity": decision.task_complexity,
+                    "similarity_score": decision.similarity_score,
+                    "local_quality_score": decision.local_quality_score,
+                },
+            },
+        )
+        runtime.codex.tool(
+            "hybrid_refinement_record",
+            arguments={
+                "task": args.task,
+                "local_length": len(local_draft),
+                "cloud_length": len(plan),
+            },
+            output_summary="Recorded structured hybrid refinement artifact.",
+            metadata={"stage": "planning", "hybrid": True},
+        )
+    else:
+        plan = runtime.cloud.complete(
+            planning_prompt,
+            message_type="reasoning",
+            metadata={"stage": "planning", "complexity": decision.task_complexity},
+        )
     runtime.codex.respond(
         plan,
         message_type="execution",

@@ -11,6 +11,7 @@ from .session import ExecutionSession
 
 CloudHandler = Callable[[str], str]
 CodexHandler = Callable[[str], str]
+LocalHandler = Callable[[str], str]
 
 
 @dataclass(slots=True)
@@ -20,6 +21,7 @@ class RuntimeModels:
     primary: str
     cloud: str
     codex: str
+    local: str | None = None
 
 
 class ObservedCloudModel:
@@ -57,6 +59,47 @@ class ObservedCloudModel:
             model=self._model_name,
             message_type=message_type,
             **dict(metadata or {}),
+        )
+        return response
+
+
+class ObservedLocalModel:
+    """Wrap a local Battery Model callable and log visible prompts and responses."""
+
+    def __init__(
+        self,
+        session: ExecutionSession,
+        *,
+        handler: LocalHandler,
+        model_name: str,
+    ) -> None:
+        self._session = session
+        self._handler = handler
+        self._model_name = model_name
+
+    def complete(
+        self,
+        prompt: str,
+        *,
+        message_type: str = "message",
+        metadata: dict[str, Any] | None = None,
+    ) -> str:
+        extra = dict(metadata or {})
+        extra.setdefault("source", "battery_model")
+        self._session.cloud(
+            prompt,
+            role="system",
+            model=self._model_name,
+            message_type="local_prompt",
+            **extra,
+        )
+        response = self._handler(prompt)
+        self._session.cloud(
+            response,
+            role="assistant",
+            model=self._model_name,
+            message_type=message_type,
+            **extra,
         )
         return response
 
@@ -138,6 +181,7 @@ class ObservedRuntime:
         models: RuntimeModels,
         cloud_handler: CloudHandler,
         codex_handler: CodexHandler,
+        local_handler: LocalHandler | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> None:
         self.session = ExecutionSession(
@@ -159,6 +203,15 @@ class ObservedRuntime:
             self.session,
             handler=codex_handler,
             model_name=models.codex,
+        )
+        self.local = (
+            ObservedLocalModel(
+                self.session,
+                handler=local_handler,
+                model_name=models.local or models.primary,
+            )
+            if local_handler
+            else None
         )
 
     def user(self, content: str, **metadata: Any) -> None:

@@ -41,6 +41,8 @@ class RoutingDecision:
     reasons: list[str]
     similarity_score: float
     task_complexity: str
+    local_quality_score: float | None = None
+    local_quality_ready: bool | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -48,7 +50,18 @@ class RoutingDecision:
             "reasons": self.reasons,
             "similarity_score": self.similarity_score,
             "task_complexity": self.task_complexity,
+            "local_quality_score": self.local_quality_score,
+            "local_quality_ready": self.local_quality_ready,
         }
+
+
+def _read_local_quality_snapshot(path: Path | None) -> tuple[float | None, bool | None]:
+    if path is None or not path.exists():
+        return None, None
+    payload = json.loads(path.read_text("utf-8-sig"))
+    score = payload.get("local_quality_score")
+    ready = payload.get("battery_model_ready")
+    return (float(score) if score is not None else None, bool(ready) if ready is not None else None)
 
 
 def _estimate_similarity(task: str, task_runs_root: Path) -> float:
@@ -94,15 +107,18 @@ def route_task(
     task_runs_root: Path,
     cloud_available: bool = True,
     privacy_sensitive: bool = False,
+    local_quality_path: Path | None = None,
 ) -> RoutingDecision:
     """Route a task using simple heuristics and historic similarity."""
     config = _parse_simple_yaml(routing_config_path)
     rules = config.get("rules", {})
     thresholds = config.get("thresholds", {})
     similarity_threshold = float(thresholds.get("similarity_for_local", 0.85))
+    local_quality_threshold = float(thresholds.get("local_quality_for_local", 0.7))
 
     similarity_score = _estimate_similarity(task, task_runs_root)
     complexity = _estimate_complexity(task)
+    local_quality_score, local_quality_ready = _read_local_quality_snapshot(local_quality_path)
     reasons: list[str] = []
 
     if not cloud_available:
@@ -112,6 +128,8 @@ def route_task(
             reasons=reasons,
             similarity_score=similarity_score,
             task_complexity=complexity,
+            local_quality_score=local_quality_score,
+            local_quality_ready=local_quality_ready,
         )
 
     if privacy_sensitive:
@@ -121,16 +139,40 @@ def route_task(
             reasons=reasons,
             similarity_score=similarity_score,
             task_complexity=complexity,
+            local_quality_score=local_quality_score,
+            local_quality_ready=local_quality_ready,
         )
 
     if similarity_score >= similarity_threshold and complexity == "low":
         reasons.append("high similarity to prior task")
         reasons.append("low complexity")
+        if local_quality_ready is False:
+            reasons.append("local quality snapshot not ready")
+            return RoutingDecision(
+                mode=rules.get("quality_gated_task", "hybrid"),
+                reasons=reasons,
+                similarity_score=similarity_score,
+                task_complexity=complexity,
+                local_quality_score=local_quality_score,
+                local_quality_ready=local_quality_ready,
+            )
+        if local_quality_score is not None and local_quality_score < local_quality_threshold:
+            reasons.append("local quality below threshold")
+            return RoutingDecision(
+                mode=rules.get("quality_gated_task", "hybrid"),
+                reasons=reasons,
+                similarity_score=similarity_score,
+                task_complexity=complexity,
+                local_quality_score=local_quality_score,
+                local_quality_ready=local_quality_ready,
+            )
         return RoutingDecision(
             mode=rules.get("high_similarity_task", "local"),
             reasons=reasons,
             similarity_score=similarity_score,
             task_complexity=complexity,
+            local_quality_score=local_quality_score,
+            local_quality_ready=local_quality_ready,
         )
 
     if complexity == "high":
@@ -140,6 +182,8 @@ def route_task(
             reasons=reasons,
             similarity_score=similarity_score,
             task_complexity=complexity,
+            local_quality_score=local_quality_score,
+            local_quality_ready=local_quality_ready,
         )
 
     reasons.append("defaulting to cloud-first for moderate certainty")
@@ -148,4 +192,6 @@ def route_task(
         reasons=reasons,
         similarity_score=similarity_score,
         task_complexity=complexity,
+        local_quality_score=local_quality_score,
+        local_quality_ready=local_quality_ready,
     )

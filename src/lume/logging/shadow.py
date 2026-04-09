@@ -117,6 +117,7 @@ class ShadowLogRecord:
     notes: str = ""
     tags: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
+    structured_artifacts: dict[str, Any] = field(default_factory=dict)
     timestamp: str | None = field(default_factory=utc_now_iso)
 
     def __post_init__(self) -> None:
@@ -226,19 +227,24 @@ class ShadowLogRecord:
 
     def to_manifest_payload(self) -> dict[str, Any]:
         """Return a manifest for all generated session artifacts."""
+        artifacts = {
+            "task": "task.json",
+            "prompt_response": "prompt_response.json",
+            "conversation": "conversation.jsonl",
+            "tool_trace": "tool_trace.json",
+            "file_changes": "file_changes.json",
+            "file_diff_summary": "file_diff_summary.md",
+            "outcome": "outcome.json",
+            "notes": "notes.md",
+        }
+        if self.structured_artifacts:
+            artifacts["structured"] = {
+                name: f"artifacts/{name}.json" for name in sorted(self.structured_artifacts)
+            }
         return {
             "task_id": self.task_id,
             "session_id": self.session_id,
-            "artifacts": {
-                "task": "task.json",
-                "prompt_response": "prompt_response.json",
-                "conversation": "conversation.jsonl",
-                "tool_trace": "tool_trace.json",
-                "file_changes": "file_changes.json",
-                "file_diff_summary": "file_diff_summary.md",
-                "outcome": "outcome.json",
-                "notes": "notes.md",
-            },
+            "artifacts": artifacts,
         }
 
     def to_notes_markdown(self) -> str:
@@ -307,6 +313,11 @@ class ShadowLogger:
             "utf-8",
         )
         _write_json(task_dir / "outcome.json", record.to_outcome_payload())
+        if record.structured_artifacts:
+            artifacts_dir = task_dir / "artifacts"
+            artifacts_dir.mkdir(parents=True, exist_ok=True)
+            for name, payload in record.structured_artifacts.items():
+                _write_json(artifacts_dir / f"{name}.json", payload)
         _write_json(task_dir / "manifest.json", record.to_manifest_payload())
         (task_dir / "notes.md").write_text(record.to_notes_markdown(), "utf-8")
 

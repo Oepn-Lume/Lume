@@ -8,6 +8,7 @@ from typing import Any
 
 from .code_execution import build_real_code_execution_dataset
 from .historical_backfill import build_historical_workspace_dataset
+from .hybrid_refinement import build_hybrid_refinement_dataset
 from .raw_dialogue import build_raw_dialogue_dataset
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -115,5 +116,6 @@ def build_distill_datasets(
     if raw_logs_root is not None:
         written.append(build_raw_dialogue_dataset(raw_logs_root, datasets_root))
         written.append(build_real_code_execution_dataset(task_runs_root, raw_logs_root, datasets_root))
+    written.append(build_hybrid_refinement_dataset(task_runs_root, datasets_root))
     written.append(build_historical_workspace_dataset(task_runs_root.parent.parent, datasets_root))
     return written

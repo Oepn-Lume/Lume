@@ -109,6 +109,9 @@ class ExecutionSession:
             metadata=metadata,
         )
 
+    def artifact(self, name: str, payload: dict[str, Any]) -> None:
+        self.recorder.add_structured_artifact(name, payload)
+
     def finish(
         self,
         *,

@@ -164,6 +164,9 @@ class ShadowSessionRecorder:
     def update_metadata(self, **metadata: Any) -> None:
         self._record.metadata.update(metadata)
 
+    def add_structured_artifact(self, name: str, payload: dict[str, Any]) -> None:
+        self._record.structured_artifacts[name] = payload
+
     def finalize(
         self,
         *,

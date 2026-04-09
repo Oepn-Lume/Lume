@@ -1,0 +1,8 @@
+{
+  "battery_model_ready": true,
+  "local_quality_score": 0.78,
+  "bootstrap_perplexity": 1.737,
+  "full_fidelity_perplexity": 2.502,
+  "code_execution_perplexity": 5.592,
+  "notes": "Local Battery Model is good enough for low-complexity, high-similarity tasks, but code-execution quality remains the weakest area."
+}
