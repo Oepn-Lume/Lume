@@ -1,8 +1,8 @@
-# Lume Sentinel 2026: Digital Sovereignty and Intelligence Assetization Protocol
+# Lume Treasury: Your Private Intelligence Treasury
 
-> **Do not live as a tenant of Token spending. Turn cloud intelligence into local evolution.**
+> **Cloud conversations, local savings. Stop consuming AI. Start owning it.**
 
-`Lume` is a local-first AI systems prototype designed to convert high-value cloud usage into reusable local assets.
+`Lume Treasury` is a local-first AI systems prototype designed to convert high-value cloud usage into reusable local assets.
 
 It is not only a tooling project. It is an operating model for:
 
