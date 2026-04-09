@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
+import json
 from pathlib import Path
 from typing import Any
 
@@ -59,6 +61,7 @@ def build_quality_snapshot(
     )
 
     return {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "battery_model_ready": bool(evaluations),
         "local_quality_score": round(weighted_quality, 3),
         "model_root": str(model_root),
@@ -70,3 +73,11 @@ def build_quality_snapshot(
         "evaluations": evaluations,
         "notes": "Auto-generated routing quality snapshot based on local model evaluation across bootstrap, full-fidelity, hybrid-refinement, and code-execution datasets.",
     }
+
+
+def append_quality_history(snapshot: dict[str, Any], history_path: Path) -> Path:
+    """Append a quality snapshot to a JSONL history file."""
+    history_path.parent.mkdir(parents=True, exist_ok=True)
+    with history_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(snapshot, ensure_ascii=False) + "\n")
+    return history_path

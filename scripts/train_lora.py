@@ -13,7 +13,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from lume.distill import TrainingConfig, train_local_model
-from lume.evaluation import build_quality_snapshot
+from lume.evaluation import append_quality_history, build_quality_snapshot
 
 
 def parse_args() -> argparse.Namespace:
@@ -46,6 +46,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--quality-output",
         default=str(ROOT / "configs" / "local_quality.json"),
+    )
+    parser.add_argument(
+        "--quality-history-output",
+        default=str(ROOT / "data" / "distilled" / "local_quality_history.jsonl"),
     )
     parser.add_argument("--skip-quality-update", action="store_true")
     parser.add_argument("--quality-max-examples", type=int, default=8)
@@ -88,7 +92,9 @@ def main() -> None:
     quality_path = Path(args.quality_output)
     quality_path.parent.mkdir(parents=True, exist_ok=True)
     quality_path.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    history_path = append_quality_history(snapshot, Path(args.quality_history_output))
     print(quality_path)
+    print(history_path)
 
 
 if __name__ == "__main__":

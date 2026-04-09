@@ -12,7 +12,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from lume.evaluation import build_quality_snapshot
+from lume.evaluation import append_quality_history, build_quality_snapshot
 
 
 def parse_args() -> argparse.Namespace:
@@ -28,6 +28,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         default=str(ROOT / "configs" / "local_quality.json"),
+    )
+    parser.add_argument(
+        "--history-output",
+        default=str(ROOT / "data" / "distilled" / "local_quality_history.jsonl"),
     )
     parser.add_argument("--max-examples", type=int, default=8)
     parser.add_argument("--device", default="auto")
@@ -47,7 +51,9 @@ def main() -> None:
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    history_path = append_quality_history(payload, Path(args.history_output))
     print(output_path)
+    print(history_path)
     print(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
