@@ -1,0 +1,1 @@
+Lume Sentinel is a local-first AI system that turns cloud conversations into reusable local assets through shadow logging, LoRA distillation, and a Gemma4 Battery Model.

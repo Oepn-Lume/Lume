@@ -1,21 +1,3 @@
-# Lume Sentinel 2026
-
-> 让每一次云端对话，都成为你的本地资产。
-
-`Lume` 是一款 **本地优先（Local-first）** 的 AI 架构，它打破了“按 Token 付费”的消耗逻辑，转而通过每一笔 API 投入来锻造你自己的数字灵魂。
-
-## 核心能力
-
-- `Token 资产化`：通过“影子模式”捕获云端逻辑，将付费换回的智慧蒸馏进本地硬盘。
-- `强化学习电池（RL-Battery）`：本地模型（`Gemma4`）不仅是备份，更通过执行反馈（代码运行、意图对齐）实现自我进化。
-- `星火协议（Starfire）`：分布式共创方案。隐私归用户，智力归人类，让全球节点聚合为“数字太阳”。
-- `Codex 自动化`：深度集成执行中枢，实现从“因果预测”到“物理交付”的完整闭环。
-
-**智力主权，落袋为安。**  
-🔗 [Oepn-Lume GitHub](https://github.com/Oepn-Lume)
-
----
-
 # Lume Sentinel 2026: Digital Sovereignty and Intelligence Assetization Protocol
 
 > **Do not live as a tenant of Token spending. Turn cloud intelligence into local evolution.**
