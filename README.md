@@ -43,6 +43,44 @@ This is the practical meaning of digital sovereignty inside `Lume`: the local no
 
 ---
 
+## Featured Essay
+
+### Intellectual Sovereignty: How Lume Turns Every AI Chat into a Permanent Asset
+
+We are living through a form of compute colonization. You pay to ask questions, the cloud model gets smarter, and you are left with a bill and no lasting ownership. `Lume` takes the opposite position: every high-value cloud interaction should become an investment in your own local intelligence.
+
+Imagine every deep conversation with a frontier model being silently copied, structured, and distilled into a compact shadow brain on your own machine. That local brain remembers your coding patterns, your reasoning preferences, and your operating style. It becomes useful again on the next task instead of vanishing with the session.
+
+#### The Alchemy: From Consumable Token to Permanent Asset
+
+In the default API economy, Tokens are fuel. In `Lume`, Tokens are capital expenditure. This is the logic of Token Assetization.
+
+- `Silent Capture`: `Shadow Logging` records not only final answers, but planning steps, decision forks, corrections, and tool outputs
+- `Asymmetric Distillation`: `Sentinel-LoRA` extracts compact task logic from cloud traces without trying to clone the entire cloud model
+- `Battery Model`: `Gemma4 31B + Sentinel-LoRA` creates a local continuation layer that can take over when cloud use is unavailable, too expensive, or unnecessary
+
+#### State of Health
+
+Lume treats local-model honesty as an engineering problem. `SOH (State of Health)` runs repeated discharge-style evaluations against stronger baselines, while real execution feedback asks grounded questions: Did the code run? Did the output hold up? Did the task actually succeed?
+
+This keeps the local model tied to reality instead of drifting into decorative intelligence.
+
+#### Conclusion
+
+`Lume V5.0` is not just a toolchain. It is a stance on digital sovereignty.
+
+By turning rented cloud intelligence into locally retained capability, `Lume` helps move the user from tenant to owner. The next cloud conversation is not only a cost. It is a building block.
+
+**Project Info**
+
+- Organization: `Oepn-Lume`
+- GitHub: [https://github.com/Oepn-Lume/Lume](https://github.com/Oepn-Lume/Lume)
+- Core Tenets: `Local-first AI`, `Token Assetization`, `Digital Sovereignty`
+- Email: `dspwatch@gmail.com`
+- Source inspiration: [X post by @wuyifree](https://x.com/wuyifree/status/2042179788329341352)
+
+---
+
 ## Quick Start
 
 ### 1. Import real Codex/cloud traces
@@ -93,6 +131,26 @@ Current production-oriented stack:
   - `real_cloud_bootstrap_sft.jsonl`
   - `real_cloud_full_fidelity_sft.jsonl`
   - `real_code_execution_sft.jsonl`
+
+---
+
+## Project Progress
+
+This section is the running changelog for implemented milestones. New shipped features should be added here as they land.
+
+- [x] `Shadow Logging`: real Codex/session traces, cloud-visible messages, tool calls, and task artifacts are captured locally
+- [x] `LLM Wiki Memory`: task runs can be distilled into structured wiki pages and update logs
+- [x] `Dataset Builder`: dialogue, execution, memory, hybrid-refinement, historical-code, and real-cloud datasets are generated from logs
+- [x] `Battery Routing`: the router can choose `cloud`, `local`, or `hybrid` using similarity, complexity, and local quality snapshots
+- [x] `Battery Model Runtime`: `Gemma4 31B` via `Ollama` is wired into the execution path as the local planning layer
+- [x] `LoRA Training`: `transformers + PEFT/LoRA` training runs on local datasets with RTX 5090 support
+- [x] `Evaluation Reports`: local-model evaluation, quality snapshots, and quality history are persisted to disk
+- [x] `Hybrid Refinement Logging`: local drafts and cloud refinements are stored as structured comparison artifacts
+- [x] `RLEF Dataset Layer`: real execution outcomes and hybrid preferences are converted into `rlef_reward.jsonl` and `rlef_preference.jsonl`
+- [x] `Minimal Preference Optimization`: a first `DPO`-style LoRA training path is implemented for preference data
+- [ ] `RLEF Scale-Up`: increase preference pairs and execution feedback coverage for stronger reinforcement signals
+- [ ] `Reward-Aware Routing`: feed preference win-rate and execution rewards back into routing decisions
+- [ ] `Continuous Retraining`: automate periodic `build -> train -> evaluate -> route-update` cycles
 
 ---
 
@@ -223,3 +281,22 @@ C:\Users\yh-PC-003\Desktop\codex\wan22\venv\Scripts\python.exe scripts\train_lor
 
 - 发布联系邮箱：`dspwatch@gmail.com`
 - 组织主页：[Oepn-Lume](https://github.com/Oepn-Lume)
+---
+
+## 项目进度
+
+这一节用于维护已经落地的功能进展。后续每实现一个新能力，都应继续追加到这里。
+
+- [x] `Shadow Logging`：已经能记录真实 Codex 会话、云端可见消息、工具调用和任务产物
+- [x] `LLM Wiki Memory`：已经能把任务运行结果沉淀成结构化 wiki 页面和更新日志
+- [x] `Dataset Builder`：已经能从日志生成对话、执行、记忆、hybrid 对比、历史代码和真实云端数据集
+- [x] `Battery Routing`：路由器已经能基于相似度、复杂度和本地质量快照在 `cloud / local / hybrid` 之间切换
+- [x] `Battery Model Runtime`：`Gemma4 31B` 已通过 `Ollama` 接入运行时，作为本地规划层参与执行
+- [x] `LoRA Training`：已经支持 `transformers + PEFT/LoRA` 本地训练，并可调用 `RTX 5090`
+- [x] `Evaluation Reports`：已经支持本地模型评估报告、质量快照和质量历史记录
+- [x] `Hybrid Refinement Logging`：已经能把本地草稿和云端精修结果结构化保存
+- [x] `RLEF Dataset Layer`：已经能把真实执行结果和 hybrid 偏好转换成 `rlef_reward.jsonl` 与 `rlef_preference.jsonl`
+- [x] `Minimal Preference Optimization`：已经实现第一版基于偏好数据的 `DPO` 风格 LoRA 训练路径
+- [ ] `RLEF Scale-Up`：继续扩大偏好样本和执行反馈覆盖面，增强强化学习信号
+- [ ] `Reward-Aware Routing`：把偏好胜率和真实执行奖励反向接入路由决策
+- [ ] `Continuous Retraining`：自动化周期性 `build -> train -> evaluate -> route-update` 闭环
