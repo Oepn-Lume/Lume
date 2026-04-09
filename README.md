@@ -108,6 +108,7 @@ Lume operates on a continuous improvement cycle:
 | **LoRA Training** | PEFT training on local hardware. | ✅ |
 | **Evaluation Reports** | Persist local quality snapshots, reports, and historical evaluation records. | ✅ |
 | **Hybrid Refinement Logging** | Record local drafts versus cloud refinements as structured artifacts. | ✅ |
+| **Execution Dataset Expansion** | Extract real code files, function-call outputs, hybrid artifacts, and tool-level feedback into trainable datasets. | ✅ |
 | **RLEF Layer** | Reinforcement Learning from Execution Feedback datasets and minimal preference optimization. | 🏗️ In Progress |
 | **Continuous Retraining** | Run `Build -> Train -> Evaluate -> Route` through `python main.py cycle`. | ✅ |
 

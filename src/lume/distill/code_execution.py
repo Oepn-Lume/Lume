@@ -30,6 +30,16 @@ def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text("utf-8"))
 
 
+def _safe_json_loads(text: str) -> dict[str, Any] | None:
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        return None
+    if isinstance(payload, dict):
+        return payload
+    return None
+
+
 def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         return []
@@ -88,6 +98,77 @@ def _build_codeblock_records(raw_logs_root: Path) -> list[dict[str, Any]]:
                     "session_file": next_record.get("session_file"),
                     "timestamp": next_record.get("timestamp"),
                     "code_block_count": len(code_blocks),
+                },
+            }
+        )
+    return built
+
+
+def _build_function_call_records(raw_logs_root: Path) -> list[dict[str, Any]]:
+    import_path = raw_logs_root / "codex-session-import.jsonl"
+    records = _read_jsonl(import_path)
+    pending_calls: dict[tuple[str, str], dict[str, Any]] = {}
+    built: list[dict[str, Any]] = []
+
+    for index, record in enumerate(records):
+        source = str(record.get("source", ""))
+        raw_payload = record.get("raw_payload", {})
+        session_file = str(record.get("session_file", ""))
+        if not isinstance(raw_payload, dict):
+            continue
+
+        if source == "codex_response_item:function_call":
+            call_id = str(raw_payload.get("call_id", "")).strip()
+            tool_name = str(raw_payload.get("name", "")).strip()
+            if not call_id or not tool_name:
+                continue
+            arguments_text = str(raw_payload.get("arguments", "")).strip()
+            pending_calls[(session_file, call_id)] = {
+                "tool_name": tool_name,
+                "arguments_text": arguments_text,
+                "timestamp": record.get("timestamp"),
+            }
+            continue
+
+        if source != "codex_response_item:function_call_output":
+            continue
+        call_id = str(raw_payload.get("call_id", "")).strip()
+        if not call_id:
+            continue
+        pending = pending_calls.get((session_file, call_id))
+        if pending is None:
+            continue
+
+        arguments_payload = _safe_json_loads(pending["arguments_text"]) or {}
+        output_text = str(raw_payload.get("output", "")).strip()
+        if not output_text:
+            continue
+
+        input_lines = [
+            f"Tool: {pending['tool_name']}",
+            f"Session: {session_file}",
+        ]
+        if arguments_payload:
+            command = str(arguments_payload.get("command", "")).strip()
+            if command:
+                input_lines.append(f"Command: {command}")
+            workdir = str(arguments_payload.get("workdir", "")).strip()
+            if workdir:
+                input_lines.append(f"Workdir: {workdir}")
+        elif pending["arguments_text"]:
+            input_lines.append(f"Arguments: {pending['arguments_text']}")
+
+        built.append(
+            {
+                "task_id": f"real-function-call-{index}",
+                "input": "\n".join(input_lines),
+                "target": output_text,
+                "metadata": {
+                    "source": "real_function_call_output",
+                    "session_file": session_file,
+                    "tool_name": pending["tool_name"],
+                    "timestamp": record.get("timestamp"),
+                    "call_id": call_id,
                 },
             }
         )
@@ -174,6 +255,7 @@ def build_real_code_execution_dataset(
     output_path = datasets_root / "real_code_execution_sft.jsonl"
     records = _build_task_run_code_records(task_runs_root)
     records.extend(_build_codeblock_records(raw_logs_root))
+    records.extend(_build_function_call_records(raw_logs_root))
     output_path.write_text(
         "\n".join(json.dumps(record, ensure_ascii=False) for record in records)
         + ("\n" if records else ""),
