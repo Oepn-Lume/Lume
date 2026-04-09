@@ -24,8 +24,18 @@ Before running `Lume Treasury`, make sure these two local components are install
 git clone https://github.com/Oepn-Lume/Lume.git
 cd Lume
 
-# Start shadow mode and begin capturing cloud-returned intelligence
-python scripts/start_shadow_logger.py
+# One command to start shadow mode and begin capturing cloud-returned intelligence
+python main.py
+```
+
+Other entry modes:
+
+```bash
+# Sync Codex sessions into datasets and optionally retrain
+python main.py sync
+
+# Run the end-to-end demo pipeline for a task
+python main.py pipeline --task "write a short summary"
 ```
 
 ---
@@ -89,6 +99,7 @@ Lume operates on a continuous improvement cycle:
 | :--- | :--- | :--- |
 | **Shadow Logging** | Capture tool calls, task artifacts, and cloud-visible reasoning traces. | ✅ |
 | **LLM Wiki Memory** | Distill task runs into reusable structured memory pages. | ✅ |
+| **One-Command Launcher** | Start shadow logging or common workflows through `python main.py`. | ✅ |
 | **Battery Routing** | Hybrid cloud/local execution based on complexity and local quality. | ✅ |
 | **Battery Model Runtime** | Run `gemma4:31b` through `Ollama` as the local planning layer. | ✅ |
 | **LoRA Training** | PEFT training on local hardware. | ✅ |

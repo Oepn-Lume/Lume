@@ -28,8 +28,18 @@
 git clone https://github.com/Oepn-Lume/Lume.git
 cd Lume
 
-# 启动影子模式，开始捕获云端返回的智能轨迹
-python scripts/start_shadow_logger.py
+# 一行命令启动影子模式，开始捕获云端返回的智能轨迹
+python main.py
+```
+
+其他常用入口：
+
+```bash
+# 同步 Codex 会话到数据集，并按需触发训练
+python main.py sync
+
+# 跑一个端到端任务演示
+python main.py pipeline --task "write a short summary"
 ```
 
 ---
@@ -99,6 +109,7 @@ Lume 当前的最小闭环是：
 | :--- | :--- | :--- |
 | **Shadow Logging** | 记录工具调用、任务产物和云端可见推理轨迹 | ✅ |
 | **LLM Wiki Memory** | 把任务运行结果沉淀成可复用的结构化记忆页面 | ✅ |
+| **一键启动入口** | 通过 `python main.py` 启动影子模式和常用工作流 | ✅ |
 | **Battery Routing** | 根据复杂度和本地质量在云端与本地之间切换 | ✅ |
 | **Battery Model Runtime** | 通过 `Ollama` 运行 `gemma4:31b` 作为本地规划层 | ✅ |
 | **LoRA Training** | 在本地硬件上进行 PEFT 训练 | ✅ |
