@@ -148,6 +148,7 @@ class ShadowLogRecord:
 
     def to_task_payload(self) -> dict[str, Any]:
         """Return the summary payload for task.json."""
+        output_source = self.metadata.get("output_source")
         return {
             "task_id": self.task_id,
             "session_id": self.session_id,
@@ -165,6 +166,7 @@ class ShadowLogRecord:
             "message_count": len(self.messages),
             "tool_call_count": len(self.tool_calls),
             "file_change_count": len(self.file_changes),
+            "output_source": output_source,
         }
 
     def to_prompt_response_payload(self) -> dict[str, Any]:
@@ -249,6 +251,7 @@ class ShadowLogRecord:
 
     def to_notes_markdown(self) -> str:
         """Return a readable markdown summary for quick inspection."""
+        output_source = self.metadata.get("output_source", "n/a")
         lines = [
             f"# Shadow Log {self.task_id}",
             "",
@@ -257,6 +260,7 @@ class ShadowLogRecord:
             f"- Session ID: {self.session_id}",
             f"- Route Mode: {self.route_mode}",
             f"- Model Used: {self.model_used}",
+            f"- Output Source: {output_source}",
             f"- Cloud Model: {self.cloud_model or 'n/a'}",
             f"- Codex Model: {self.codex_model or 'n/a'}",
             f"- Result Status: {self.result_status}",
