@@ -1,0 +1,12 @@
+logs:
+  keep_raw_logs: true
+  keep_task_runs: true
+
+filtering:
+  min_value_score: 0.7
+  redact_sensitive_fields: true
+
+wiki:
+  auto_update: true
+  update_mode: "append_or_merge"
+

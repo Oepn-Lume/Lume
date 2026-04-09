@@ -1,0 +1,24 @@
+{
+  "requested_task_count": 8,
+  "generated_task_count": 8,
+  "scored_sample_count": 8,
+  "accepted_sample_count": 8,
+  "min_quality": 0.8,
+  "provider": "mock",
+  "real_cloud": false,
+  "require_real_cloud": false,
+  "teacher_model": "mock-teacher",
+  "judge_model": "mock-judge",
+  "category_counts": {
+    "documentation": 2,
+    "coding": 2,
+    "review": 2,
+    "memory": 1,
+    "creative": 1
+  },
+  "artifacts": {
+    "tasks": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\generated_mock_smoke_v2\\generated_raw\\tasks.jsonl",
+    "scored": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\generated_mock_smoke_v2\\generated_scored\\samples_scored.jsonl",
+    "train": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\generated_mock_smoke_v2\\generated_final\\train.jsonl"
+  }
+}

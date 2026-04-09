@@ -1,0 +1,51 @@
+name: Starfire Sync
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "configs/**"
+      - "docs/**"
+      - "scripts/**"
+      - "src/**"
+      - "tests/**"
+      - ".github/workflows/starfire_sync.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lightweight test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml pytest
+
+      - name: Validate workflow inputs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          required = [
+              Path("README.md"),
+              Path("configs/models.yaml"),
+              Path("scripts/x_agent_executor.py"),
+          ]
+          missing = [str(path) for path in required if not path.exists()]
+          if missing:
+              raise SystemExit(f"Missing required Starfire assets: {missing}")
+          print("Starfire assets present.")
+          PY
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: Build datasets smoke check
+        run: python scripts/build_distill_dataset.py

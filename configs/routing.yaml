@@ -1,0 +1,12 @@
+default_mode: "cloud"
+
+rules:
+  novel_complex_task: "cloud"
+  privacy_sensitive_task: "hybrid"
+  high_similarity_task: "local"
+  cloud_unavailable: "local"
+
+thresholds:
+  similarity_for_local: 0.85
+  budget_warning: 0.8
+

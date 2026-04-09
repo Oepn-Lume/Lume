@@ -1,0 +1,16 @@
+cloud:
+  primary_model: "gpt-5-class"
+  fallback_model: "gpt-4-class"
+
+local:
+  battery_model_name: "gemma4:31b"
+  battery_model_provider: "ollama"
+  battery_model_role: "Battery Model"
+  battery_model_description: "Gemma4 31B base model plus LoRA adapters distilled from real cloud sessions and execution traces."
+  base_model: "gemma4:31b"
+  adapter_path: "data/distilled/transformers-lora-v2-realcloud/adapter"
+  device: "auto"
+
+inference:
+  temperature: 0.2
+  max_tokens: 4096
