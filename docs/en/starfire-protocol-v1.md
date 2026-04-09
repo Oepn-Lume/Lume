@@ -1,33 +1,15 @@
 # Starfire Protocol V1 Draft
 
-## English
-
 Status: `concept draft, not implemented yet`
 
 The Starfire Protocol is a future collaboration and release layer for `Lume`.
 
-### Intended Scope
+## Intended Scope
 
 - contribution intake and validation
 - release messaging and public signal packaging
 - optional artifact sharing across nodes
 
-### Current Boundary
+## Current Boundary
 
 This protocol should not be advertised as a completed system. It exists as a design placeholder for later phases.
-
-## 中文
-
-状态：`概念草案，尚未实现`
-
-Starfire Protocol 是 `Lume` 未来的协作与发布层。
-
-### 预期范围
-
-- 贡献接入与验证
-- 发布叙事与公开传播包装
-- 节点间的可选产物共享
-
-### 当前边界
-
-这部分还不应该被表述为已完成系统。它目前只是后续阶段的设计占位符。

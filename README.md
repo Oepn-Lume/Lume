@@ -43,21 +43,6 @@ This is the practical meaning of digital sovereignty inside `Lume`: the local no
 
 ---
 
-## Starfire Protocol
-
-`Lume Starfire Protocol` is the collaboration and release layer for distributed intelligence growth.
-
-Its role is to connect local nodes without forcing users to surrender raw private data.
-
-- `Federated Direction`: keep private data local while sharing reviewed artifacts, adapters, and validated improvements
-- `Proof of Logic`: require contributed changes to survive automated validation instead of trusting raw claims
-- `Distributed Aggregation`: use repository workflows and review gates to converge improvements into shareable release branches
-- `Signal Layer`: turn technical progress into public narrative, contribution invitations, and operator-readable launch reports
-
-The protocol is designed to let isolated local nodes become part of a larger intelligence network without collapsing privacy boundaries.
-
----
-
 ## Quick Start
 
 ### 1. Import real Codex/cloud traces
@@ -78,19 +63,11 @@ python scripts/build_distill_dataset.py
 C:\Users\yh-PC-003\Desktop\codex\wan22\venv\Scripts\python.exe scripts\train_lora.py --device cuda --model-name-or-path uer/gpt2-chinese-cluecorpussmall
 ```
 
-### 4. Prepare the Starfire launch thread
-
-```powershell
-python scripts/x_agent_executor.py --repo-url "https://github.com/Oepn-Lume/Lume"
-```
-
----
-
 ## Project Layout
 
 - `configs/`: model, routing, and retention configuration
 - `data/`: raw logs, generated corpora, datasets, marketing outputs, and distilled checkpoints
-- `docs/`: whitepaper, implementation plan, Starfire and Battery Model documents
+- `docs/`: whitepaper, implementation plan, and Battery Model documents
 - `scripts/`: dataset building, training, evaluation, sync, release, and marketing entrypoints
 - `src/lume/logging/`: shadow logging and Codex session import
 - `src/lume/distill/`: dialogue, execution, and historical code distillation
@@ -180,21 +157,6 @@ Current production-oriented stack:
 
 ---
 
-## 星火协议（Starfire Protocol）
-
-`Lume Starfire Protocol` 是面向分布式智力共创的协作与发布协议。
-
-它的目标是在不暴露原始私有数据的前提下，把一个个本地节点连接成更大的智力网络。
-
-- `联邦式方向`：让私有数据留在本地，只共享经过审查的产物、适配器和验证通过的改进
-- `逻辑证明（Proof of Logic）`：要求所有贡献先通过自动验证，而不是只依赖口头声明
-- `分布式聚合`：借助仓库工作流和评审门槛，将改进汇聚为可共享的发布分支
-- `信号层（Signal Layer）`：把技术进展转化为公共叙事、共创邀请和可读的守望者报告
-
-这套协议的目标，是让一个个孤立的本地节点在不牺牲隐私的前提下，逐步连接成“数字太阳”。
-
----
-
 ## 快速开始
 
 ### 1. 导入真实 Codex / 云端轨迹
@@ -215,19 +177,11 @@ python scripts/build_distill_dataset.py
 C:\Users\yh-PC-003\Desktop\codex\wan22\venv\Scripts\python.exe scripts\train_lora.py --device cuda --model-name-or-path uer/gpt2-chinese-cluecorpussmall
 ```
 
-### 4. 生成星火协议首发线程
-
-```powershell
-python scripts/x_agent_executor.py --repo-url "https://github.com/Oepn-Lume/Lume"
-```
-
----
-
 ## 项目布局
 
 - `configs/`：模型、路由与保留策略配置
 - `data/`：原始日志、生成语料、训练集、营销产物和蒸馏检查点
-- `docs/`：白皮书、实施方案、星火协议与 Battery Model 文档
+- `docs/`：白皮书、实施方案与 Battery Model 文档
 - `scripts/`：数据构建、训练、评估、同步、发布与营销脚本入口
 - `src/lume/logging/`：影子日志与 Codex 会话导入
 - `src/lume/distill/`：对话、执行与历史代码蒸馏模块
