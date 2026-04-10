@@ -66,6 +66,14 @@ python main.py pipeline --task "write a short summary"
 
 ---
 
+## 博客文章
+
+- **为什么 Gemma4 还不能替代云端协作**：[docs/blogs/gemma4-vs-cloud-full-history.md](./docs/blogs/gemma4-vs-cloud-full-history.md)
+- **数字化大停电前夜：我们为什么需要“数字太阳”计划？**：[docs/blogs/digital-sun-before-the-blackout.md](./docs/blogs/digital-sun-before-the-blackout.md)
+- **Gemma4 分析 Wiki 入口**：[wiki/analysis/gemma-vs-cloud-overview.md](./wiki/analysis/gemma-vs-cloud-overview.md)
+
+---
+
 ## 💎 核心观点：Token 不是消耗品，而是资产
 
 在默认 API 模式下，Token 像燃料一样烧掉就没了。

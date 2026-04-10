@@ -62,6 +62,14 @@ The project wiki is now versioned inside the repository so analysis, memory page
 
 ---
 
+## Blog Posts
+
+- **Why Gemma4 Still Cannot Replace Cloud Collaboration**: [docs/en/blogs/gemma4-vs-cloud-full-history.md](./docs/en/blogs/gemma4-vs-cloud-full-history.md)
+- **Before the Digital Blackout: Why We Need a Digital Sun Plan**: [docs/en/blogs/digital-sun-before-the-blackout.md](./docs/en/blogs/digital-sun-before-the-blackout.md)
+- **Gemma4 Analysis in Wiki**: [wiki/analysis/gemma-vs-cloud-overview.md](./wiki/analysis/gemma-vs-cloud-overview.md)
+
+---
+
 ## 💎 The Core Thesis: Token as an Asset
 
 In the default API economy, tokens are fuel: burned and forgotten. In **Lume**, tokens are **Capital Expenditure (CapEx)** for private intelligence.
