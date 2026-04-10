@@ -65,6 +65,7 @@
 ## Milestones
 - [2026-04-10 Auto Device State for Shadow Charging](milestones/2026-04-10-auto-device-state-for-shadow-charging.md)
 - [2026-04-10 Battery Model 2.0 Blog](milestones/2026-04-10-battery-model-2-blog.md)
+- [2026-04-10 Codex Action Readiness Routing](milestones/2026-04-10-codex-action-readiness-routing.md)
 - [2026-04-10 Codex Action Taxonomy](milestones/2026-04-10-codex-action-taxonomy.md)
 - [2026-04-10 Milestone Logging Rule](milestones/2026-04-10-milestone-logging-rule.md)
 - [2026-04-10 Robotics SAR Adapter](milestones/2026-04-10-robotics-sar-adapter.md)

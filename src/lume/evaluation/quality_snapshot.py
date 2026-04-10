@@ -54,6 +54,9 @@ def build_quality_snapshot(
         "code_execution": datasets_root / "real_code_execution_sft.jsonl",
         "hybrid_refinement": datasets_root / "hybrid_refinement_sft.jsonl",
         "codex_action": datasets_root / "codex_action_eval.jsonl",
+        "codex_continue": datasets_root / "codex_continue_eval.jsonl",
+        "codex_patch": datasets_root / "codex_patch_eval.jsonl",
+        "codex_log": datasets_root / "codex_log_eval.jsonl",
     }
     evaluations: dict[str, dict[str, object]] = {}
     for name, path in dataset_map.items():
@@ -71,6 +74,9 @@ def build_quality_snapshot(
     code_execution_perplexity = evaluations.get("code_execution", {}).get("perplexity")
     hybrid_refinement_perplexity = evaluations.get("hybrid_refinement", {}).get("perplexity")
     codex_action_perplexity = evaluations.get("codex_action", {}).get("perplexity")
+    codex_continue_perplexity = evaluations.get("codex_continue", {}).get("perplexity")
+    codex_patch_perplexity = evaluations.get("codex_patch", {}).get("perplexity")
+    codex_log_perplexity = evaluations.get("codex_log", {}).get("perplexity")
     distilled_root = datasets_root.parent / "distilled"
     preference_metrics = _discover_preference_training_metrics(distilled_root)
 
@@ -109,6 +115,30 @@ def build_quality_snapshot(
         ),
         3,
     )
+    continue_action_readiness = round(
+        min(
+            1.0,
+            (0.75 * quality_from_perplexity(codex_continue_perplexity if isinstance(codex_continue_perplexity, (int, float)) else None))
+            + (0.25 * codex_action_readiness),
+        ),
+        3,
+    )
+    patch_action_readiness = round(
+        min(
+            1.0,
+            (0.75 * quality_from_perplexity(codex_patch_perplexity if isinstance(codex_patch_perplexity, (int, float)) else None))
+            + (0.25 * codex_action_readiness),
+        ),
+        3,
+    )
+    log_action_readiness = round(
+        min(
+            1.0,
+            (0.75 * quality_from_perplexity(codex_log_perplexity if isinstance(codex_log_perplexity, (int, float)) else None))
+            + (0.25 * codex_action_readiness),
+        ),
+        3,
+    )
     adaptive_local_quality = round(
         min(1.0, weighted_quality + (0.20 * onsite_alignment_score)),
         3,
@@ -127,11 +157,17 @@ def build_quality_snapshot(
         "full_fidelity_perplexity": full_fidelity_perplexity,
         "hybrid_refinement_perplexity": hybrid_refinement_perplexity,
         "codex_action_perplexity": codex_action_perplexity,
+        "codex_continue_perplexity": codex_continue_perplexity,
+        "codex_patch_perplexity": codex_patch_perplexity,
+        "codex_log_perplexity": codex_log_perplexity,
         "code_execution_perplexity": code_execution_perplexity,
         "onsite_dpo_margin": onsite_dpo_margin,
         "onsite_grpo_margin": onsite_grpo_margin,
         "onsite_alignment_score": onsite_alignment_score,
         "codex_action_readiness": codex_action_readiness,
+        "continue_action_readiness": continue_action_readiness,
+        "patch_action_readiness": patch_action_readiness,
+        "log_action_readiness": log_action_readiness,
         "preference_training_metrics": preference_metrics,
         "evaluations": evaluations,
         "notes": "Auto-generated routing quality snapshot based on local model evaluation plus on-site DPO/GRPO preference metrics.",

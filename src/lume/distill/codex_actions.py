@@ -27,11 +27,18 @@ def build_codex_action_dataset(reports_root: Path, datasets_root: Path) -> list[
     comparison_json = reports_root / "gemma_vs_cloud_all_sessions.json"
     output_sft = datasets_root / "codex_action_sft.jsonl"
     output_eval = datasets_root / "codex_action_eval.jsonl"
+    action_eval_outputs = {
+        "continue_task": datasets_root / "codex_continue_eval.jsonl",
+        "prepare_patch": datasets_root / "codex_patch_eval.jsonl",
+        "inspect_log": datasets_root / "codex_log_eval.jsonl",
+    }
 
     if not comparison_json.exists():
         output_sft.write_text("", "utf-8")
         output_eval.write_text("", "utf-8")
-        return [output_sft, output_eval]
+        for path in action_eval_outputs.values():
+            path.write_text("", "utf-8")
+        return [output_sft, output_eval, *action_eval_outputs.values()]
 
     comparison_payload = _read_json(comparison_json)
     comparisons = comparison_payload.get("comparisons", [])
@@ -40,6 +47,7 @@ def build_codex_action_dataset(reports_root: Path, datasets_root: Path) -> list[
 
     sft_records: list[dict[str, Any]] = []
     eval_records: list[dict[str, Any]] = []
+    action_eval_records: dict[str, list[dict[str, Any]]] = {key: [] for key in action_eval_outputs}
 
     for item in comparisons:
         if not isinstance(item, dict):
@@ -97,10 +105,18 @@ def build_codex_action_dataset(reports_root: Path, datasets_root: Path) -> list[
                 },
             }
         )
+        if action.action_label in action_eval_records:
+            action_eval_records[action.action_label].append(eval_records[-1])
 
     for path, records in [(output_sft, sft_records), (output_eval, eval_records)]:
         path.write_text(
             "\n".join(json.dumps(record, ensure_ascii=False) for record in records) + ("\n" if records else ""),
             "utf-8",
         )
-    return [output_sft, output_eval]
+    for action_label, path in action_eval_outputs.items():
+        records = action_eval_records[action_label]
+        path.write_text(
+            "\n".join(json.dumps(record, ensure_ascii=False) for record in records) + ("\n" if records else ""),
+            "utf-8",
+        )
+    return [output_sft, output_eval, *action_eval_outputs.values()]

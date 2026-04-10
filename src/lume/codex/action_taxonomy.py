@@ -21,6 +21,12 @@ ACTION_RULES: list[tuple[str, str, tuple[str, ...]]] = [
     ("explain_why", "analysis", ("why", "原因", "为什么", "how come")),
 ]
 
+ACTION_READINESS_KEYS = {
+    "continue_task": "continue_action_readiness",
+    "prepare_patch": "patch_action_readiness",
+    "inspect_log": "log_action_readiness",
+}
+
 
 def classify_codex_action(text: str) -> CodexActionDecision:
     lowered = str(text).strip().lower()
@@ -38,3 +44,7 @@ def classify_codex_action(text: str) -> CodexActionDecision:
         action_family="generic",
         short_action=short_action,
     )
+
+
+def codex_action_readiness_key(action_label: str) -> str | None:
+    return ACTION_READINESS_KEYS.get(action_label)

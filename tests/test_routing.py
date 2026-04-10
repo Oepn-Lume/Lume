@@ -122,7 +122,7 @@ def test_route_task_uses_adaptive_local_quality_for_action_commands(tmp_path: Pa
     )
     quality = tmp_path / "local_quality.json"
     quality.write_text(
-        '{"battery_model_ready": true, "local_quality_score": 0.4, "adaptive_local_quality_score": 0.82, "adaptive_local_threshold": 0.55, "codex_action_readiness": 0.81}',
+        '{"battery_model_ready": true, "local_quality_score": 0.4, "adaptive_local_quality_score": 0.82, "adaptive_local_threshold": 0.55, "codex_action_readiness": 0.81, "continue_action_readiness": 0.84, "patch_action_readiness": 0.52, "log_action_readiness": 0.61}',
         "utf-8",
     )
     task_runs = tmp_path / "task_runs"
@@ -137,7 +137,8 @@ def test_route_task_uses_adaptive_local_quality_for_action_commands(tmp_path: Pa
     assert decision.action_task is True
     assert "adaptive local quality ready" in decision.reasons
     assert decision.codex_action_label == "continue_task"
-    assert "codex action readiness above threshold" in decision.reasons
+    assert "action-specific readiness above threshold" in decision.reasons
+    assert decision.action_specific_readiness == 0.84
 
 
 def test_route_task_keeps_action_commands_hybrid_when_codex_action_readiness_is_low(tmp_path: Path) -> None:
@@ -155,12 +156,14 @@ def test_route_task_keeps_action_commands_hybrid_when_codex_action_readiness_is_
         'thresholds:\n'
         '  similarity_for_local: 0.95\n'
         '  local_quality_for_local: 0.7\n'
-        '  codex_action_readiness_for_local: 0.6\n',
+        '  codex_action_readiness_for_local: 0.6\n'
+        '  continue_action_readiness_for_local: 0.62\n'
+        '  patch_action_readiness_for_local: 0.68\n',
         "utf-8",
     )
     quality = tmp_path / "local_quality.json"
     quality.write_text(
-        '{"battery_model_ready": true, "local_quality_score": 0.9, "adaptive_local_quality_score": 0.9, "adaptive_local_threshold": 0.55, "codex_action_readiness": 0.25}',
+        '{"battery_model_ready": true, "local_quality_score": 0.9, "adaptive_local_quality_score": 0.9, "adaptive_local_threshold": 0.55, "codex_action_readiness": 0.25, "continue_action_readiness": 0.71, "patch_action_readiness": 0.74, "log_action_readiness": 0.66}',
         "utf-8",
     )
     task_runs = tmp_path / "task_runs"
@@ -173,4 +176,79 @@ def test_route_task_keeps_action_commands_hybrid_when_codex_action_readiness_is_
     )
     assert decision.mode == "hybrid"
     assert decision.codex_action_label == "publish_release"
+    assert decision.action_specific_readiness == 0.25
     assert "action task still needs cloud assist" in decision.reasons
+
+
+def test_route_task_uses_patch_specific_readiness(tmp_path: Path) -> None:
+    config = tmp_path / "routing.yaml"
+    config.write_text(
+        'default_mode: "cloud"\n'
+        'rules:\n'
+        '  novel_complex_task: "cloud"\n'
+        '  privacy_sensitive_task: "hybrid"\n'
+        '  high_similarity_task: "local"\n'
+        '  cloud_unavailable: "local"\n'
+        '  quality_gated_task: "hybrid"\n'
+        '  action_task_when_ready: "local"\n'
+        '  action_task_when_unready: "hybrid"\n'
+        'thresholds:\n'
+        '  similarity_for_local: 0.95\n'
+        '  local_quality_for_local: 0.7\n'
+        '  patch_action_readiness_for_local: 0.68\n',
+        "utf-8",
+    )
+    quality = tmp_path / "local_quality.json"
+    quality.write_text(
+        '{"battery_model_ready": true, "local_quality_score": 0.9, "adaptive_local_quality_score": 0.9, "adaptive_local_threshold": 0.55, "codex_action_readiness": 0.91, "continue_action_readiness": 0.8, "patch_action_readiness": 0.74, "log_action_readiness": 0.5}',
+        "utf-8",
+    )
+    task_runs = tmp_path / "task_runs"
+    task_runs.mkdir(parents=True)
+    decision = route_task(
+        "fix this patch",
+        routing_config_path=config,
+        task_runs_root=task_runs,
+        local_quality_path=quality,
+    )
+    assert decision.mode == "local"
+    assert decision.codex_action_label == "prepare_patch"
+    assert decision.action_specific_readiness == 0.74
+    assert decision.action_specific_threshold == 0.68
+
+
+def test_route_task_uses_log_specific_readiness(tmp_path: Path) -> None:
+    config = tmp_path / "routing.yaml"
+    config.write_text(
+        'default_mode: "cloud"\n'
+        'rules:\n'
+        '  novel_complex_task: "cloud"\n'
+        '  privacy_sensitive_task: "hybrid"\n'
+        '  high_similarity_task: "local"\n'
+        '  cloud_unavailable: "local"\n'
+        '  quality_gated_task: "hybrid"\n'
+        '  action_task_when_ready: "local"\n'
+        '  action_task_when_unready: "hybrid"\n'
+        'thresholds:\n'
+        '  similarity_for_local: 0.95\n'
+        '  local_quality_for_local: 0.7\n'
+        '  log_action_readiness_for_local: 0.58\n',
+        "utf-8",
+    )
+    quality = tmp_path / "local_quality.json"
+    quality.write_text(
+        '{"battery_model_ready": true, "local_quality_score": 0.88, "adaptive_local_quality_score": 0.88, "adaptive_local_threshold": 0.55, "codex_action_readiness": 0.77, "continue_action_readiness": 0.8, "patch_action_readiness": 0.74, "log_action_readiness": 0.42}',
+        "utf-8",
+    )
+    task_runs = tmp_path / "task_runs"
+    task_runs.mkdir(parents=True)
+    decision = route_task(
+        "check the log",
+        routing_config_path=config,
+        task_runs_root=task_runs,
+        local_quality_path=quality,
+    )
+    assert decision.mode == "hybrid"
+    assert decision.codex_action_label == "inspect_log"
+    assert decision.action_specific_readiness == 0.42
+    assert decision.action_specific_threshold == 0.58

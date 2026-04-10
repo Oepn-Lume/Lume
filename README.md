@@ -181,7 +181,7 @@ This exports `data/datasets/sar_protocol.jsonl`, making task runs available thro
 | **RLEF Layer** | Reinforcement Learning from Execution Feedback datasets and minimal preference optimization. | 🏗️ In Progress |
 | **Energy-Aware RLEF** | Add action alignment, verbosity penalties, and expert-cost penalties to reward shaping for on-device learning. | ✅ |
 | **Adaptive Battery Routing** | Feed onsite DPO/GRPO gains back into routing so short action tasks expand local takeover when the Battery Model improves. | ✅ |
-| **Codex Action Taxonomy** | Distill continue/patch/log/status/publish software actions into training data and use action readiness to decide whether the Battery Model should keep working locally. | ✅ |
+| **Codex Action Taxonomy** | Distill continue/patch/log/status/publish software actions into training data and use action-specific readiness to decide whether the Battery Model should keep working locally. | ✅ |
 | **Diurnal Shadow Charging** | Split daytime shadow collection from nighttime retraining so the Battery Model evolves only during idle, charging windows. | ✅ |
 | **SAR Protocol Dataset** | Export task runs into a standardized State-Action-Reward interface so future agents can plug into the Battery Model as a shared protocol. | ✅ |
 | **Cross-Domain SAR Adapters** | Start extending SAR beyond software tasks with adapter-based exports for robotics-style traces and future edge agents. | ✅ |

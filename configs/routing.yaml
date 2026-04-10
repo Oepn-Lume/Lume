@@ -13,4 +13,7 @@ thresholds:
   similarity_for_local: 0.85
   local_quality_for_local: 0.7
   codex_action_readiness_for_local: 0.6
+  continue_action_readiness_for_local: 0.62
+  patch_action_readiness_for_local: 0.68
+  log_action_readiness_for_local: 0.58
   budget_warning: 0.8
