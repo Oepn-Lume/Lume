@@ -46,6 +46,8 @@ Third, it must preserve engineering feedback, because `Lume` optimizes for real-
 
 Fourth, it must be stable enough to serve as a contract between the Battery runtime, dataset builders, and future external agents.
 
+Fifth, it must be adapter-driven, so new domains can be integrated without rewriting the core SAR dataset builder.
+
 ## Record Structure
 
 Each record is a single JSON object with the following top-level keys:
@@ -227,6 +229,8 @@ These fields are aligned with `Lume`'s current engineering-first training philos
 
 Today, `Lume` exports SAR from `task_runs`.
 
+The export path is now adapter-based. The core dataset builder resolves a domain adapter first, then asks that adapter to construct the `SARRecord`. This means future domains can plug into the same export path by implementing the adapter contract rather than patching the main builder.
+
 The current reference mapping is:
 
 - task metadata -> `state.world_snapshot`
@@ -236,6 +240,30 @@ The current reference mapping is:
 - execution-derived reward shaping -> `reward`
 
 This is intentionally conservative. `sar-v1` should be viewed as a stable minimum contract, not the final ceiling.
+
+## Adapter Contract
+
+`Lume` now treats SAR conversion as an adapter problem.
+
+Each adapter must answer two questions:
+
+- does this adapter support the current task source?
+- if so, how should that source be mapped into a `SARRecord`?
+
+The current default adapter is:
+
+- `SoftwareTaskRunAdapter`
+
+It maps existing `task_runs` into `software-agent` records.
+
+The adapter registry exists so future domains can be added cleanly, for example:
+
+- robotics task logs
+- drone flight traces
+- IoT control events
+- voice-agent interaction sessions
+
+This keeps the protocol stable while letting domain-specific extraction logic evolve independently.
 
 ## Validation Rules
 
@@ -266,6 +294,7 @@ Battery runtime code should never silently reinterpret one version as another.
 ## Related Files
 
 - `src/lume/spi/protocol.py`
+- `src/lume/spi/adapters.py`
 - `src/lume/spi/sar_dataset.py`
 - `scripts/build_sar_dataset.py`
 - `data/datasets/sar_protocol.jsonl`

@@ -10,6 +10,7 @@ from .protocol import (
     SARRecord,
     StateEnvelope,
 )
+from .adapters import SARAdapterRegistry, SoftwareTaskRunAdapter, build_default_sar_registry
 from .sar_dataset import build_sar_protocol_dataset
 
 __all__ = [
@@ -20,6 +21,9 @@ __all__ = [
     "DomainType",
     "RewardEnvelope",
     "SARRecord",
+    "SARAdapterRegistry",
+    "SoftwareTaskRunAdapter",
     "StateEnvelope",
+    "build_default_sar_registry",
     "build_sar_protocol_dataset",
 ]

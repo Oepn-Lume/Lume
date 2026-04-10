@@ -7,7 +7,9 @@ from lume.spi import (
     ActionEnvelope,
     DomainType,
     RewardEnvelope,
+    SARAdapterRegistry,
     SARRecord,
+    SoftwareTaskRunAdapter,
     StateEnvelope,
     build_sar_protocol_dataset,
 )
@@ -67,3 +69,33 @@ def test_sar_record_rejects_unknown_domain() -> None:
             intent_trajectory=[],
             feedback_signals={},
         )
+
+
+def test_default_software_adapter_supports_task_runs(tmp_path: Path) -> None:
+    task_dir = tmp_path / "demo-task"
+    task_dir.mkdir(parents=True)
+    task_payload = {
+        "task_id": "demo-task",
+        "route_mode": "hybrid",
+        "user_goal": "debug code",
+        "result_status": "completed",
+        "value_score": 0.9,
+        "message_count": 2,
+        "tool_call_count": 1,
+        "file_change_count": 1,
+        "metadata": {},
+    }
+
+    adapter = SoftwareTaskRunAdapter()
+    assert adapter.supports(task_payload, task_dir)
+
+
+def test_registry_returns_first_matching_adapter(tmp_path: Path) -> None:
+    task_dir = tmp_path / "demo-task"
+    task_dir.mkdir(parents=True)
+    task_payload = {"route_mode": "hybrid"}
+    registry = SARAdapterRegistry()
+    adapter = SoftwareTaskRunAdapter()
+    registry.register(adapter)
+
+    assert registry.resolve(task_payload, task_dir) is adapter

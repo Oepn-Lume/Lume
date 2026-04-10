@@ -74,6 +74,7 @@ The project wiki is now versioned inside the repository so analysis, memory page
 - **Before the Digital Blackout: Why We Need a Digital Sun Plan**: [docs/en/blogs/digital-sun-before-the-blackout.md](./docs/en/blogs/digital-sun-before-the-blackout.md)
 - **Built for the Worksite: From "Library Researcher" to "Always-On Teammate"**: [docs/en/blogs/built-for-the-worksite.md](./docs/en/blogs/built-for-the-worksite.md)
 - **From Shadow to Intuition: A Diurnal Intelligence Evolution Framework**: [docs/en/blogs/from-shadow-to-intuition.md](./docs/en/blogs/from-shadow-to-intuition.md)
+- **From Code Patches to Universal Power: Battery Model 2.0 and the SAR Protocol**: [docs/blogs/from-code-patch-to-universal-power.md](./docs/blogs/from-code-patch-to-universal-power.md)
 - **Gemma4 Analysis in Wiki**: [wiki/analysis/gemma-vs-cloud-overview.md](./wiki/analysis/gemma-vs-cloud-overview.md)
 
 ---
