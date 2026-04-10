@@ -1,0 +1,46 @@
+# Lume Wiki Log
+
+- 2026-04-09T03:02:45.281997+00:00 | task `demo-inline` | route=cloud | score=0.8
+- 2026-04-09T03:02:45.441114+00:00 | task `demo-cli` | route=cloud | score=0.8
+- 2026-04-09T03:08:13.293819+00:00 | task `full-session-inline` | route=hybrid | score=0.95
+- 2026-04-09T03:08:25.690571+00:00 | task `full-session-cli` | route=cloud | score=0.88
+- 2026-04-09T03:10:54.823004+00:00 | task `runtime-session-demo` | route=hybrid | score=0.93
+- 2026-04-09T03:21:50.770969+00:00 | task `no-touch-runtime-demo` | route=hybrid | score=0.99
+- 2026-04-09T03:24:23.200704+00:00 | task `patriotic-prose-poem-demo` | route=hybrid | score=0.96
+- 2026-04-09T03:40:20.187779+00:00 | task `task-pipeline-demo` | route=cloud | score=0.94
+- 2026-04-09T03:43:46.212798+00:00 | task `task-35b3812e-pipeline-demo` | route=local | score=0.94
+- 2026-04-09T09:35:42.279439+00:00 | task `write-a-short-summary-pipeline-demo` | route=hybrid | score=0.94
+- 2026-04-09T12:11:29.266661+00:00 | task `mark-source-label-demo-pipeline-demo` | route=cloud | score=0.94
+- 2026-04-09T12:11:56.347427+00:00 | task `mark-source-label-demo-2-pipeline-demo` | route=cloud | score=0.94
+- 2026-04-09T12:55:48.503441+00:00 | task `write-a-short-summary-about-battery-routing-pipeline-demo` | route=cloud | score=0.94
+- 2026-04-09T12:55:48.512248+00:00 | task `write-a-short-summary-about-local-quality-routing-pipeline-demo` | route=cloud | score=0.94
+- 2026-04-09T12:55:48.518409+00:00 | task `write-a-short-summary-about-shadow-logging-pipeline-demo` | route=cloud | score=0.94
+- 2026-04-09T12:57:17.279007+00:00 | task `write-a-short-short-summary-pipeline-demo` | route=hybrid | score=0.94
+- 2026-04-09T12:57:17.279441+00:00 | task `write-a-a-short-summary-pipeline-demo` | route=hybrid | score=0.94
+- 2026-04-09T12:57:17.279441+00:00 | task `write-a-short-summary-summary-pipeline-demo` | route=hybrid | score=0.94
+- docs | `battery-model-v1.md` | title=Battery Model V1 | lang=mixed
+- docs | `blogs/gemma4-vs-cloud-full-history.md` | title=为什么 Gemma4 还不能替代云端协作 | lang=mixed
+- docs | `en/battery-model-v1.md` | title=Battery Model V1 | lang=en
+- docs | `en/blogs/gemma4-vs-cloud-full-history.md` | title=Why Gemma4 Still Cannot Replace Cloud Collaboration | lang=en
+- docs | `en/implementation-plan-v1.md` | title=Lume Sentinel 2026 Implementation Plan V1 | lang=en
+- docs | `en/llm-wiki-adaptation.md` | title=LLM Wiki Adaptation | lang=en
+- docs | `en/README.md` | title=Lume Documentation (English Edition) | lang=en
+- docs | `en/starfire-protocol-v1.md` | title=Starfire Protocol V1 Draft | lang=en
+- docs | `en/system-architecture-appendix-v1.md` | title=System Architecture Appendix V1 | lang=en
+- docs | `en/whitepaper-v1.md` | title=Lume Sentinel 2026 Whitepaper V1 | lang=en
+- docs | `github-about.txt` | title=Github About | lang=mixed
+- docs | `implementation-plan-v1.md` | title=Lume Sentinel 2026 技术实施方案 V1 | lang=mixed
+- docs | `llm-wiki-adaptation.md` | title=LLM Wiki Adaptation | lang=mixed
+- docs | `starfire-protocol-v1.md` | title=Starfire Protocol V1 Draft | lang=mixed
+- docs | `system-architecture-appendix-v1.md` | title=Lume Sentinel 2026 系统架构图附录 V1 | lang=mixed
+- docs | `whitepaper-v1.md` | title=Lume Sentinel 2026 白皮书 V1 正式版 | lang=mixed
+- docs | `x-marketing-playbook-v1.md` | title=X Marketing Playbook V1 | lang=mixed
+- docs | `zhihu-marketing-playbook-v1.md` | title=Zhihu Marketing Playbook V1 | lang=zh
+- analysis | `gemma-vs-cloud-overview` | title=Gemma vs Cloud Overview
+- analysis | `gemma-vs-cloud-context-gap` | title=Gemma Context Continuation Gap
+- analysis | `gemma-vs-cloud-developer-chain` | title=Developer and Codex Internal Message Gap
+- analysis | `gemma-vs-cloud-code-overproduction` | title=Gemma Overproduces Code
+- analysis | `gemma-vs-cloud-process-events` | title=Process Event Coverage
+- analysis | `gemma-vs-cloud-lowest-similarity` | title=Lowest Similarity Cases
+- analysis | `gemma-vs-cloud-code-mismatch` | title=Code Mismatch Cases
+

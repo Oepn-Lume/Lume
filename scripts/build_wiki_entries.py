@@ -24,6 +24,14 @@ def parse_args() -> argparse.Namespace:
         "--wiki-root",
         default=str(ROOT / "data" / "wiki"),
     )
+    parser.add_argument(
+        "--docs-root",
+        default=str(ROOT / "docs"),
+    )
+    parser.add_argument(
+        "--reports-root",
+        default=str(ROOT / "data" / "reports"),
+    )
     return parser.parse_args()
 
 
@@ -32,6 +40,8 @@ def main() -> None:
     written_paths = build_wiki(
         Path(args.task_runs_root),
         Path(args.wiki_root),
+        docs_root=Path(args.docs_root),
+        reports_root=Path(args.reports_root),
     )
     for path in written_paths:
         print(path)

@@ -6,7 +6,6 @@ __pycache__/
 
 data/raw_logs/
 data/task_runs/
-data/wiki/
 data/datasets/
 data/distilled/
 data/generated_corpus/

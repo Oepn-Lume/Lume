@@ -1,0 +1,21 @@
+---
+id: gemma-vs-cloud-code-mismatch
+type: analysis
+section: gemma-vs-cloud
+---
+
+# Code Mismatch Cases
+
+## Summary
+These examples show where the cloud stayed grounded in the active repo/task context while Gemma drifted into generic advisory or template output.
+
+## Details
+- {"comparison_id": "rollout-2026-04-09T10-24-06-019d700d-cecf-7592-a4b5-5e11aa3301a2-u0007-a0002", "user_preview": "Approved command prefix saved: - [\"C:\\\\WINDOWS\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\", \"-Command\", \"curl.exe -I https://www....", "cloud_preview": "我开始装推理环境了。这里我会把依赖装进独立的 `venv`，不会污染你系统里的 Python，并且优先选择对 `RTX 5090` 更友好的新版本 `PyTorch CUDA` 轮子。", "gemma_preview": "Acknowledged. The approved command prefix has been saved: `[\"C:\\\\WINDOWS\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\", \"-Command\", \"curl.exe -I https://www.modelscope.cn\"]`"}
+- {"comparison_id": "rollout-2026-04-09T10-45-03-019d7020-fb84-7210-8947-551015a59678-u0016-a0007", "user_preview": "继续", "cloud_preview": "生成是成功的，只是 PowerShell 这边读路径又有点别扭。我直接列出 `data/wiki` 的真实路径，再用 Python 读 UTF-8 文件，避免继续被终端编码和转义干扰。", "gemma_preview": "请提供具体需要继续的内容或指令。您可以要求我进行数据分析、编写代码或查询 Lume Treasury 的相关状态。"}
+- {"comparison_id": "rollout-2026-04-09T10-45-03-019d7020-fb84-7210-8947-551015a59678-u0029-a0005", "user_preview": "继续开发", "cloud_preview": "系统又往前推进了一段，现在已经具备“训练后可直接用”和“可直接评估”的能力了。 我新增了本地推理入口 [generate_local_response.py](C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\scripts\\generate_local_response.py) 和评估入口 [evaluate_local_m...", "gemma_preview": "没问题，请发送当前的**代码片段**、**需求文档**或告知我接下来的**具体开发目标**，我将立即为你提供实现方案。"}
+- {"comparison_id": "rollout-2026-04-09T10-45-03-019d7020-fb84-7210-8947-551015a59678-u0118-a0002", "user_preview": "把本地模型的输出和云端模型的输出做个对比，然后给个分析", "cloud_preview": "对比下来，结论很明确： **云端模型明显更强，本地 LoRA 模型目前主要学到了“格式和分布”，还没学到稳定的语义组织与代码执行能力。** **1. 解释型输出** 同一个提示： `解释为什么真实会话日志比 synthetic 模板样本更适合训练执行型代理` 云端输出是完整、连贯、层次清楚的中文说明。之前真实云端样本里，它会讲清楚： - 真实日志保留噪...", "gemma_preview": "由于你还没有提供具体的输出内容，我先为你提供一个**对比分析的维度框架**。如果你将具体的本地模型和云端模型输出发送给我，我可以为你做详细的逐项分析。 通常情况下，本地模型（如 Llama 3, Mistral, Qwen 等）与云端模型（如 GPT-4, Claude 3.5 等）的对比分析重点如下： ### 1. 对比维度分析表 | 维度 | 本地..."}
+- {"comparison_id": "rollout-2026-04-09T10-45-03-019d7020-fb84-7210-8947-551015a59678-u0119-a0002", "user_preview": "用ollma的模型做测试，对比一下和云端差距", "cloud_preview": "我做了对比，结论是： **`Ollama gemma4:31b` 明显强于当前本地 LoRA 小模型，但和云端模型相比，仍然有两类差距：执行精度不够，任务贴合度不够。** **对比结果** 解释型任务： 提示是“解释为什么真实会话日志比 synthetic 模板样本更适合训练执行型代理”。 - `gemma4:31b` 的输出是完整的、分点的，逻辑也基...", "gemma_preview": "使用 Ollama 运行本地模型与使用云端模型（如 GPT-4, Claude 3.5, Gemini 等）的主要差距体现在以下几个维度： ### 核心对比维度 | 维度 | Ollama (本地模型) | 云端模型 (API/Web) | | :--- | :--- | :--- | | **推理能力** | 取决于模型规模（如 Llama 3 8B..."}
+- {"comparison_id": "rollout-2026-04-09T10-45-03-019d7020-fb84-7210-8947-551015a59678-u0164-a0005", "user_preview": "把脚本再升级一层", "cloud_preview": "已经继续补完了，现在宣传这条线具备两种能力： 1. 继续用原来的 OAuth 1.0a 四件套直接发帖 2. 新增 OAuth 2.0 PKCE 用户授权路径，不再只能死盯 `Access Token Secret` 我已经升级了 [x_agent_executor.py](/Users/yh-PC-003/Desktop/codex/lume/scr...", "gemma_preview": "请发送目前的脚本，并告诉我你希望在哪个维度进行升级（例如：**增加功能、优化性能、提高鲁棒性/容错率，或是重构为更专业的架构**）。 一旦收到代码和需求，我将立即为你提供升级版本。"}
+- {"comparison_id": "rollout-2026-04-09T10-45-03-019d7020-fb84-7210-8947-551015a59678-u0165-a0001", "user_preview": "Something went wrong You weren’t able to give access to the App. Go back and try logging in again.", "cloud_preview": "这个报错通常不是你点错了，而是 **X App 的用户认证设置没配完整**。最常见是这几项： - 没开启 `OAuth 2.0 Authorization Code Flow with PKCE` - `Redirect URI` 和你脚本里用的 `https://localhost/callback` 不完全一致 - App 权限不是 `Read a...", "gemma_preview": "It looks like there was an authentication error. Please try the following steps to resolve it: 1. **Refresh and Retry:** Refresh the page and attempt to log in again as suggeste..."}
+- {"comparison_id": "rollout-2026-04-09T10-45-03-019d7020-fb84-7210-8947-551015a59678-u0175-a0001", "user_preview": "为什么连不到", "cloud_preview": "因为这台机器到 `api.x.com` 的出站连接被拦住了。 这次报错是： - `WinError 10061` - 含义是：目标连接被拒绝 这通常不是“文案错了”或“token 错了”，而是下面几类网络问题之一： 1. 本机或路由器无法访问 X / Twitter 有些网络环境会直接拦截到 `x.com` / `api.x.com` 的连接。 2. ...", "gemma_preview": "连接失败通常由以下原因导致，请逐一排查： 1. **网络状态**：检查网络连接是否正常，是否存在防火墙或代理拦截。 2. **配置信息**：确认 API 端点 (Endpoint)、端口号或配置文件中的参数是否正确。 3. **认证凭据**：检查 API Key、Token 或访问权限是否过期或输入错误。 4. **服务状态**：确认 Lume Tre..."}
+

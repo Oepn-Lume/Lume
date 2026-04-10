@@ -1,4 +1,4 @@
-"""Build and maintain a minimal LLM-style wiki from shadow logs."""
+"""Build and maintain a minimal LLM-style wiki from tasks, docs, and analyses."""
 
 from __future__ import annotations
 
@@ -32,6 +32,29 @@ class WikiTaskEntry:
         return self.task_id.replace(" ", "-").lower()
 
 
+@dataclass(slots=True)
+class WikiDocEntry:
+    """Structured document entry derived from docs/ files."""
+
+    slug: str
+    relative_path: str
+    title: str
+    language: str
+    section: str
+    body: str
+
+
+@dataclass(slots=True)
+class WikiAnalysisEntry:
+    """Structured analytical entry derived from comparison reports."""
+
+    slug: str
+    title: str
+    section: str
+    summary: str
+    details: list[str]
+
+
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text("utf-8"))
 
@@ -47,6 +70,41 @@ def _read_optional_text(path: Path) -> str:
     if not path.exists():
         return ""
     return path.read_text("utf-8").strip()
+
+
+def _slugify(value: str) -> str:
+    return (
+        value.replace("\\", "-")
+        .replace("/", "-")
+        .replace(" ", "-")
+        .replace(".", "-")
+        .replace(":", "-")
+        .lower()
+    )
+
+
+def _infer_title(relative_path: str, body: str) -> str:
+    for line in body.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            return stripped.lstrip("#").strip()
+    return Path(relative_path).stem.replace("-", " ").replace("_", " ").title()
+
+
+def _infer_language(relative_path: str) -> str:
+    lowered = relative_path.lower()
+    if "/en/" in lowered or lowered.startswith("en/"):
+        return "en"
+    if lowered.endswith(".zh-cn.md") or "zhihu" in lowered or "中文" in lowered:
+        return "zh"
+    return "zh" if any("\u4e00" <= char <= "\u9fff" for char in lowered) else "mixed"
+
+
+def _section_from_relative_path(relative_path: str) -> str:
+    parts = relative_path.split("/")
+    if len(parts) > 1:
+        return parts[0]
+    return "root"
 
 
 def load_task_entry(task_dir: Path) -> WikiTaskEntry:
@@ -115,6 +173,138 @@ def discover_task_entries(task_runs_root: Path) -> list[WikiTaskEntry]:
     return entries
 
 
+def discover_doc_entries(docs_root: Path) -> list[WikiDocEntry]:
+    """Discover all docs/ files and convert them into wiki entries."""
+    entries: list[WikiDocEntry] = []
+    for path in sorted(docs_root.rglob("*")):
+        if not path.is_file():
+            continue
+        if path.suffix.lower() not in {".md", ".txt"}:
+            continue
+        body = path.read_text("utf-8", errors="ignore").strip()
+        if not body:
+            continue
+        relative_path = path.relative_to(docs_root).as_posix()
+        entries.append(
+            WikiDocEntry(
+                slug=_slugify(relative_path),
+                relative_path=relative_path,
+                title=_infer_title(relative_path, body),
+                language=_infer_language(relative_path),
+                section=_section_from_relative_path(relative_path),
+                body=body,
+            )
+        )
+    return entries
+
+
+def discover_analysis_entries(reports_root: Path) -> list[WikiAnalysisEntry]:
+    """Discover analytical entries from the full Gemma vs Cloud comparison report."""
+    report_path = reports_root / "gemma_vs_cloud_all_sessions.json"
+    if not report_path.exists():
+        return []
+    payload = _read_json(report_path)
+    summary = payload.get("summary", {})
+    analyses: list[WikiAnalysisEntry] = []
+
+    analyses.append(
+        WikiAnalysisEntry(
+            slug="gemma-vs-cloud-overview",
+            title="Gemma vs Cloud Overview",
+            section="gemma-vs-cloud",
+            summary="Top-level coverage, replay volume, and headline quality metrics from the full retained session history.",
+            details=[
+                f"Session files scanned: {summary.get('session_file_count', 0)}",
+                f"Comparable replies replayed: {summary.get('comparison_count', 0)}",
+                f"Supplemental codex/cloud events exported: {summary.get('supplemental_event_count', 0)}",
+                f"Average similarity: {summary.get('avg_similarity', 0.0)}",
+                f"Cloud average reply length: {summary.get('cloud_avg_char_len', 0.0)}",
+                f"Gemma average reply length: {summary.get('gemma_avg_char_len', 0.0)}",
+            ],
+        )
+    )
+    analyses.append(
+        WikiAnalysisEntry(
+            slug="gemma-vs-cloud-context-gap",
+            title="Gemma Context Continuation Gap",
+            section="gemma-vs-cloud",
+            summary="Gemma often answers as a general-purpose advisor, while the cloud continues the live thread state and acts as an in-progress collaborator.",
+            details=[
+                "Gemma tends to elaborate and generalize instead of continuing from the active task state.",
+                "Short context-heavy prompts such as 'continue', 'publish', or 'too long' are often handled correctly by the cloud but reset by Gemma into generic clarification behavior.",
+                "This gap explains why the average similarity remains low even when Gemma produces plausible standalone text.",
+            ],
+        )
+    )
+    analyses.append(
+        WikiAnalysisEntry(
+            slug="gemma-vs-cloud-developer-chain",
+            title="Developer and Codex Internal Message Gap",
+            section="gemma-vs-cloud",
+            summary="The replay set includes developer/codex-to-cloud turns, exposing a second gap: Gemma does not yet read internal workflow signals the way the cloud model does.",
+            details=[
+                f"Prompt role counts: {summary.get('prompt_role_counts', {})}",
+                "Internal command approvals, repo-state updates, and execution control messages are often treated by Gemma as plain text rather than workflow state.",
+                "This is a key training direction for turning a local model into a collaborative runtime agent instead of a standalone chat assistant.",
+            ],
+        )
+    )
+    analyses.append(
+        WikiAnalysisEntry(
+            slug="gemma-vs-cloud-code-overproduction",
+            title="Gemma Overproduces Code",
+            section="gemma-vs-cloud",
+            summary="Gemma emits code and solution templates more often than the cloud, even when the live task primarily needs state continuation or concise execution guidance.",
+            details=[
+                f"Cloud code rate: {summary.get('cloud_code_rate', 0.0)}",
+                f"Gemma code rate: {summary.get('gemma_code_rate', 0.0)}",
+                "This does not mean Gemma is better at coding; it means Gemma switches into generic solution mode too early.",
+                "The cloud keeps more replies in execution-followup mode instead of template-generation mode.",
+            ],
+        )
+    )
+    analyses.append(
+        WikiAnalysisEntry(
+            slug="gemma-vs-cloud-process-events",
+            title="Process Event Coverage",
+            section="gemma-vs-cloud",
+            summary="The comparison preserved non-chat process events so the wiki retains the codex/cloud working chain, not just final replies.",
+            details=[
+                f"Top supplemental events: {summary.get('supplemental_event_counts', {})}",
+                "Function calls, function-call outputs, reasoning traces, command completion events, and patch events are all retained.",
+                "These events are essential if the local model is meant to learn how cloud collaboration actually progresses through work.",
+            ],
+        )
+    )
+    analyses.append(
+        WikiAnalysisEntry(
+            slug="gemma-vs-cloud-lowest-similarity",
+            title="Lowest Similarity Cases",
+            section="gemma-vs-cloud",
+            summary="These entries capture the most instructive failures where Gemma diverged sharply from the cloud continuation behavior.",
+            details=[
+                json.dumps(example, ensure_ascii=False)
+                for example in summary.get("lowest_similarity_examples", [])
+            ]
+            or ["No examples recorded."],
+        )
+    )
+    analyses.append(
+        WikiAnalysisEntry(
+            slug="gemma-vs-cloud-code-mismatch",
+            title="Code Mismatch Cases",
+            section="gemma-vs-cloud",
+            summary="These examples show where the cloud stayed grounded in the active repo/task context while Gemma drifted into generic advisory or template output.",
+            details=[
+                json.dumps(example, ensure_ascii=False)
+                for example in summary.get("code_mismatch_examples", [])
+            ]
+            or ["No examples recorded."],
+        )
+    )
+    return analyses
+
+
 def render_task_page(entry: WikiTaskEntry) -> str:
     """Render a markdown page for a single task."""
     tool_lines = [
@@ -173,69 +363,160 @@ def render_task_page(entry: WikiTaskEntry) -> str:
     return "\n".join(lines)
 
 
-def render_index(entries: list[WikiTaskEntry]) -> str:
+def render_doc_page(entry: WikiDocEntry, docs_root: Path) -> str:
+    """Render a markdown page for a docs entry, preserving the full source body."""
+    lines = [
+        "---",
+        f"id: {entry.slug}",
+        "type: doc",
+        f"relative_path: {entry.relative_path}",
+        f"language: {entry.language}",
+        f"section: {entry.section}",
+        "---",
+        "",
+        f"# {entry.title}",
+        "",
+        "## Source",
+        f"- Path: `{entry.relative_path}`",
+        f"- Language: `{entry.language}`",
+        f"- Section: `{entry.section}`",
+        f"- Original file: [{entry.relative_path}]({(docs_root / entry.relative_path).resolve().as_posix()})",
+        "",
+        "## Body",
+        "",
+        entry.body,
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def render_analysis_page(entry: WikiAnalysisEntry) -> str:
+    """Render a markdown page for an analytical entry."""
+    lines = [
+        "---",
+        f"id: {entry.slug}",
+        "type: analysis",
+        f"section: {entry.section}",
+        "---",
+        "",
+        f"# {entry.title}",
+        "",
+        "## Summary",
+        entry.summary,
+        "",
+        "## Details",
+        *[f"- {detail}" for detail in entry.details],
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def render_index(
+    task_entries: list[WikiTaskEntry],
+    doc_entries: list[WikiDocEntry],
+    analysis_entries: list[WikiAnalysisEntry],
+) -> str:
     """Render the wiki index page."""
     lines = [
         "# Lume Wiki Index",
         "",
         "## Task Pages",
     ]
-    if not entries:
+    if not task_entries:
         lines.append("- No task pages yet.")
     else:
-        for entry in entries:
+        for entry in task_entries:
             lines.append(
                 f"- [{entry.task_id}](tasks/{entry.slug}.md) | {entry.timestamp} | score={entry.value_score}"
             )
+
+    lines.extend(["", "## Document Pages"])
+    if not doc_entries:
+        lines.append("- No document pages yet.")
+    else:
+        for entry in doc_entries:
+            lines.append(
+                f"- [{entry.title}](docs/{entry.slug}.md) | path=`{entry.relative_path}` | lang={entry.language}"
+            )
+
+    lines.extend(["", "## Analysis Pages"])
+    if not analysis_entries:
+        lines.append("- No analysis pages yet.")
+    else:
+        for entry in analysis_entries:
+            lines.append(f"- [{entry.title}](analysis/{entry.slug}.md) | section={entry.section}")
+
     lines.extend(
         [
             "",
             "## Notes",
-            "- This index is generated from `data/task_runs/` shadow logs.",
-            "- Higher value scores indicate stronger candidates for distillation.",
+            "- Task pages are generated from `data/task_runs/` shadow logs.",
+            "- Document pages mirror the current `docs/` knowledge base.",
+            "- Analysis pages capture durable findings from large comparisons such as the Gemma vs Cloud replay.",
             "",
         ]
     )
     return "\n".join(lines)
 
 
-def render_log(entries: list[WikiTaskEntry]) -> str:
+def render_log(
+    task_entries: list[WikiTaskEntry],
+    doc_entries: list[WikiDocEntry],
+    analysis_entries: list[WikiAnalysisEntry],
+) -> str:
     """Render the wiki update log."""
-    lines = [
-        "# Lume Wiki Log",
-        "",
-    ]
-    if not entries:
+    lines = ["# Lume Wiki Log", ""]
+    if not task_entries and not doc_entries and not analysis_entries:
         lines.append("- No updates yet.")
-    else:
-        for entry in entries:
-            lines.append(
-                f"- {entry.timestamp} | `{entry.task_id}` | route={entry.route_mode} | score={entry.value_score}"
-            )
+        lines.append("")
+        return "\n".join(lines)
+
+    for entry in task_entries:
+        lines.append(f"- {entry.timestamp} | task `{entry.task_id}` | route={entry.route_mode} | score={entry.value_score}")
+    for entry in doc_entries:
+        lines.append(f"- docs | `{entry.relative_path}` | title={entry.title} | lang={entry.language}")
+    for entry in analysis_entries:
+        lines.append(f"- analysis | `{entry.slug}` | title={entry.title}")
     lines.append("")
     return "\n".join(lines)
 
 
-def build_wiki(task_runs_root: Path, wiki_root: Path) -> list[Path]:
-    """Generate wiki pages, index, and log from shadow logs."""
+def build_wiki(task_runs_root: Path, wiki_root: Path, docs_root: Path | None = None, reports_root: Path | None = None) -> list[Path]:
+    """Generate wiki pages, index, and log from tasks, docs, and analyses."""
     wiki_root.mkdir(parents=True, exist_ok=True)
     tasks_root = wiki_root / "tasks"
+    docs_pages_root = wiki_root / "docs"
+    analysis_root = wiki_root / "analysis"
     tasks_root.mkdir(parents=True, exist_ok=True)
+    docs_pages_root.mkdir(parents=True, exist_ok=True)
+    analysis_root.mkdir(parents=True, exist_ok=True)
 
-    entries = discover_task_entries(task_runs_root)
+    task_entries = discover_task_entries(task_runs_root)
+    doc_entries = discover_doc_entries(docs_root) if docs_root is not None and docs_root.exists() else []
+    analysis_entries = discover_analysis_entries(reports_root) if reports_root is not None and reports_root.exists() else []
     written_paths: list[Path] = []
 
-    for entry in entries:
+    for entry in task_entries:
         task_page_path = tasks_root / f"{entry.slug}.md"
         task_page_path.write_text(render_task_page(entry) + "\n", "utf-8")
         written_paths.append(task_page_path)
 
+    for entry in doc_entries:
+        doc_page_path = docs_pages_root / f"{entry.slug}.md"
+        doc_page_path.write_text(render_doc_page(entry, docs_root) + "\n", "utf-8")
+        written_paths.append(doc_page_path)
+
+    for entry in analysis_entries:
+        analysis_page_path = analysis_root / f"{entry.slug}.md"
+        analysis_page_path.write_text(render_analysis_page(entry) + "\n", "utf-8")
+        written_paths.append(analysis_page_path)
+
     index_path = wiki_root / "index.md"
-    index_path.write_text(render_index(entries) + "\n", "utf-8")
+    index_path.write_text(render_index(task_entries, doc_entries, analysis_entries) + "\n", "utf-8")
     written_paths.append(index_path)
 
     log_path = wiki_root / "log.md"
-    log_path.write_text(render_log(entries) + "\n", "utf-8")
+    log_path.write_text(render_log(task_entries, doc_entries, analysis_entries) + "\n", "utf-8")
     written_paths.append(log_path)
 
     return written_paths

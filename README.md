@@ -53,6 +53,15 @@ python main.py pipeline --task "write a short summary"
 
 ---
 
+## Wiki
+
+The project wiki is now versioned inside the repository so analysis, memory pages, and long-form notes are directly viewable on GitHub.
+
+- **Wiki Index**: [data/wiki/index.md](./data/wiki/index.md)
+- **Gemma4 Analysis**: [data/wiki/analysis/gemma-vs-cloud-overview.md](./data/wiki/analysis/gemma-vs-cloud-overview.md)
+
+---
+
 ## 💎 The Core Thesis: Token as an Asset
 
 In the default API economy, tokens are fuel: burned and forgotten. In **Lume**, tokens are **Capital Expenditure (CapEx)** for private intelligence.

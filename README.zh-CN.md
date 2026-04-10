@@ -57,6 +57,15 @@ python main.py pipeline --task "write a short summary"
 
 ---
 
+## Wiki
+
+项目 Wiki 现在也作为仓库内容纳入版本控制，方便直接在 GitHub 上查看分析、记忆页和长文档。
+
+- **Wiki 索引**：[data/wiki/index.md](./data/wiki/index.md)
+- **Gemma4 分析总览**：[data/wiki/analysis/gemma-vs-cloud-overview.md](./data/wiki/analysis/gemma-vs-cloud-overview.md)
+
+---
+
 ## 💎 核心观点：Token 不是消耗品，而是资产
 
 在默认 API 模式下，Token 像燃料一样烧掉就没了。
