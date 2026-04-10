@@ -58,8 +58,16 @@
 - [Lowest Similarity Cases](analysis/gemma-vs-cloud-lowest-similarity.md) | section=gemma-vs-cloud
 - [Code Mismatch Cases](analysis/gemma-vs-cloud-code-mismatch.md) | section=gemma-vs-cloud
 
+## Milestones
+- [2026-04-10 Milestone Logging Rule](milestones/2026-04-10-milestone-logging-rule.md)
+
+## Memory
+- [Assistant Operating Memory](memory/assistant-operating-memory.md)
+
 ## Notes
 - Task pages are generated from `data/task_runs/` shadow logs.
 - Document pages mirror the current `docs/` knowledge base.
 - Analysis pages capture durable findings from large comparisons such as the Gemma vs Cloud replay.
+- Milestone pages record major implementation steps that should remain visible in repo history.
+- Memory pages store durable operating rules for how future milestone actions should be logged.
 

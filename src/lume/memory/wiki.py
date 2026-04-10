@@ -55,6 +55,16 @@ class WikiAnalysisEntry:
     details: list[str]
 
 
+@dataclass(slots=True)
+class WikiStaticEntry:
+    """A manually maintained wiki entry kept directly under the repository wiki/ tree."""
+
+    slug: str
+    title: str
+    section: str
+    relative_path: str
+
+
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text("utf-8"))
 
@@ -305,6 +315,28 @@ def discover_analysis_entries(reports_root: Path) -> list[WikiAnalysisEntry]:
     return analyses
 
 
+def discover_static_entries(wiki_root: Path, section: str) -> list[WikiStaticEntry]:
+    """Discover manually maintained wiki pages under sections like milestones/ or memory/."""
+    section_root = wiki_root / section
+    if not section_root.exists():
+        return []
+    entries: list[WikiStaticEntry] = []
+    for path in sorted(section_root.rglob("*.md")):
+        if not path.is_file():
+            continue
+        body = path.read_text("utf-8", errors="ignore").strip()
+        title = _infer_title(path.relative_to(wiki_root).as_posix(), body)
+        entries.append(
+            WikiStaticEntry(
+                slug=_slugify(path.relative_to(wiki_root).as_posix()),
+                title=title,
+                section=section,
+                relative_path=path.relative_to(wiki_root).as_posix(),
+            )
+        )
+    return entries
+
+
 def render_task_page(entry: WikiTaskEntry) -> str:
     """Render a markdown page for a single task."""
     tool_lines = [
@@ -415,8 +447,12 @@ def render_index(
     task_entries: list[WikiTaskEntry],
     doc_entries: list[WikiDocEntry],
     analysis_entries: list[WikiAnalysisEntry],
+    milestone_entries: list[WikiStaticEntry] | None = None,
+    memory_entries: list[WikiStaticEntry] | None = None,
 ) -> str:
     """Render the wiki index page."""
+    milestone_entries = milestone_entries or []
+    memory_entries = memory_entries or []
     lines = [
         "# Lume Wiki Index",
         "",
@@ -446,6 +482,20 @@ def render_index(
         for entry in analysis_entries:
             lines.append(f"- [{entry.title}](analysis/{entry.slug}.md) | section={entry.section}")
 
+    lines.extend(["", "## Milestones"])
+    if not milestone_entries:
+        lines.append("- No milestone pages yet.")
+    else:
+        for entry in milestone_entries:
+            lines.append(f"- [{entry.title}]({entry.relative_path})")
+
+    lines.extend(["", "## Memory"])
+    if not memory_entries:
+        lines.append("- No memory pages yet.")
+    else:
+        for entry in memory_entries:
+            lines.append(f"- [{entry.title}]({entry.relative_path})")
+
     lines.extend(
         [
             "",
@@ -453,6 +503,8 @@ def render_index(
             "- Task pages are generated from `data/task_runs/` shadow logs.",
             "- Document pages mirror the current `docs/` knowledge base.",
             "- Analysis pages capture durable findings from large comparisons such as the Gemma vs Cloud replay.",
+            "- Milestone pages record major implementation steps that should remain visible in repo history.",
+            "- Memory pages store durable operating rules for how future milestone actions should be logged.",
             "",
         ]
     )
@@ -463,10 +515,14 @@ def render_log(
     task_entries: list[WikiTaskEntry],
     doc_entries: list[WikiDocEntry],
     analysis_entries: list[WikiAnalysisEntry],
+    milestone_entries: list[WikiStaticEntry] | None = None,
+    memory_entries: list[WikiStaticEntry] | None = None,
 ) -> str:
     """Render the wiki update log."""
+    milestone_entries = milestone_entries or []
+    memory_entries = memory_entries or []
     lines = ["# Lume Wiki Log", ""]
-    if not task_entries and not doc_entries and not analysis_entries:
+    if not task_entries and not doc_entries and not analysis_entries and not milestone_entries and not memory_entries:
         lines.append("- No updates yet.")
         lines.append("")
         return "\n".join(lines)
@@ -477,6 +533,10 @@ def render_log(
         lines.append(f"- docs | `{entry.relative_path}` | title={entry.title} | lang={entry.language}")
     for entry in analysis_entries:
         lines.append(f"- analysis | `{entry.slug}` | title={entry.title}")
+    for entry in milestone_entries:
+        lines.append(f"- milestones | `{entry.relative_path}` | title={entry.title}")
+    for entry in memory_entries:
+        lines.append(f"- memory | `{entry.relative_path}` | title={entry.title}")
     lines.append("")
     return "\n".join(lines)
 
@@ -487,13 +547,19 @@ def build_wiki(task_runs_root: Path, wiki_root: Path, docs_root: Path | None = N
     tasks_root = wiki_root / "tasks"
     docs_pages_root = wiki_root / "docs"
     analysis_root = wiki_root / "analysis"
+    milestone_root = wiki_root / "milestones"
+    memory_root = wiki_root / "memory"
     tasks_root.mkdir(parents=True, exist_ok=True)
     docs_pages_root.mkdir(parents=True, exist_ok=True)
     analysis_root.mkdir(parents=True, exist_ok=True)
+    milestone_root.mkdir(parents=True, exist_ok=True)
+    memory_root.mkdir(parents=True, exist_ok=True)
 
     task_entries = discover_task_entries(task_runs_root)
     doc_entries = discover_doc_entries(docs_root) if docs_root is not None and docs_root.exists() else []
     analysis_entries = discover_analysis_entries(reports_root) if reports_root is not None and reports_root.exists() else []
+    milestone_entries = discover_static_entries(wiki_root, "milestones")
+    memory_entries = discover_static_entries(wiki_root, "memory")
     written_paths: list[Path] = []
 
     for entry in task_entries:
@@ -512,11 +578,31 @@ def build_wiki(task_runs_root: Path, wiki_root: Path, docs_root: Path | None = N
         written_paths.append(analysis_page_path)
 
     index_path = wiki_root / "index.md"
-    index_path.write_text(render_index(task_entries, doc_entries, analysis_entries) + "\n", "utf-8")
+    index_path.write_text(
+        render_index(
+            task_entries,
+            doc_entries,
+            analysis_entries,
+            milestone_entries=milestone_entries,
+            memory_entries=memory_entries,
+        )
+        + "\n",
+        "utf-8",
+    )
     written_paths.append(index_path)
 
     log_path = wiki_root / "log.md"
-    log_path.write_text(render_log(task_entries, doc_entries, analysis_entries) + "\n", "utf-8")
+    log_path.write_text(
+        render_log(
+            task_entries,
+            doc_entries,
+            analysis_entries,
+            milestone_entries=milestone_entries,
+            memory_entries=memory_entries,
+        )
+        + "\n",
+        "utf-8",
+    )
     written_paths.append(log_path)
 
     return written_paths

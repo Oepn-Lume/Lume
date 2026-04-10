@@ -52,4 +52,6 @@
 - analysis | `gemma-vs-cloud-process-events` | title=Process Event Coverage
 - analysis | `gemma-vs-cloud-lowest-similarity` | title=Lowest Similarity Cases
 - analysis | `gemma-vs-cloud-code-mismatch` | title=Code Mismatch Cases
+- milestones | `milestones/2026-04-10-milestone-logging-rule.md` | title=2026-04-10 Milestone Logging Rule
+- memory | `memory/assistant-operating-memory.md` | title=Assistant Operating Memory
 
