@@ -99,6 +99,7 @@ def _record_battery_dispatch(
             "output_source": output_source,
             "primary_expert": matrix_result.dispatch.primary_expert.name,
             "primary_domain": matrix_result.dispatch.primary_expert.domain,
+            "selected_expert_count": matrix_result.dispatch.selected_expert_count,
             "cascade_experts": cascade,
             "confidence": matrix_result.dispatch.confidence,
             "secondary_confidence": matrix_result.dispatch.secondary_confidence,

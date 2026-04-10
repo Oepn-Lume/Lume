@@ -74,7 +74,7 @@ class BatteryMatrix:
         *,
         privacy_sensitive: bool = False,
         confidence_threshold: float = 0.42,
-        max_experts: int = 2,
+        max_experts: int = 3,
     ) -> BatteryMatrixResult:
         if not self.experts:
             raise RuntimeError("Battery matrix has no configured experts.")

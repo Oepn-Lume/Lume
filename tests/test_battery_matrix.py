@@ -57,7 +57,8 @@ def test_dispatch_expert_prefers_code_expert() -> None:
     ]
     dispatch = dispatch_expert("debug this python code patch", experts, confidence_threshold=0.4)
     assert dispatch.primary_expert.name == "code-expert"
-    assert [expert.name for expert in dispatch.cascade_experts] == ["code-expert", "base-expert"]
+    assert [expert.name for expert in dispatch.cascade_experts] == ["code-expert"]
+    assert dispatch.selected_expert_count == 1
     assert dispatch.cloud_assist_recommended is False
 
 
@@ -118,4 +119,61 @@ def test_dispatch_expert_prefers_logic_expert_for_reasoning_task() -> None:
     ]
     dispatch = dispatch_expert("design a system architecture proof with logic", experts)
     assert dispatch.primary_expert.name == "logic-expert"
-    assert dispatch.secondary_confidence is not None
+    assert dispatch.selected_expert_count == 1
+    assert dispatch.secondary_confidence is None
+
+
+def test_dispatch_expert_uses_three_experts_for_multi_domain_task() -> None:
+    experts = [
+        type("Expert", (), {
+            "name": "base-expert",
+            "domain": "general",
+            "description": "",
+            "model": "gemma4:31b",
+            "adapter": None,
+            "privacy_sensitive": False,
+            "keywords": ["write", "summary", "plan"],
+            "confidence_bias": 0.1,
+        })(),
+        type("Expert", (), {
+            "name": "code-expert",
+            "domain": "code",
+            "description": "",
+            "model": "gemma4:31b",
+            "adapter": None,
+            "privacy_sensitive": False,
+            "keywords": ["code", "python", "script"],
+            "confidence_bias": 0.15,
+        })(),
+        type("Expert", (), {
+            "name": "logic-expert",
+            "domain": "reasoning",
+            "description": "",
+            "model": "gemma4:31b",
+            "adapter": None,
+            "privacy_sensitive": False,
+            "keywords": ["logic", "architecture", "system"],
+            "confidence_bias": 0.15,
+        })(),
+        type("Expert", (), {
+            "name": "creative-expert",
+            "domain": "creative",
+            "description": "",
+            "model": "gemma4:31b",
+            "adapter": None,
+            "privacy_sensitive": False,
+            "keywords": ["creative", "story", "title"],
+            "confidence_bias": 0.05,
+        })(),
+    ]
+    dispatch = dispatch_expert(
+        "write a system architecture summary with python code",
+        experts,
+        max_experts=3,
+    )
+    assert dispatch.selected_expert_count == 3
+    assert [expert.name for expert in dispatch.cascade_experts] == [
+        "base-expert",
+        "code-expert",
+        "logic-expert",
+    ]
