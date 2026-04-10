@@ -22,7 +22,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--wiki-root",
-        default=str(ROOT / "data" / "wiki"),
+        default=str(ROOT / "wiki"),
     )
     parser.add_argument(
         "--docs-root",

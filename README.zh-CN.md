@@ -61,8 +61,8 @@ python main.py pipeline --task "write a short summary"
 
 项目 Wiki 现在也作为仓库内容纳入版本控制，方便直接在 GitHub 上查看分析、记忆页和长文档。
 
-- **Wiki 索引**：[data/wiki/index.md](./data/wiki/index.md)
-- **Gemma4 分析总览**：[data/wiki/analysis/gemma-vs-cloud-overview.md](./data/wiki/analysis/gemma-vs-cloud-overview.md)
+- **Wiki 索引**：[wiki/index.md](./wiki/index.md)
+- **Gemma4 分析总览**：[wiki/analysis/gemma-vs-cloud-overview.md](./wiki/analysis/gemma-vs-cloud-overview.md)
 
 ---
 
