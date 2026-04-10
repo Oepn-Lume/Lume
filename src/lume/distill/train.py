@@ -41,6 +41,7 @@ DEFAULT_DATASET_FILES = [
     "real_cloud_bootstrap_sft.jsonl",
     "real_cloud_full_fidelity_sft.jsonl",
     "real_code_execution_sft.jsonl",
+    "battery_cascade_sft.jsonl",
     "hybrid_refinement_sft.jsonl",
     "historical_workspace_code_sft.jsonl",
     "sft_reasoning.jsonl",
