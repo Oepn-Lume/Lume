@@ -19,6 +19,7 @@ from lume.battery import BatteryMatrix
 from lume.distill import build_distill_datasets
 from lume.execution import ObservedRuntime, OllamaLocalHandler, OpenAICloudHandler, RuntimeModels
 from lume.memory import build_wiki
+from lume.onsite import build_dynamic_snapshot, format_field_report
 from lume.routing import route_task
 
 
@@ -294,10 +295,36 @@ def main() -> None:
     )
 
     runtime.user(args.task)
+    snapshot = build_dynamic_snapshot(
+        args.task,
+        task_runs_root=task_runs_root,
+        workspace_root=ROOT,
+    )
+    field_report = format_field_report(snapshot)
+    runtime.session.artifact(
+        "onsite_snapshot",
+        {
+            "task_id": task_id,
+            "route_mode": decision.mode,
+            "output_source": output_source,
+            **snapshot.to_dict(),
+        },
+    )
+    runtime.codex.tool(
+        "onsite_snapshot_injector",
+        arguments={
+            "task": args.task,
+            "expanded_task": snapshot.expanded_task,
+            "working_dir": snapshot.working_dir,
+            "recent_task_id": snapshot.recent_task_id,
+        },
+        output_summary="Built dynamic field report and short-command expansion for local planning.",
+        metadata={"stage": "planning", "output_source": output_source},
+    )
     planning_prompt = f"Create a plan for the task: {args.task}"
     if strategy == "local" and runtime.local:
         if matrix_available:
-            matrix_result = battery_matrix.complete(args.task)
+            matrix_result = battery_matrix.complete(args.task, context_report=field_report)
             _record_battery_dispatch(
                 runtime,
                 task_id=task_id,
@@ -321,18 +348,19 @@ def main() -> None:
             )
         else:
             plan = runtime.local.complete(
-                planning_prompt,
+                f"{field_report}\n\nCreate a plan for the task: {snapshot.expanded_task}",
                 message_type="local_reasoning",
                 metadata={
                     "stage": "planning",
                     "complexity": decision.task_complexity,
                     "output_source": output_source,
+                    "onsite_alignment": True,
                 },
             )
     elif strategy == "hybrid" and runtime.local:
         battery_metadata: dict[str, Any] = {}
         if matrix_available:
-            matrix_result = battery_matrix.complete(args.task)
+            matrix_result = battery_matrix.complete(args.task, context_report=field_report)
             battery_metadata = {
                 "battery_expert": matrix_result.dispatch.primary_expert.name,
                 "battery_cascade": [expert.name for expert in matrix_result.dispatch.cascade_experts],
@@ -350,7 +378,7 @@ def main() -> None:
             )
             local_seed = matrix_result.output
         else:
-            local_seed = planning_prompt
+            local_seed = f"{field_report}\n\nCreate a plan for the task: {snapshot.expanded_task}"
         local_draft = runtime.local.complete(
             local_seed,
             message_type="local_reasoning",
@@ -358,6 +386,7 @@ def main() -> None:
                 "stage": "planning",
                 "complexity": decision.task_complexity,
                 "output_source": output_source,
+                "onsite_alignment": True,
                 **battery_metadata,
             },
         )
