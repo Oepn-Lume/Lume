@@ -19,8 +19,10 @@
 - 2026-04-09T12:57:17.279441+00:00 | task `write-a-a-short-summary-pipeline-demo` | route=hybrid | score=0.94
 - 2026-04-09T12:57:17.279441+00:00 | task `write-a-short-summary-summary-pipeline-demo` | route=hybrid | score=0.94
 - docs | `battery-model-v1.md` | title=Battery Model V1 | lang=mixed
+- docs | `blogs/digital-sun-before-the-blackout.md` | title=数字化大停电前夜：我们为什么需要“数字太阳”计划？ | lang=mixed
 - docs | `blogs/gemma4-vs-cloud-full-history.md` | title=为什么 Gemma4 还不能替代云端协作 | lang=mixed
 - docs | `en/battery-model-v1.md` | title=Battery Model V1 | lang=en
+- docs | `en/blogs/digital-sun-before-the-blackout.md` | title=Before the Digital Blackout: Why We Need a “Digital Sun” Plan | lang=en
 - docs | `en/blogs/gemma4-vs-cloud-full-history.md` | title=Why Gemma4 Still Cannot Replace Cloud Collaboration | lang=en
 - docs | `en/implementation-plan-v1.md` | title=Lume Sentinel 2026 Implementation Plan V1 | lang=en
 - docs | `en/llm-wiki-adaptation.md` | title=LLM Wiki Adaptation | lang=en
