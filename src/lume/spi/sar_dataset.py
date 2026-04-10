@@ -6,7 +6,16 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .protocol import ActionEnvelope, RewardEnvelope, SARRecord, StateEnvelope
+from .protocol import (
+    SAR_PROTOCOL_VERSION,
+    ActionEnvelope,
+    ActionType,
+    AgentType,
+    DomainType,
+    RewardEnvelope,
+    SARRecord,
+    StateEnvelope,
+)
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -23,8 +32,28 @@ def _truncate_text(text: str, limit: int = 240) -> str:
 def _classify_agent_type(task_payload: dict[str, Any]) -> str:
     route_mode = str(task_payload.get("route_mode", "")).lower()
     if route_mode in {"local", "hybrid", "cloud"}:
-        return "software-agent"
-    return "generic-agent"
+        return AgentType.SOFTWARE_AGENT.value
+    return AgentType.GENERIC_AGENT.value
+
+
+def _classify_domain(task_payload: dict[str, Any]) -> str:
+    route_mode = str(task_payload.get("route_mode", "")).lower()
+    if route_mode in {"local", "hybrid", "cloud"}:
+        return DomainType.SOFTWARE.value
+    return DomainType.GENERIC.value
+
+
+def _classify_action_type(tool_name: str | None) -> str:
+    normalized = str(tool_name or "").strip().lower()
+    if not normalized:
+        return ActionType.DELIVER_RESULT.value
+    if "patch" in normalized:
+        return ActionType.PATCH_APPLY.value
+    if "command" in normalized or "shell" in normalized or normalized in {"exec", "exec_command"}:
+        return ActionType.SHELL_COMMAND.value
+    if "route" in normalized:
+        return ActionType.ROUTE_DECISION.value
+    return ActionType.FUNCTION_CALL.value
 
 
 def _derive_reward(task_payload: dict[str, Any], tool_trace: dict[str, Any]) -> RewardEnvelope:
@@ -67,7 +96,7 @@ def build_sar_protocol_dataset(task_runs_root: Path, datasets_root: Path) -> Pat
         routing_metadata = dict(task_payload.get("metadata", {}))
 
         state = StateEnvelope(
-            domain="software",
+            domain=_classify_domain(task_payload),
             world_snapshot={
                 "task_id": task_payload.get("task_id"),
                 "route_mode": task_payload.get("route_mode"),
@@ -105,8 +134,9 @@ def build_sar_protocol_dataset(task_runs_root: Path, datasets_root: Path) -> Pat
                 first_tool = tool_call
                 break
         action = ActionEnvelope(
-            action_type=str(first_tool.get("tool", "deliver_result")) if first_tool else "deliver_result",
+            action_type=_classify_action_type(first_tool.get("tool") if first_tool else None),
             action_payload={
+                "tool_name": first_tool.get("tool") if first_tool else None,
                 "summary": _truncate_text(first_tool.get("output_summary", "")) if first_tool else "deliver task output",
                 "arguments": first_tool.get("arguments", {}) if first_tool else {},
                 "files_changed": state.world_snapshot["files_changed"],
@@ -124,9 +154,10 @@ def build_sar_protocol_dataset(task_runs_root: Path, datasets_root: Path) -> Pat
                 state=state,
                 action=action,
                 reward=reward,
+                protocol_version=SAR_PROTOCOL_VERSION,
                 metadata={
                     "source": "shadow_task_run",
-                    "protocol": "sar-v1",
+                    "protocol": SAR_PROTOCOL_VERSION,
                     "timestamp": task_payload.get("timestamp"),
                 },
             ).to_dict()

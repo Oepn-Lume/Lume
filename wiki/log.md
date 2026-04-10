@@ -42,6 +42,7 @@
 - docs | `github-about.txt` | title=Github About | lang=mixed
 - docs | `implementation-plan-v1.md` | title=Lume Sentinel 2026 技术实施方案 V1 | lang=mixed
 - docs | `llm-wiki-adaptation.md` | title=LLM Wiki Adaptation | lang=mixed
+- docs | `sar-protocol-v1.md` | title=SAR Protocol V1 | lang=mixed
 - docs | `starfire-protocol-v1.md` | title=Starfire Protocol V1 Draft | lang=mixed
 - docs | `system-architecture-appendix-v1.md` | title=Lume Sentinel 2026 系统架构图附录 V1 | lang=mixed
 - docs | `whitepaper-v1.md` | title=Lume Sentinel 2026 白皮书 V1 正式版 | lang=mixed
@@ -57,6 +58,7 @@
 - milestones | `milestones/2026-04-10-auto-device-state-for-shadow-charging.md` | title=2026-04-10 Auto Device State for Shadow Charging
 - milestones | `milestones/2026-04-10-milestone-logging-rule.md` | title=2026-04-10 Milestone Logging Rule
 - milestones | `milestones/2026-04-10-sar-protocol-foundation.md` | title=2026-04-10 SAR Protocol Foundation
+- milestones | `milestones/2026-04-10-sar-spec-definition.md` | title=2026-04-10 SAR Spec Definition
 - milestones | `milestones/2026-04-10-shadow-charging-loop.md` | title=2026-04-10 Shadow Charging Loop
 - memory | `memory/assistant-operating-memory.md` | title=Assistant Operating Memory
 

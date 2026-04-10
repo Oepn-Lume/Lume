@@ -45,6 +45,7 @@
 - [Github About](docs/github-about-txt.md) | path=`github-about.txt` | lang=mixed
 - [Lume Sentinel 2026 技术实施方案 V1](docs/implementation-plan-v1-md.md) | path=`implementation-plan-v1.md` | lang=mixed
 - [LLM Wiki Adaptation](docs/llm-wiki-adaptation-md.md) | path=`llm-wiki-adaptation.md` | lang=mixed
+- [SAR Protocol V1](docs/sar-protocol-v1-md.md) | path=`sar-protocol-v1.md` | lang=mixed
 - [Starfire Protocol V1 Draft](docs/starfire-protocol-v1-md.md) | path=`starfire-protocol-v1.md` | lang=mixed
 - [Lume Sentinel 2026 系统架构图附录 V1](docs/system-architecture-appendix-v1-md.md) | path=`system-architecture-appendix-v1.md` | lang=mixed
 - [Lume Sentinel 2026 白皮书 V1 正式版](docs/whitepaper-v1-md.md) | path=`whitepaper-v1.md` | lang=mixed
@@ -64,6 +65,7 @@
 - [2026-04-10 Auto Device State for Shadow Charging](milestones/2026-04-10-auto-device-state-for-shadow-charging.md)
 - [2026-04-10 Milestone Logging Rule](milestones/2026-04-10-milestone-logging-rule.md)
 - [2026-04-10 SAR Protocol Foundation](milestones/2026-04-10-sar-protocol-foundation.md)
+- [2026-04-10 SAR Spec Definition](milestones/2026-04-10-sar-spec-definition.md)
 - [2026-04-10 Shadow Charging Loop](milestones/2026-04-10-shadow-charging-loop.md)
 
 ## Memory

@@ -1,6 +1,16 @@
 from pathlib import Path
 
-from lume.spi import build_sar_protocol_dataset
+import pytest
+
+from lume.spi import (
+    SAR_PROTOCOL_VERSION,
+    ActionEnvelope,
+    DomainType,
+    RewardEnvelope,
+    SARRecord,
+    StateEnvelope,
+    build_sar_protocol_dataset,
+)
 
 
 def test_build_sar_protocol_dataset(tmp_path: Path) -> None:
@@ -24,5 +34,36 @@ def test_build_sar_protocol_dataset(tmp_path: Path) -> None:
     output = build_sar_protocol_dataset(task_runs_root, tmp_path / "datasets")
     text = output.read_text("utf-8")
     assert "demo-task-sar" in text
+    assert f'"protocol_version": "{SAR_PROTOCOL_VERSION}"' in text
     assert '"protocol": "sar-v1"' in text
     assert '"agent_type": "software-agent"' in text
+
+
+def test_sar_record_validates_domain_and_protocol() -> None:
+    state = StateEnvelope(
+        domain=DomainType.SOFTWARE.value,
+        world_snapshot={"task_id": "demo"},
+        intent_trajectory=[],
+        feedback_signals={},
+    )
+    action = ActionEnvelope(action_type="deliver_result", action_payload={})
+
+    record = SARRecord(
+        record_id="demo",
+        agent_type="software-agent",
+        state=state,
+        action=action,
+        reward=RewardEnvelope(total_reward=0.1),
+    )
+
+    assert record.protocol_version == SAR_PROTOCOL_VERSION
+
+
+def test_sar_record_rejects_unknown_domain() -> None:
+    with pytest.raises(ValueError):
+        StateEnvelope(
+            domain="unknown-domain",
+            world_snapshot={},
+            intent_trajectory=[],
+            feedback_signals={},
+        )
