@@ -57,6 +57,7 @@ def test_dispatch_expert_prefers_code_expert() -> None:
     ]
     dispatch = dispatch_expert("debug this python code patch", experts, confidence_threshold=0.4)
     assert dispatch.primary_expert.name == "code-expert"
+    assert [expert.name for expert in dispatch.cascade_experts] == ["code-expert", "base-expert"]
     assert dispatch.cloud_assist_recommended is False
 
 
@@ -117,3 +118,4 @@ def test_dispatch_expert_prefers_logic_expert_for_reasoning_task() -> None:
     ]
     dispatch = dispatch_expert("design a system architecture proof with logic", experts)
     assert dispatch.primary_expert.name == "logic-expert"
+    assert dispatch.secondary_confidence is not None

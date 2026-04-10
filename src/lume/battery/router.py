@@ -12,10 +12,13 @@ class ExpertDispatch:
     """Structured dispatch result for a battery expert selection."""
 
     primary_expert: ExpertProfile
+    cascade_experts: list[ExpertProfile]
     confidence: float
+    secondary_confidence: float | None
     cloud_assist_recommended: bool
     privacy_sensitive: bool
     matched_keywords: list[str]
+    cascade_matched_keywords: dict[str, list[str]]
     candidate_scores: dict[str, float]
 
 
@@ -29,15 +32,15 @@ def dispatch_expert(
     *,
     confidence_threshold: float = 0.42,
     privacy_sensitive: bool = False,
+    max_experts: int = 2,
 ) -> ExpertDispatch:
-    """Choose the most suitable expert battery for a task."""
+    """Choose the most suitable expert battery cascade for a task."""
     tokens = _task_keywords(task)
     token_set = set(tokens)
 
-    best_expert = experts[0]
-    best_score = -1.0
-    best_matches: list[str] = []
     candidate_scores: dict[str, float] = {}
+    candidate_matches: dict[str, list[str]] = {}
+    ranked: list[tuple[ExpertProfile, float]] = []
 
     for expert in experts:
         matches = sorted(keyword for keyword in expert.keywords if keyword in token_set)
@@ -47,17 +50,28 @@ def dispatch_expert(
         score = keyword_score + expert.confidence_bias + privacy_bonus + general_bonus
         score = round(min(score, 1.0), 3)
         candidate_scores[expert.name] = score
-        if score > best_score:
-            best_expert = expert
-            best_score = score
-            best_matches = matches
+        candidate_matches[expert.name] = matches
+        ranked.append((expert, score))
+
+    ranked.sort(key=lambda item: item[1], reverse=True)
+    cascade = [expert for expert, _score in ranked[:max(1, max_experts)]]
+    primary_expert = cascade[0]
+    best_score = ranked[0][1]
+    secondary_confidence = ranked[1][1] if len(ranked) > 1 and len(cascade) > 1 else None
+    best_matches = candidate_matches.get(primary_expert.name, [])
 
     cloud_assist_recommended = best_score < confidence_threshold
     return ExpertDispatch(
-        primary_expert=best_expert,
+        primary_expert=primary_expert,
+        cascade_experts=cascade,
         confidence=best_score,
+        secondary_confidence=secondary_confidence,
         cloud_assist_recommended=cloud_assist_recommended,
         privacy_sensitive=privacy_sensitive,
         matched_keywords=best_matches,
+        cascade_matched_keywords={
+            expert.name: candidate_matches.get(expert.name, [])
+            for expert in cascade
+        },
         candidate_scores=candidate_scores,
     )

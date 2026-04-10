@@ -70,6 +70,63 @@ def codex_handler(instruction: str) -> str:
     )
 
 
+def _record_battery_dispatch(
+    runtime: ObservedRuntime,
+    *,
+    task_id: str,
+    route_mode: str,
+    output_source: str,
+    matrix_result: Any,
+    task: str,
+    stage: str,
+    hybrid: bool = False,
+) -> None:
+    cascade = [
+        {
+            "expert_name": step["expert_name"],
+            "domain": step["domain"],
+            "model": step["model"],
+            "adapter": step["adapter"],
+            "matched_keywords": step["matched_keywords"],
+        }
+        for step in matrix_result.cascade_outputs
+    ]
+    runtime.session.artifact(
+        "battery_dispatch",
+        {
+            "task_id": task_id,
+            "route_mode": route_mode,
+            "output_source": output_source,
+            "primary_expert": matrix_result.dispatch.primary_expert.name,
+            "primary_domain": matrix_result.dispatch.primary_expert.domain,
+            "cascade_experts": cascade,
+            "confidence": matrix_result.dispatch.confidence,
+            "secondary_confidence": matrix_result.dispatch.secondary_confidence,
+            "cloud_assist_recommended": matrix_result.dispatch.cloud_assist_recommended,
+            "privacy_sensitive": matrix_result.dispatch.privacy_sensitive,
+            "matched_keywords": matrix_result.dispatch.matched_keywords,
+            "cascade_matched_keywords": matrix_result.dispatch.cascade_matched_keywords,
+            "candidate_scores": matrix_result.dispatch.candidate_scores,
+            "local_model": matrix_result.local_model,
+            "adapter": matrix_result.adapter,
+            "cascade_outputs": matrix_result.cascade_outputs,
+        },
+    )
+    runtime.codex.tool(
+        "battery_matrix_dispatch",
+        arguments={
+            "task": task,
+            "primary_expert": matrix_result.dispatch.primary_expert.name,
+            "cascade_experts": [expert.name for expert in matrix_result.dispatch.cascade_experts],
+            "confidence": matrix_result.dispatch.confidence,
+            "secondary_confidence": matrix_result.dispatch.secondary_confidence,
+            "cloud_assist_recommended": matrix_result.dispatch.cloud_assist_recommended,
+        },
+        output_summary="Selected a local expert battery cascade for planning.",
+        metadata={"stage": stage, "hybrid": hybrid, "output_source": output_source},
+    )
+
+
 def choose_planning_strategy(
     decision_mode: str,
     *,
@@ -240,33 +297,14 @@ def main() -> None:
     if strategy == "local" and runtime.local:
         if matrix_available:
             matrix_result = battery_matrix.complete(args.task)
-            runtime.session.artifact(
-                "battery_dispatch",
-                {
-                    "task_id": task_id,
-                    "route_mode": decision.mode,
-                    "output_source": output_source,
-                    "primary_expert": matrix_result.dispatch.primary_expert.name,
-                    "domain": matrix_result.dispatch.primary_expert.domain,
-                    "confidence": matrix_result.dispatch.confidence,
-                    "cloud_assist_recommended": matrix_result.dispatch.cloud_assist_recommended,
-                    "privacy_sensitive": matrix_result.dispatch.privacy_sensitive,
-                    "matched_keywords": matrix_result.dispatch.matched_keywords,
-                    "candidate_scores": matrix_result.dispatch.candidate_scores,
-                    "local_model": matrix_result.local_model,
-                    "adapter": matrix_result.adapter,
-                },
-            )
-            runtime.codex.tool(
-                "battery_matrix_dispatch",
-                arguments={
-                    "task": args.task,
-                    "primary_expert": matrix_result.dispatch.primary_expert.name,
-                    "confidence": matrix_result.dispatch.confidence,
-                    "cloud_assist_recommended": matrix_result.dispatch.cloud_assist_recommended,
-                },
-                output_summary="Selected a local expert battery for planning.",
-                metadata={"stage": "planning", "output_source": output_source},
+            _record_battery_dispatch(
+                runtime,
+                task_id=task_id,
+                route_mode=decision.mode,
+                output_source=output_source,
+                matrix_result=matrix_result,
+                task=args.task,
+                stage="planning",
             )
             plan = runtime.local.complete(
                 matrix_result.output,
@@ -276,6 +314,7 @@ def main() -> None:
                     "complexity": decision.task_complexity,
                     "output_source": output_source,
                     "battery_expert": matrix_result.dispatch.primary_expert.name,
+                    "battery_cascade": [expert.name for expert in matrix_result.dispatch.cascade_experts],
                     "battery_confidence": matrix_result.dispatch.confidence,
                 },
             )
@@ -295,35 +334,18 @@ def main() -> None:
             matrix_result = battery_matrix.complete(args.task)
             battery_metadata = {
                 "battery_expert": matrix_result.dispatch.primary_expert.name,
+                "battery_cascade": [expert.name for expert in matrix_result.dispatch.cascade_experts],
                 "battery_confidence": matrix_result.dispatch.confidence,
             }
-            runtime.session.artifact(
-                "battery_dispatch",
-                {
-                    "task_id": task_id,
-                    "route_mode": decision.mode,
-                    "output_source": output_source,
-                    "primary_expert": matrix_result.dispatch.primary_expert.name,
-                    "domain": matrix_result.dispatch.primary_expert.domain,
-                    "confidence": matrix_result.dispatch.confidence,
-                    "cloud_assist_recommended": matrix_result.dispatch.cloud_assist_recommended,
-                    "privacy_sensitive": matrix_result.dispatch.privacy_sensitive,
-                    "matched_keywords": matrix_result.dispatch.matched_keywords,
-                    "candidate_scores": matrix_result.dispatch.candidate_scores,
-                    "local_model": matrix_result.local_model,
-                    "adapter": matrix_result.adapter,
-                },
-            )
-            runtime.codex.tool(
-                "battery_matrix_dispatch",
-                arguments={
-                    "task": args.task,
-                    "primary_expert": matrix_result.dispatch.primary_expert.name,
-                    "confidence": matrix_result.dispatch.confidence,
-                    "cloud_assist_recommended": matrix_result.dispatch.cloud_assist_recommended,
-                },
-                output_summary="Selected a local expert battery before cloud refinement.",
-                metadata={"stage": "planning", "hybrid": True, "output_source": output_source},
+            _record_battery_dispatch(
+                runtime,
+                task_id=task_id,
+                route_mode=decision.mode,
+                output_source=output_source,
+                matrix_result=matrix_result,
+                task=args.task,
+                stage="planning",
+                hybrid=True,
             )
             local_seed = matrix_result.output
         else:

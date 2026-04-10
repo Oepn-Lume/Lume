@@ -10,7 +10,6 @@
 - [patriotic-prose-poem-demo](tasks/patriotic-prose-poem-demo.md) | 2026-04-09T03:24:23.200704+00:00 | score=0.96
 - [task-pipeline-demo](tasks/task-pipeline-demo.md) | 2026-04-09T03:40:20.187779+00:00 | score=0.94
 - [task-35b3812e-pipeline-demo](tasks/task-35b3812e-pipeline-demo.md) | 2026-04-09T03:43:46.212798+00:00 | score=0.94
-- [write-a-short-summary-pipeline-demo](tasks/write-a-short-summary-pipeline-demo.md) | 2026-04-09T09:35:42.279439+00:00 | score=0.94
 - [mark-source-label-demo-pipeline-demo](tasks/mark-source-label-demo-pipeline-demo.md) | 2026-04-09T12:11:29.266661+00:00 | score=0.94
 - [mark-source-label-demo-2-pipeline-demo](tasks/mark-source-label-demo-2-pipeline-demo.md) | 2026-04-09T12:11:56.347427+00:00 | score=0.94
 - [write-a-short-summary-about-battery-routing-pipeline-demo](tasks/write-a-short-summary-about-battery-routing-pipeline-demo.md) | 2026-04-09T12:55:48.503441+00:00 | score=0.94
@@ -20,6 +19,9 @@
 - [write-a-a-short-summary-pipeline-demo](tasks/write-a-a-short-summary-pipeline-demo.md) | 2026-04-09T12:57:17.279441+00:00 | score=0.94
 - [write-a-short-summary-summary-pipeline-demo](tasks/write-a-short-summary-summary-pipeline-demo.md) | 2026-04-09T12:57:17.279441+00:00 | score=0.94
 - [debug-this-python-code-patch-pipeline-demo](tasks/debug-this-python-code-patch-pipeline-demo.md) | 2026-04-10T02:09:05.935430+00:00 | score=0.94
+- [design-a-system-architecture-proof-pipeline-demo](tasks/design-a-system-architecture-proof-pipeline-demo.md) | 2026-04-10T03:02:34.703722+00:00 | score=0.94
+- [write-a-concise-summary-now-pipeline-demo](tasks/write-a-concise-summary-now-pipeline-demo.md) | 2026-04-10T03:04:04.585734+00:00 | score=0.94
+- [write-a-short-summary-pipeline-demo](tasks/write-a-short-summary-pipeline-demo.md) | 2026-04-10T03:04:49.305337+00:00 | score=0.94
 
 ## Document Pages
 - No document pages yet.

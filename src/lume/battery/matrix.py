@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from lume.execution import OllamaLocalHandler
 
-from .experts import ExpertProfile, load_expert_profiles
+from .experts import load_expert_profiles
 from .router import ExpertDispatch, dispatch_expert
 
 
@@ -19,6 +20,7 @@ class BatteryMatrixResult:
     output: str
     local_model: str
     adapter: str | None
+    cascade_outputs: list[dict[str, Any]]
 
 
 class BatteryMatrix:
@@ -72,6 +74,7 @@ class BatteryMatrix:
         *,
         privacy_sensitive: bool = False,
         confidence_threshold: float = 0.42,
+        max_experts: int = 2,
     ) -> BatteryMatrixResult:
         if not self.experts:
             raise RuntimeError("Battery matrix has no configured experts.")
@@ -81,19 +84,49 @@ class BatteryMatrix:
             self.experts,
             confidence_threshold=confidence_threshold,
             privacy_sensitive=privacy_sensitive,
+            max_experts=max_experts,
         )
-        handler = self._handler_for(dispatch.primary_expert)
-        prompt = (
-            f"You are the '{dispatch.primary_expert.name}' expert battery for domain "
-            f"'{dispatch.primary_expert.domain}'.\n"
-            f"Description: {dispatch.primary_expert.description}\n"
-            f"Task: {task}\n"
-            "Produce a concise local-first plan or answer that fits the current task."
-        )
-        output = handler.complete(prompt)
+        cascade_outputs: list[dict[str, Any]] = []
+        previous_output = ""
+
+        for index, expert in enumerate(dispatch.cascade_experts, start=1):
+            handler = self._handler_for(expert)
+            if index == 1:
+                prompt = (
+                    f"You are the '{expert.name}' expert battery for domain "
+                    f"'{expert.domain}'.\n"
+                    f"Description: {expert.description}\n"
+                    f"Task: {task}\n"
+                    "Produce a concise local-first plan or answer that fits the current task."
+                )
+            else:
+                prompt = (
+                    f"You are the '{expert.name}' expert battery for domain "
+                    f"'{expert.domain}'.\n"
+                    f"Description: {expert.description}\n"
+                    f"Task: {task}\n"
+                    f"Primary local draft:\n{previous_output}\n\n"
+                    "Refine, tighten, or extend the draft from your domain perspective. "
+                    "Return only the improved local result."
+                )
+            output = handler.complete(prompt)
+            previous_output = output
+            cascade_outputs.append(
+                {
+                    "step": index,
+                    "expert_name": expert.name,
+                    "domain": expert.domain,
+                    "model": expert.model,
+                    "adapter": expert.adapter,
+                    "matched_keywords": dispatch.cascade_matched_keywords.get(expert.name, []),
+                    "output": output,
+                }
+            )
+
         return BatteryMatrixResult(
             dispatch=dispatch,
-            output=output,
+            output=previous_output,
             local_model=dispatch.primary_expert.model,
             adapter=dispatch.primary_expert.adapter,
+            cascade_outputs=cascade_outputs,
         )
