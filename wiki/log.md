@@ -56,10 +56,12 @@
 - analysis | `gemma-vs-cloud-process-events` | title=Process Event Coverage
 - analysis | `gemma-vs-cloud-lowest-similarity` | title=Lowest Similarity Cases
 - analysis | `gemma-vs-cloud-code-mismatch` | title=Code Mismatch Cases
+- analysis | `battery-runtime-boundary-and-strategy` | title=Battery Runtime Boundary and Strategy
 - milestones | `milestones/2026-04-10-auto-device-state-for-shadow-charging.md` | title=2026-04-10 Auto Device State for Shadow Charging
 - milestones | `milestones/2026-04-10-battery-model-2-blog.md` | title=2026-04-10 Battery Model 2.0 Blog
 - milestones | `milestones/2026-04-10-codex-action-readiness-routing.md` | title=2026-04-10 Codex Action Readiness Routing
 - milestones | `milestones/2026-04-10-codex-action-taxonomy.md` | title=2026-04-10 Codex Action Taxonomy
+- milestones | `milestones/2026-04-10-codex-continue-augmentation.md` | title=2026-04-10 Codex Continue Augmentation
 - milestones | `milestones/2026-04-10-milestone-logging-rule.md` | title=2026-04-10 Milestone Logging Rule
 - milestones | `milestones/2026-04-10-robotics-sar-adapter.md` | title=2026-04-10 Robotics SAR Adapter
 - milestones | `milestones/2026-04-10-sar-adapter-registry.md` | title=2026-04-10 SAR Adapter Registry

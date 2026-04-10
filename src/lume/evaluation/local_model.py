@@ -23,6 +23,13 @@ def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text("utf-8"))
 
 
+def _safe_tokenizer_max_length(tokenizer: Any, config: dict[str, Any] | None = None) -> int:
+    configured = int((config or {}).get("max_length", 0) or 0)
+    tokenizer_limit = int(getattr(tokenizer, "model_max_length", 0) or 0)
+    candidates = [value for value in (configured, tokenizer_limit) if 0 < value < 100_000]
+    return min(candidates) if candidates else 512
+
+
 def _resolve_device(device: str) -> str:
     if device == "auto":
         return "cuda" if torch.cuda.is_available() else "cpu"
@@ -62,18 +69,16 @@ def generate_text(
     """Generate text from the trained local model."""
     mode = _training_mode(model_root)
     if mode.startswith("transformers_peft_"):
-        model, tokenizer, _config = load_peft_model(model_root, device=device)
+        model, tokenizer, config = load_peft_model(model_root, device=device)
         device_obj = torch.device(_resolve_device(device))
-        inputs = tokenizer(prompt, return_tensors="pt").to(device_obj)
-        with torch.no_grad():
-            generated_ids = model.generate(
-                **inputs,
-                max_new_tokens=max_new_tokens,
-                do_sample=False,
-                pad_token_id=tokenizer.pad_token_id,
-                eos_token_id=tokenizer.eos_token_id,
-            )
-        return tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+        return _generate_with_loaded_peft_model(
+            model,
+            tokenizer,
+            prompt,
+            max_new_tokens=max_new_tokens,
+            device_obj=device_obj,
+            config=config,
+        )
 
     model, vocab, _config = load_trained_model(model_root)
     inverse_vocab = {index: token for token, index in vocab.items()}
@@ -103,8 +108,15 @@ def _generate_with_loaded_peft_model(
     *,
     max_new_tokens: int,
     device_obj: torch.device,
+    config: dict[str, Any] | None = None,
 ) -> str:
-    inputs = tokenizer(prompt, return_tensors="pt").to(device_obj)
+    max_length = _safe_tokenizer_max_length(tokenizer, config)
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        truncation=True,
+        max_length=max_length,
+    ).to(device_obj)
     with torch.no_grad():
         generated_ids = model.generate(
             **inputs,
@@ -113,7 +125,9 @@ def _generate_with_loaded_peft_model(
             pad_token_id=tokenizer.pad_token_id,
             eos_token_id=tokenizer.eos_token_id,
         )
-    return tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+    prompt_length = int(inputs["input_ids"].shape[1])
+    new_token_ids = generated_ids[0][prompt_length:]
+    return tokenizer.decode(new_token_ids, skip_special_tokens=True).strip()
 
 
 def evaluate_model(
@@ -183,6 +197,7 @@ def evaluate_model(
                 prompt,
                 max_new_tokens=min(160, max(32, len(target_text))),
                 device_obj=device_obj,
+                config=config,
             )
             generated_tail = generated.split("Assistant:\n", 1)[-1]
             compare_len = max(1, min(len(generated_tail), len(target_text)))

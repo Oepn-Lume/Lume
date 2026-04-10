@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .battery_cascade import build_battery_cascade_dataset
+from .battery_state_density import build_battery_state_dataset
 from .code_execution import build_real_code_execution_dataset
 from .codex_actions import build_codex_action_dataset
 from .historical_backfill import build_historical_workspace_dataset
@@ -121,6 +122,7 @@ def build_distill_datasets(
         written.append(build_raw_dialogue_dataset(raw_logs_root, datasets_root))
         written.append(build_real_code_execution_dataset(task_runs_root, raw_logs_root, datasets_root))
     written.append(build_battery_cascade_dataset(task_runs_root, datasets_root))
+    written.append(build_battery_state_dataset(task_runs_root, datasets_root))
     written.append(build_hybrid_refinement_dataset(task_runs_root, datasets_root))
     reports_root = task_runs_root.parent / "reports"
     written.extend(build_codex_action_dataset(reports_root, datasets_root))

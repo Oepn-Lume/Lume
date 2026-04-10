@@ -1,0 +1,151 @@
+{
+  "battery_matrix_config": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\configs\\battery_matrix.yaml",
+  "source_datasets_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\datasets_v5_battery",
+  "expert_datasets_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\datasets_experts_v1",
+  "shared_foundation_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\shared-foundation",
+  "models_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1",
+  "skip_training": false,
+  "foundation_dataset_files": [
+    "raw_dialogue_sft.jsonl",
+    "real_cloud_dialogue_sft.jsonl",
+    "real_cloud_bootstrap_sft.jsonl",
+    "real_cloud_full_fidelity_sft.jsonl",
+    "real_code_execution_sft.jsonl",
+    "onsite_alignment_sft.jsonl",
+    "sft_reasoning.jsonl",
+    "sft_execution.jsonl",
+    "synthetic_sft.jsonl"
+  ],
+  "experts": {
+    "base-expert": {
+      "domain": "general",
+      "keywords": [
+        "summary",
+        "plan",
+        "write",
+        "explain",
+        "analyze",
+        "task"
+      ],
+      "dataset_files": {
+        "battery_cascade_sft.jsonl": 3,
+        "battery_state_sft.jsonl": 23,
+        "codex_action_sft.jsonl": 2418,
+        "continue_state_sft.jsonl": 92,
+        "developer_chain_sft.jsonl": 112,
+        "historical_workspace_code_sft.jsonl": 176,
+        "hybrid_refinement_sft.jsonl": 8,
+        "memory_update.jsonl": 23,
+        "onsite_alignment_sft.jsonl": 783
+      },
+      "model_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\base-expert",
+      "adapter_path": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\base-expert\\adapter"
+    },
+    "code-expert": {
+      "domain": "code",
+      "keywords": [
+        "code",
+        "python",
+        "bug",
+        "patch",
+        "script",
+        "repo",
+        "function",
+        "test"
+      ],
+      "dataset_files": {
+        "battery_cascade_sft.jsonl": 3,
+        "battery_state_sft.jsonl": 23,
+        "codex_action_sft.jsonl": 2418,
+        "continue_state_sft.jsonl": 92,
+        "developer_chain_sft.jsonl": 112,
+        "historical_workspace_code_sft.jsonl": 228,
+        "hybrid_refinement_sft.jsonl": 8,
+        "memory_update.jsonl": 23,
+        "onsite_alignment_sft.jsonl": 783
+      },
+      "model_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\code-expert",
+      "adapter_path": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\code-expert\\adapter"
+    },
+    "creative-expert": {
+      "domain": "creative",
+      "keywords": [
+        "essay",
+        "poem",
+        "story",
+        "creative",
+        "blog",
+        "title"
+      ],
+      "dataset_files": {
+        "battery_cascade_sft.jsonl": 3,
+        "battery_state_sft.jsonl": 3,
+        "codex_action_sft.jsonl": 36,
+        "continue_state_sft.jsonl": 4,
+        "developer_chain_sft.jsonl": 112,
+        "historical_workspace_code_sft.jsonl": 28,
+        "hybrid_refinement_sft.jsonl": 4,
+        "memory_update.jsonl": 23,
+        "onsite_alignment_sft.jsonl": 783,
+        "raw_dialogue_sft.jsonl": 353,
+        "real_cloud_dialogue_sft.jsonl": 348,
+        "synthetic_sft.jsonl": 1000
+      },
+      "model_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\creative-expert",
+      "adapter_path": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\creative-expert\\adapter"
+    },
+    "logic-expert": {
+      "domain": "reasoning",
+      "keywords": [
+        "reason",
+        "logic",
+        "math",
+        "proof",
+        "plan",
+        "architecture",
+        "system",
+        "pipeline"
+      ],
+      "dataset_files": {
+        "battery_cascade_sft.jsonl": 3,
+        "battery_state_sft.jsonl": 23,
+        "codex_action_sft.jsonl": 417,
+        "continue_state_sft.jsonl": 92,
+        "developer_chain_sft.jsonl": 112,
+        "historical_workspace_code_sft.jsonl": 110,
+        "hybrid_refinement_sft.jsonl": 8,
+        "memory_update.jsonl": 16,
+        "onsite_alignment_sft.jsonl": 783,
+        "sft_reasoning.jsonl": 23
+      },
+      "model_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\logic-expert",
+      "adapter_path": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\logic-expert\\adapter"
+    },
+    "privacy-expert": {
+      "domain": "private",
+      "keywords": [
+        "private",
+        "local",
+        "personal",
+        "schedule",
+        "memory",
+        "sensitive"
+      ],
+      "dataset_files": {
+        "battery_cascade_sft.jsonl": 3,
+        "battery_state_sft.jsonl": 23,
+        "codex_action_sft.jsonl": 300,
+        "continue_state_sft.jsonl": 64,
+        "developer_chain_sft.jsonl": 104,
+        "historical_workspace_code_sft.jsonl": 120,
+        "hybrid_refinement_sft.jsonl": 8,
+        "memory_update.jsonl": 23,
+        "onsite_alignment_sft.jsonl": 695,
+        "raw_dialogue_sft.jsonl": 353
+      },
+      "model_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\privacy-expert",
+      "adapter_path": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\privacy-expert\\adapter"
+    }
+  },
+  "shared_foundation_trained_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\distilled\\experts-v1\\shared-foundation"
+}

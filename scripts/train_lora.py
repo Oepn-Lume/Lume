@@ -12,7 +12,14 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from lume.distill import TrainingConfig, train_local_model
+from lume.distill import (
+    DEFAULT_STAGE_ONE_DATASET_FILES,
+    DEFAULT_STAGE_TWO_DATASET_FILES,
+    TrainingConfig,
+    normalize_dataset_files,
+    train_local_model,
+    train_two_stage_local_model,
+)
 from lume.evaluation import append_quality_history, build_quality_snapshot
 
 
@@ -43,6 +50,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--gradient-accumulation-steps", type=int, default=1)
     parser.add_argument("--warmup-ratio", type=float, default=0.03)
     parser.add_argument("--weight-decay", type=float, default=0.0)
+    parser.add_argument("--dataset-files", default="")
+    parser.add_argument("--two-stage", action="store_true")
+    parser.add_argument("--stage-one-dataset-files", default="")
+    parser.add_argument("--stage-two-dataset-files", default="")
+    parser.add_argument("--stage-one-output-root", default="")
     parser.add_argument(
         "--quality-output",
         default=str(ROOT / "configs" / "local_quality.json"),
@@ -54,6 +66,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-quality-update", action="store_true")
     parser.add_argument("--quality-max-examples", type=int, default=8)
     return parser.parse_args()
+
+
+def _parse_dataset_files(raw_value: str) -> list[str] | None:
+    values = [item.strip() for item in str(raw_value).split(",") if item.strip()]
+    return values or None
 
 
 def main() -> None:
@@ -78,9 +95,23 @@ def main() -> None:
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         warmup_ratio=args.warmup_ratio,
         weight_decay=args.weight_decay,
+        dataset_files=normalize_dataset_files(_parse_dataset_files(args.dataset_files)),
     )
-    output_root = train_local_model(config)
-    print(output_root)
+    if args.two_stage:
+        stage_one_dataset_files = _parse_dataset_files(args.stage_one_dataset_files) or DEFAULT_STAGE_ONE_DATASET_FILES
+        stage_two_dataset_files = _parse_dataset_files(args.stage_two_dataset_files) or DEFAULT_STAGE_TWO_DATASET_FILES
+        result = train_two_stage_local_model(
+            config,
+            stage_one_dataset_files=stage_one_dataset_files,
+            stage_two_dataset_files=stage_two_dataset_files,
+            stage_one_output_root=args.stage_one_output_root or None,
+        )
+        output_root = result.stage_two_root
+        print(result.stage_one_root)
+        print(result.stage_two_root)
+    else:
+        output_root = train_local_model(config)
+        print(output_root)
     if args.skip_quality_update:
         return
     snapshot = build_quality_snapshot(

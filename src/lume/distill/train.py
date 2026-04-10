@@ -7,7 +7,7 @@ This module supports two training paths:
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import json
 import math
 from pathlib import Path
@@ -42,8 +42,10 @@ DEFAULT_DATASET_FILES = [
     "real_cloud_full_fidelity_sft.jsonl",
     "real_code_execution_sft.jsonl",
     "battery_cascade_sft.jsonl",
+    "battery_state_sft.jsonl",
     "hybrid_refinement_sft.jsonl",
     "codex_action_sft.jsonl",
+    "continue_state_sft.jsonl",
     "onsite_alignment_sft.jsonl",
     "developer_chain_sft.jsonl",
     "historical_workspace_code_sft.jsonl",
@@ -51,6 +53,30 @@ DEFAULT_DATASET_FILES = [
     "sft_execution.jsonl",
     "memory_update.jsonl",
     "synthetic_sft.jsonl",
+]
+
+DEFAULT_STAGE_ONE_DATASET_FILES = [
+    "raw_dialogue_sft.jsonl",
+    "real_cloud_dialogue_sft.jsonl",
+    "real_cloud_bootstrap_sft.jsonl",
+    "real_cloud_full_fidelity_sft.jsonl",
+    "real_code_execution_sft.jsonl",
+    "onsite_alignment_sft.jsonl",
+    "sft_reasoning.jsonl",
+    "sft_execution.jsonl",
+    "synthetic_sft.jsonl",
+]
+
+DEFAULT_STAGE_TWO_DATASET_FILES = [
+    "battery_cascade_sft.jsonl",
+    "battery_state_sft.jsonl",
+    "hybrid_refinement_sft.jsonl",
+    "codex_action_sft.jsonl",
+    "continue_state_sft.jsonl",
+    "developer_chain_sft.jsonl",
+    "historical_workspace_code_sft.jsonl",
+    "memory_update.jsonl",
+    "onsite_alignment_sft.jsonl",
 ]
 
 
@@ -68,10 +94,14 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return records
 
 
-def load_training_records(datasets_root: Path) -> list[dict[str, Any]]:
+def load_training_records(
+    datasets_root: Path,
+    *,
+    dataset_files: list[str] | None = None,
+) -> list[dict[str, Any]]:
     """Load all available SFT-style datasets into normalized input/target records."""
     normalized: list[dict[str, Any]] = []
-    for filename in DEFAULT_DATASET_FILES:
+    for filename in (dataset_files or DEFAULT_DATASET_FILES):
         for record in _read_jsonl(datasets_root / filename):
             input_text = str(record.get("input", "")).strip()
             target_value = record.get("target", "")
@@ -99,10 +129,10 @@ def format_supervised_example(input_text: str, target_text: str) -> tuple[str, s
     return prompt, completion
 
 
-def load_training_texts(datasets_root: Path) -> list[str]:
+def load_training_texts(datasets_root: Path, *, dataset_files: list[str] | None = None) -> list[str]:
     """Load all available SFT-style datasets into prompt/target texts."""
     texts: list[str] = []
-    for record in load_training_records(datasets_root):
+    for record in load_training_records(datasets_root, dataset_files=dataset_files):
         prompt, completion = format_supervised_example(record["input"], record["target"])
         texts.append(f"{prompt}{completion}")
     return texts
@@ -236,6 +266,24 @@ class TrainingConfig:
     gradient_accumulation_steps: int = 1
     warmup_ratio: float = 0.03
     weight_decay: float = 0.0
+    dataset_files: list[str] | None = None
+    init_adapter_path: str | None = None
+    stage_name: str = "single_stage"
+
+
+@dataclass(slots=True)
+class TwoStageTrainingResult:
+    stage_one_root: Path
+    stage_two_root: Path
+
+
+def normalize_dataset_files(dataset_files: list[str] | None) -> list[str]:
+    cleaned: list[str] = []
+    for filename in dataset_files or DEFAULT_DATASET_FILES:
+        value = str(filename).strip()
+        if value and value not in cleaned:
+            cleaned.append(value)
+    return cleaned
 
 
 def _resolve_device(device: str) -> str:
@@ -319,7 +367,8 @@ def _train_tiny_fallback(config: TrainingConfig) -> Path:
     output_root = Path(config.output_root)
     output_root.mkdir(parents=True, exist_ok=True)
 
-    texts = load_training_texts(datasets_root)
+    dataset_files = normalize_dataset_files(config.dataset_files)
+    texts = load_training_texts(datasets_root, dataset_files=dataset_files)
     if config.max_samples is not None:
         texts = texts[: config.max_samples]
     if not texts:
@@ -363,7 +412,10 @@ def _train_tiny_fallback(config: TrainingConfig) -> Path:
 
     torch.save(model.state_dict(), output_root / "model.pt")
     _save_json(output_root / "vocab.json", vocab)
-    config_payload = asdict(config) | {"training_mode": "tiny_lm_fallback"}
+    config_payload = asdict(config) | {
+        "training_mode": "tiny_lm_fallback",
+        "dataset_files": dataset_files,
+    }
     _save_json(output_root / "training_config.json", config_payload)
     metrics = {
         "sample_count": len(dataset),
@@ -376,6 +428,8 @@ def _train_tiny_fallback(config: TrainingConfig) -> Path:
         "device": str(device_obj),
         "cuda_available": torch.cuda.is_available(),
         "gpu_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
+        "dataset_files": dataset_files,
+        "stage_name": config.stage_name,
     }
     _save_json(output_root / "metrics.json", metrics)
 
@@ -419,7 +473,8 @@ def _train_transformers_lora(config: TrainingConfig) -> Path:
     output_root = Path(config.output_root)
     output_root.mkdir(parents=True, exist_ok=True)
 
-    records = load_training_records(datasets_root)
+    dataset_files = normalize_dataset_files(config.dataset_files)
+    records = load_training_records(datasets_root, dataset_files=dataset_files)
     if config.max_samples is not None:
         records = records[: config.max_samples]
     if not records:
@@ -434,6 +489,16 @@ def _train_transformers_lora(config: TrainingConfig) -> Path:
     tokenizer.padding_side = "right"
 
     base_model = _load_pretrained_with_local_fallback(AutoModelForCausalLM, config.model_name_or_path)
+    if config.init_adapter_path:
+        init_adapter_root = Path(config.init_adapter_path)
+        try:
+            merged_model = PeftModel.from_pretrained(base_model, init_adapter_root, local_files_only=True)
+        except Exception:
+            merged_model = PeftModel.from_pretrained(base_model, init_adapter_root)
+        if hasattr(merged_model, "merge_and_unload"):
+            base_model = merged_model.merge_and_unload()
+        else:
+            base_model = merged_model
     if getattr(base_model.config, "pad_token_id", None) is None and tokenizer.pad_token_id is not None:
         base_model.config.pad_token_id = tokenizer.pad_token_id
 
@@ -512,6 +577,9 @@ def _train_transformers_lora(config: TrainingConfig) -> Path:
         "base_model_name_or_path": config.model_name_or_path,
         "target_modules": target_modules,
         "fan_in_fan_out": fan_in_fan_out,
+        "dataset_files": dataset_files,
+        "init_adapter_path": config.init_adapter_path,
+        "stage_name": config.stage_name,
     }
     _save_json(output_root / "training_config.json", training_config)
     metrics = {
@@ -529,6 +597,9 @@ def _train_transformers_lora(config: TrainingConfig) -> Path:
         "fan_in_fan_out": fan_in_fan_out,
         "gradient_accumulation_steps": config.gradient_accumulation_steps,
         "global_steps": global_step,
+        "dataset_files": dataset_files,
+        "stage_name": config.stage_name,
+        "init_adapter_path": config.init_adapter_path,
     }
     _save_json(output_root / "metrics.json", metrics)
 
@@ -564,6 +635,41 @@ def train_local_model(config: TrainingConfig) -> Path:
     if mode == "tiny_lm_fallback":
         return _train_tiny_fallback(config)
     raise ValueError(f"Unsupported training mode: {config.training_mode}")
+
+
+def train_two_stage_local_model(
+    config: TrainingConfig,
+    *,
+    stage_one_dataset_files: list[str] | None = None,
+    stage_two_dataset_files: list[str] | None = None,
+    stage_one_output_root: str | Path | None = None,
+    stage_two_output_root: str | Path | None = None,
+) -> TwoStageTrainingResult:
+    output_root = Path(config.output_root)
+    stage_one_root = Path(stage_one_output_root) if stage_one_output_root else output_root.parent / f"{output_root.name}-stage1"
+    stage_two_root = Path(stage_two_output_root) if stage_two_output_root else output_root
+
+    stage_one_config = replace(
+        config,
+        output_root=str(stage_one_root),
+        dataset_files=normalize_dataset_files(stage_one_dataset_files or DEFAULT_STAGE_ONE_DATASET_FILES),
+        init_adapter_path=None,
+        stage_name="stage_one_foundation",
+    )
+    stage_one_trained_root = train_local_model(stage_one_config)
+
+    stage_two_config = replace(
+        config,
+        output_root=str(stage_two_root),
+        dataset_files=normalize_dataset_files(stage_two_dataset_files or DEFAULT_STAGE_TWO_DATASET_FILES),
+        init_adapter_path=str(Path(stage_one_trained_root) / "adapter") if config.training_mode != "tiny_lm_fallback" else None,
+        stage_name="stage_two_battery",
+    )
+    stage_two_trained_root = train_local_model(stage_two_config)
+    return TwoStageTrainingResult(
+        stage_one_root=Path(stage_one_trained_root),
+        stage_two_root=Path(stage_two_trained_root),
+    )
 
 
 def load_peft_model(model_root: Path, *, device: str = "auto") -> tuple[Any, Any, dict[str, Any]]:

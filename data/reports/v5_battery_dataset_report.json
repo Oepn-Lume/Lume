@@ -1,0 +1,57 @@
+{
+  "source_datasets_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\datasets",
+  "output_root": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\datasets_v5_battery",
+  "copied_files": [
+    "raw_dialogue_sft.jsonl",
+    "real_cloud_dialogue_sft.jsonl",
+    "real_cloud_bootstrap_sft.jsonl",
+    "real_cloud_full_fidelity_sft.jsonl",
+    "real_code_execution_sft.jsonl",
+    "battery_cascade_sft.jsonl",
+    "onsite_alignment_sft.jsonl",
+    "sft_reasoning.jsonl",
+    "sft_execution.jsonl",
+    "memory_update.jsonl",
+    "synthetic_sft.jsonl",
+    "codex_action_eval.jsonl",
+    "codex_continue_eval.jsonl",
+    "codex_patch_eval.jsonl",
+    "codex_log_eval.jsonl",
+    "continue_alignment_dpo.jsonl",
+    "continue_alignment_grpo.jsonl"
+  ],
+  "rebalanced_files": {
+    "battery_state_sft.jsonl": {
+      "source_records": 23,
+      "output_records": 69,
+      "multiplier": 3
+    },
+    "hybrid_refinement_sft.jsonl": {
+      "source_records": 4,
+      "output_records": 8,
+      "multiplier": 2
+    },
+    "codex_action_sft.jsonl": {
+      "source_records": 806,
+      "output_records": 2418,
+      "multiplier": 3
+    },
+    "continue_state_sft.jsonl": {
+      "source_records": 23,
+      "output_records": 92,
+      "multiplier": 4
+    },
+    "developer_chain_sft.jsonl": {
+      "source_records": 56,
+      "output_records": 112,
+      "multiplier": 2
+    },
+    "historical_workspace_code_sft.jsonl": {
+      "source_records": 114,
+      "output_records": 228,
+      "multiplier": 2
+    }
+  },
+  "continue_state_dataset": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\datasets\\continue_state_sft.jsonl",
+  "battery_state_dataset": "C:\\Users\\yh-PC-003\\Desktop\\codex\\lume\\data\\datasets\\battery_state_sft.jsonl"
+}
