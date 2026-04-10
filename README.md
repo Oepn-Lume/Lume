@@ -135,6 +135,7 @@ Lume operates on a continuous improvement cycle:
 | **Hybrid Refinement Logging** | Record local drafts versus cloud refinements as structured artifacts. | ✅ |
 | **Execution Dataset Expansion** | Extract real code files, function-call outputs, hybrid artifacts, and tool-level feedback into trainable datasets. | ✅ |
 | **RLEF Layer** | Reinforcement Learning from Execution Feedback datasets and minimal preference optimization. | 🏗️ In Progress |
+| **Energy-Aware RLEF** | Add action alignment, verbosity penalties, and expert-cost penalties to reward shaping for on-device learning. | ✅ |
 | **Continuous Retraining** | Run `Build -> Train -> Evaluate -> Route` through `python main.py cycle`. | ✅ |
 
 ---

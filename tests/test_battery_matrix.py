@@ -177,3 +177,31 @@ def test_dispatch_expert_uses_three_experts_for_multi_domain_task() -> None:
         "code-expert",
         "logic-expert",
     ]
+
+
+def test_dispatch_expert_marks_short_action_tasks() -> None:
+    experts = [
+        type("Expert", (), {
+            "name": "base-expert",
+            "domain": "general",
+            "description": "",
+            "model": "gemma4:31b",
+            "adapter": None,
+            "privacy_sensitive": False,
+            "keywords": ["continue", "next"],
+            "confidence_bias": 0.05,
+        })(),
+        type("Expert", (), {
+            "name": "code-expert",
+            "domain": "code",
+            "description": "",
+            "model": "gemma4:31b",
+            "adapter": None,
+            "privacy_sensitive": False,
+            "keywords": ["patch", "fix", "publish"],
+            "confidence_bias": 0.05,
+        })(),
+    ]
+    dispatch = dispatch_expert("continue", experts, max_experts=2)
+    assert dispatch.action_task is True
+    assert dispatch.primary_expert.name in {"base-expert", "code-expert"}

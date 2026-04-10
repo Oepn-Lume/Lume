@@ -145,6 +145,7 @@ Lume 当前的最小闭环是：
 | **Hybrid Refinement Logging** | 记录本地草稿与云端精修之间的结构化差异 | ✅ |
 | **Execution Dataset Expansion** | 把真实代码文件、function call 输出、hybrid artifact 和工具级反馈提炼成可训练数据集 | ✅ |
 | **RLEF Layer** | 基于真实执行反馈的数据集和最小偏好优化链路 | 🏗️ 开发中 |
+| **Energy-Aware RLEF** | 将动作对齐、啰嗦度惩罚和专家级联成本一起写入端侧奖励塑形 | ✅ |
 | **Continuous Retraining** | 通过 `python main.py cycle` 运行 `Build -> Train -> Evaluate -> Route` 周期 | ✅ |
 
 ---

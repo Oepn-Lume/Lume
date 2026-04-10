@@ -50,10 +50,17 @@ def main() -> None:
     reward_records = _read_jsonl(datasets_root / "rlef_reward.jsonl")
     preference_records = _read_jsonl(datasets_root / "rlef_preference.jsonl")
     rewards = [float(record.get("reward", 0.0)) for record in reward_records]
+    reward_env = [float(record.get("metadata", {}).get("reward_env", 0.0)) for record in reward_records]
+    reward_align = [float(record.get("metadata", {}).get("reward_align", 0.0)) for record in reward_records]
+    reward_short = [float(record.get("metadata", {}).get("reward_short", 0.0)) for record in reward_records]
+    energy_penalties = [float(record.get("metadata", {}).get("energy_penalty", 0.0)) for record in reward_records]
     route_modes: dict[str, int] = {}
+    action_tasks = 0
     for record in reward_records:
         route = str(record.get("metadata", {}).get("route_mode", "unknown"))
         route_modes[route] = route_modes.get(route, 0) + 1
+        if bool(record.get("metadata", {}).get("action_task", False)):
+            action_tasks += 1
 
     payload = {
         "reward_record_count": len(reward_records),
@@ -61,6 +68,11 @@ def main() -> None:
         "reward_mean": statistics.mean(rewards) if rewards else None,
         "reward_min": min(rewards) if rewards else None,
         "reward_max": max(rewards) if rewards else None,
+        "reward_env_mean": statistics.mean(reward_env) if reward_env else None,
+        "reward_align_mean": statistics.mean(reward_align) if reward_align else None,
+        "reward_short_mean": statistics.mean(reward_short) if reward_short else None,
+        "energy_penalty_mean": statistics.mean(energy_penalties) if energy_penalties else None,
+        "action_task_count": action_tasks,
         "route_mode_distribution": route_modes,
     }
     report_json = output_root / "rlef_report.json"
@@ -76,6 +88,11 @@ def main() -> None:
                 f"- Reward mean: {payload['reward_mean']}",
                 f"- Reward min: {payload['reward_min']}",
                 f"- Reward max: {payload['reward_max']}",
+                f"- Reward env mean: {payload['reward_env_mean']}",
+                f"- Reward align mean: {payload['reward_align_mean']}",
+                f"- Reward short mean: {payload['reward_short_mean']}",
+                f"- Energy penalty mean: {payload['energy_penalty_mean']}",
+                f"- Action-task count: {payload['action_task_count']}",
                 f"- Route modes: {json.dumps(route_modes, ensure_ascii=False)}",
                 "",
             ]

@@ -6,6 +6,27 @@ from dataclasses import dataclass
 
 from .experts import ExpertProfile
 
+ACTION_KEYWORDS = {
+    "continue",
+    "publish",
+    "fix",
+    "implement",
+    "retry",
+    "next",
+    "deploy",
+    "debug",
+    "repair",
+    "ship",
+    "release",
+    "继续",
+    "发布",
+    "修复",
+    "实现",
+    "重试",
+    "下一步",
+    "部署",
+}
+
 
 @dataclass(slots=True)
 class ExpertDispatch:
@@ -21,10 +42,29 @@ class ExpertDispatch:
     cascade_matched_keywords: dict[str, list[str]]
     candidate_scores: dict[str, float]
     selected_expert_count: int
+    action_task: bool
 
 
 def _task_keywords(task: str) -> list[str]:
     return [token.strip(".,:;!?()[]{}").lower() for token in task.split() if token.strip()]
+
+
+def _is_action_task(tokens: list[str]) -> bool:
+    return len(tokens) <= 5 and any(token in ACTION_KEYWORDS for token in tokens)
+
+
+def _action_bias(expert: ExpertProfile, *, action_task: bool) -> float:
+    if not action_task:
+        return 0.0
+    if expert.domain == "code":
+        return 0.18
+    if expert.domain == "general":
+        return 0.12
+    if expert.domain == "reasoning":
+        return 0.08
+    if expert.domain == "private" and expert.privacy_sensitive:
+        return 0.06
+    return 0.0
 
 
 def _dynamic_expert_limit(
@@ -63,6 +103,7 @@ def dispatch_expert(
     """Choose the most suitable expert battery cascade for a task."""
     tokens = _task_keywords(task)
     token_set = set(tokens)
+    action_task = _is_action_task(tokens)
 
     candidate_scores: dict[str, float] = {}
     candidate_matches: dict[str, list[str]] = {}
@@ -73,7 +114,13 @@ def dispatch_expert(
         keyword_score = len(matches) / max(len(expert.keywords), 1)
         privacy_bonus = 0.2 if privacy_sensitive and expert.privacy_sensitive else 0.0
         general_bonus = 0.1 if expert.domain == "general" else 0.0
-        score = keyword_score + expert.confidence_bias + privacy_bonus + general_bonus
+        score = (
+            keyword_score
+            + expert.confidence_bias
+            + privacy_bonus
+            + general_bonus
+            + _action_bias(expert, action_task=action_task)
+        )
         score = round(min(score, 1.0), 3)
         candidate_scores[expert.name] = score
         candidate_matches[expert.name] = matches
@@ -106,4 +153,5 @@ def dispatch_expert(
         },
         candidate_scores=candidate_scores,
         selected_expert_count=len(cascade),
+        action_task=action_task,
     )
