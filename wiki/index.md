@@ -29,7 +29,7 @@
 - [Battery Model V1](docs/battery-model-v1-md.md) | path=`battery-model-v1.md` | lang=mixed
 - [为“现场”而生：从“图书馆研究员”到“常驻队友”，如何重构本地 AI 的工程实践](docs/blogs-built-for-the-worksite-md.md) | path=`blogs/built-for-the-worksite.md` | lang=mixed
 - [数字化大停电前夜：我们为什么需要“数字太阳”计划？](docs/blogs-digital-sun-before-the-blackout-md.md) | path=`blogs/digital-sun-before-the-blackout.md` | lang=mixed
-- [从影子到直觉：一种昼夜分治的智能进化框架](docs/blogs-from-shadow-to-intuition-md.md) | path=`blogs/from-shadow-to-intuition.md` | lang=mixed
+- [从“影子”到“直觉”：一种昼夜分治的智能进化框架](docs/blogs-from-shadow-to-intuition-md.md) | path=`blogs/from-shadow-to-intuition.md` | lang=mixed
 - [为什么 Gemma4 还不能替代云端协作](docs/blogs-gemma4-vs-cloud-full-history-md.md) | path=`blogs/gemma4-vs-cloud-full-history.md` | lang=mixed
 - [Battery Model V1](docs/en-battery-model-v1-md.md) | path=`en/battery-model-v1.md` | lang=en
 - [Built for the Worksite: From "Library Researcher" to "Always-On Teammate"](docs/en-blogs-built-for-the-worksite-md.md) | path=`en/blogs/built-for-the-worksite.md` | lang=en
@@ -61,7 +61,9 @@
 - [Code Mismatch Cases](analysis/gemma-vs-cloud-code-mismatch.md) | section=gemma-vs-cloud
 
 ## Milestones
+- [2026-04-10 Auto Device State for Shadow Charging](milestones/2026-04-10-auto-device-state-for-shadow-charging.md)
 - [2026-04-10 Milestone Logging Rule](milestones/2026-04-10-milestone-logging-rule.md)
+- [2026-04-10 SAR Protocol Foundation](milestones/2026-04-10-sar-protocol-foundation.md)
 - [2026-04-10 Shadow Charging Loop](milestones/2026-04-10-shadow-charging-loop.md)
 
 ## Memory

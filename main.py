@@ -16,7 +16,7 @@ def parse_args() -> argparse.Namespace:
         "mode",
         nargs="?",
         default="shadow",
-        choices=["shadow", "sync", "pipeline", "cycle", "share", "charge"],
+        choices=["shadow", "sync", "pipeline", "cycle", "share", "charge", "sar"],
         help="Launch mode. Defaults to shadow.",
     )
     parser.add_argument("--task", help="Task text for pipeline mode.")
@@ -98,9 +98,16 @@ def main() -> None:
                     str(ROOT / "scripts" / "run_shadow_charging.py"),
                     "--device",
                     args.device,
-                    "--is-charging",
-                    "--idle-minutes",
-                    "45",
+                ]
+            )
+        )
+
+    if args.mode == "sar":
+        raise SystemExit(
+            _run(
+                [
+                    python_exe,
+                    str(ROOT / "scripts" / "build_sar_dataset.py"),
                 ]
             )
         )

@@ -40,6 +40,9 @@ python main.py cycle
 # Run the guarded night-side charging loop
 python main.py charge
 
+# Export the standardized State-Action-Reward protocol dataset
+python main.py sar
+
 # Run the end-to-end demo pipeline for a task
 python main.py pipeline --task "write a short summary"
 ```
@@ -135,6 +138,24 @@ This launches a guarded night-watch flow that builds a shadow-charge ledger and 
 
 ---
 
+## Battery Model 2.0 Standard Interface
+
+Lume now exposes a standardized `State-Action-Reward` interface so the Battery Model can evolve from a code-specific patch layer into a reusable local intelligence protocol.
+
+- **State**: world snapshot, intent trajectory, and feedback signals
+- **Action**: standardized action type and payload, not just free-form text
+- **Reward**: execution-grounded feedback that can be reused across software and future edge-agent domains
+
+Use:
+
+```bash
+python main.py sar
+```
+
+This exports `data/datasets/sar_protocol.jsonl`, making task runs available through a common protocol surface for future agents.
+
+---
+
 ## 🛠 Project Progress & Milestones
 
 | Feature | Description | Status |
@@ -160,6 +181,7 @@ This launches a guarded night-watch flow that builds a shadow-charge ledger and 
 | **Energy-Aware RLEF** | Add action alignment, verbosity penalties, and expert-cost penalties to reward shaping for on-device learning. | ✅ |
 | **Adaptive Battery Routing** | Feed onsite DPO/GRPO gains back into routing so short action tasks expand local takeover when the Battery Model improves. | ✅ |
 | **Diurnal Shadow Charging** | Split daytime shadow collection from nighttime retraining so the Battery Model evolves only during idle, charging windows. | ✅ |
+| **SAR Protocol Dataset** | Export task runs into a standardized State-Action-Reward interface so future agents can plug into the Battery Model as a shared protocol. | ✅ |
 | **Continuous Retraining** | Run `Build -> Train -> Evaluate -> Route` through `python main.py cycle`. | ✅ |
 
 ---

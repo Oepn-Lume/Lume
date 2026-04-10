@@ -12,6 +12,7 @@ from .historical_backfill import build_historical_workspace_dataset
 from .hybrid_refinement import build_hybrid_refinement_dataset
 from .onsite_alignment import build_onsite_alignment_datasets
 from .raw_dialogue import build_raw_dialogue_dataset
+from lume.spi import build_sar_protocol_dataset
 
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text("utf-8"))
@@ -122,5 +123,6 @@ def build_distill_datasets(
     written.append(build_hybrid_refinement_dataset(task_runs_root, datasets_root))
     reports_root = task_runs_root.parent / "reports"
     written.extend(build_onsite_alignment_datasets(reports_root, datasets_root))
+    written.append(build_sar_protocol_dataset(task_runs_root, datasets_root))
     written.append(build_historical_workspace_dataset(task_runs_root.parent.parent, datasets_root))
     return written

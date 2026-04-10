@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from lume.charging import DeviceState, build_shadow_charge_ledger, evaluate_charging_window
+from lume.charging import DeviceState, build_shadow_charge_ledger, detect_device_state, evaluate_charging_window
 
 
 def test_evaluate_charging_window_requires_idle_and_charging() -> None:
@@ -39,3 +39,18 @@ def test_build_shadow_charge_ledger_collects_task_runs(tmp_path: Path) -> None:
     assert len(written) == 2
     ledger_text = written[0].read_text("utf-8")
     assert "demo-task" in ledger_text
+
+
+def test_detect_device_state_prefers_overrides() -> None:
+    detected = detect_device_state(
+        hour_override=1,
+        idle_minutes_override=90,
+        is_charging_override=True,
+        cpu_percent_override=3.5,
+        gpu_busy_override=False,
+    )
+    assert detected.state.hour == 1
+    assert detected.state.idle_minutes == 90
+    assert detected.state.is_charging is True
+    assert detected.detection_source["hour_source"] == "override"
+    assert detected.detection_source["idle_source"] == "override"

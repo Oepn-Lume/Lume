@@ -26,7 +26,7 @@
 - docs | `battery-model-v1.md` | title=Battery Model V1 | lang=mixed
 - docs | `blogs/built-for-the-worksite.md` | title=为“现场”而生：从“图书馆研究员”到“常驻队友”，如何重构本地 AI 的工程实践 | lang=mixed
 - docs | `blogs/digital-sun-before-the-blackout.md` | title=数字化大停电前夜：我们为什么需要“数字太阳”计划？ | lang=mixed
-- docs | `blogs/from-shadow-to-intuition.md` | title=从影子到直觉：一种昼夜分治的智能进化框架 | lang=mixed
+- docs | `blogs/from-shadow-to-intuition.md` | title=从“影子”到“直觉”：一种昼夜分治的智能进化框架 | lang=mixed
 - docs | `blogs/gemma4-vs-cloud-full-history.md` | title=为什么 Gemma4 还不能替代云端协作 | lang=mixed
 - docs | `en/battery-model-v1.md` | title=Battery Model V1 | lang=en
 - docs | `en/blogs/built-for-the-worksite.md` | title=Built for the Worksite: From "Library Researcher" to "Always-On Teammate" | lang=en
@@ -54,7 +54,9 @@
 - analysis | `gemma-vs-cloud-process-events` | title=Process Event Coverage
 - analysis | `gemma-vs-cloud-lowest-similarity` | title=Lowest Similarity Cases
 - analysis | `gemma-vs-cloud-code-mismatch` | title=Code Mismatch Cases
+- milestones | `milestones/2026-04-10-auto-device-state-for-shadow-charging.md` | title=2026-04-10 Auto Device State for Shadow Charging
 - milestones | `milestones/2026-04-10-milestone-logging-rule.md` | title=2026-04-10 Milestone Logging Rule
+- milestones | `milestones/2026-04-10-sar-protocol-foundation.md` | title=2026-04-10 SAR Protocol Foundation
 - milestones | `milestones/2026-04-10-shadow-charging-loop.md` | title=2026-04-10 Shadow Charging Loop
 - memory | `memory/assistant-operating-memory.md` | title=Assistant Operating Memory
 

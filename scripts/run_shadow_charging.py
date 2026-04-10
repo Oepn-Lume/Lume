@@ -14,14 +14,14 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from lume.charging import DeviceState, evaluate_charging_window
+from lume.charging import detect_device_state, evaluate_charging_window
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--device", default="auto")
-    parser.add_argument("--idle-minutes", type=int, default=30)
-    parser.add_argument("--cpu-percent", type=float, default=5.0)
+    parser.add_argument("--idle-minutes", type=int)
+    parser.add_argument("--cpu-percent", type=float)
     parser.add_argument("--hour", type=int)
     parser.add_argument("--is-charging", action="store_true")
     parser.add_argument("--gpu-busy", action="store_true")
@@ -57,14 +57,14 @@ def _extract_paths(stdout: str) -> list[str]:
 def main() -> None:
     args = parse_args()
     python_exe = sys.executable
-    hour = args.hour if args.hour is not None else datetime.now().hour
-    state = DeviceState(
-        hour=hour,
-        idle_minutes=args.idle_minutes,
-        is_charging=args.is_charging,
-        cpu_percent=args.cpu_percent,
-        gpu_busy=args.gpu_busy,
+    detected = detect_device_state(
+        hour_override=args.hour,
+        idle_minutes_override=args.idle_minutes,
+        is_charging_override=True if args.is_charging else None,
+        cpu_percent_override=args.cpu_percent,
+        gpu_busy_override=True if args.gpu_busy else None,
     )
+    state = detected.state
     decision = evaluate_charging_window(state)
 
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -82,6 +82,7 @@ def main() -> None:
             "cpu_percent": state.cpu_percent,
             "gpu_busy": state.gpu_busy,
         },
+        "detection_source": detected.detection_source,
         "decision": {
             "should_charge": decision.should_charge,
             "charging_window_active": decision.charging_window_active,
@@ -100,6 +101,7 @@ def main() -> None:
                     "",
                     f"- Run ID: `{run_id}`",
                     "- Result: `skipped`",
+                    f"- Device State: hour={state.hour}, idle={state.idle_minutes}m, charging={state.is_charging}, cpu={state.cpu_percent}",
                     f"- Reasons: `{', '.join(decision.reasons)}`",
                     "",
                 ]
@@ -160,6 +162,7 @@ def main() -> None:
                 "",
                 f"- Run ID: `{run_id}`",
                 "- Result: `completed`",
+                f"- Device State: hour={state.hour}, idle={state.idle_minutes}m, charging={state.is_charging}, cpu={state.cpu_percent}",
                 f"- Reasons: `{', '.join(decision.reasons)}`",
                 "",
                 "## Steps",
