@@ -58,6 +58,7 @@
 - analysis | `gemma-vs-cloud-code-mismatch` | title=Code Mismatch Cases
 - milestones | `milestones/2026-04-10-auto-device-state-for-shadow-charging.md` | title=2026-04-10 Auto Device State for Shadow Charging
 - milestones | `milestones/2026-04-10-battery-model-2-blog.md` | title=2026-04-10 Battery Model 2.0 Blog
+- milestones | `milestones/2026-04-10-codex-action-taxonomy.md` | title=2026-04-10 Codex Action Taxonomy
 - milestones | `milestones/2026-04-10-milestone-logging-rule.md` | title=2026-04-10 Milestone Logging Rule
 - milestones | `milestones/2026-04-10-robotics-sar-adapter.md` | title=2026-04-10 Robotics SAR Adapter
 - milestones | `milestones/2026-04-10-sar-adapter-registry.md` | title=2026-04-10 SAR Adapter Registry

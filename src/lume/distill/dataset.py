@@ -8,6 +8,7 @@ from typing import Any
 
 from .battery_cascade import build_battery_cascade_dataset
 from .code_execution import build_real_code_execution_dataset
+from .codex_actions import build_codex_action_dataset
 from .historical_backfill import build_historical_workspace_dataset
 from .hybrid_refinement import build_hybrid_refinement_dataset
 from .onsite_alignment import build_onsite_alignment_datasets
@@ -122,6 +123,7 @@ def build_distill_datasets(
     written.append(build_battery_cascade_dataset(task_runs_root, datasets_root))
     written.append(build_hybrid_refinement_dataset(task_runs_root, datasets_root))
     reports_root = task_runs_root.parent / "reports"
+    written.extend(build_codex_action_dataset(reports_root, datasets_root))
     written.extend(build_onsite_alignment_datasets(reports_root, datasets_root))
     written.append(build_sar_protocol_dataset(task_runs_root, datasets_root))
     written.append(build_historical_workspace_dataset(task_runs_root.parent.parent, datasets_root))

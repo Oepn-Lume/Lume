@@ -43,6 +43,7 @@ DEFAULT_DATASET_FILES = [
     "real_code_execution_sft.jsonl",
     "battery_cascade_sft.jsonl",
     "hybrid_refinement_sft.jsonl",
+    "codex_action_sft.jsonl",
     "onsite_alignment_sft.jsonl",
     "developer_chain_sft.jsonl",
     "historical_workspace_code_sft.jsonl",

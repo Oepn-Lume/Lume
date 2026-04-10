@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from lume.codex import classify_codex_action
+
 
 def _parse_simple_yaml(path: Path) -> dict[str, Any]:
     """Parse the small project YAML files without external dependencies."""
@@ -46,6 +48,8 @@ class RoutingDecision:
     adaptive_local_quality_score: float | None = None
     adaptive_local_threshold: float | None = None
     action_task: bool | None = None
+    codex_action_label: str | None = None
+    codex_action_readiness: float | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -58,6 +62,8 @@ class RoutingDecision:
             "adaptive_local_quality_score": self.adaptive_local_quality_score,
             "adaptive_local_threshold": self.adaptive_local_threshold,
             "action_task": self.action_task,
+            "codex_action_label": self.codex_action_label,
+            "codex_action_readiness": self.codex_action_readiness,
         }
 
 
@@ -83,19 +89,21 @@ ACTION_KEYWORDS = {
 }
 
 
-def _read_local_quality_snapshot(path: Path | None) -> tuple[float | None, bool | None, float | None, float | None]:
+def _read_local_quality_snapshot(path: Path | None) -> tuple[float | None, bool | None, float | None, float | None, float | None]:
     if path is None or not path.exists():
-        return None, None, None, None
+        return None, None, None, None, None
     payload = json.loads(path.read_text("utf-8-sig"))
     score = payload.get("local_quality_score")
     adaptive_score = payload.get("adaptive_local_quality_score")
     adaptive_threshold = payload.get("adaptive_local_threshold")
+    codex_action_readiness = payload.get("codex_action_readiness")
     ready = payload.get("battery_model_ready")
     return (
         float(score) if score is not None else None,
         bool(ready) if ready is not None else None,
         float(adaptive_score) if adaptive_score is not None else None,
         float(adaptive_threshold) if adaptive_threshold is not None else None,
+        float(codex_action_readiness) if codex_action_readiness is not None else None,
     )
 
 
@@ -155,12 +163,14 @@ def route_task(
     thresholds = config.get("thresholds", {})
     similarity_threshold = float(thresholds.get("similarity_for_local", 0.85))
     local_quality_threshold = float(thresholds.get("local_quality_for_local", 0.7))
+    codex_action_threshold = float(thresholds.get("codex_action_readiness_for_local", 0.6))
 
     similarity_score = _estimate_similarity(task, task_runs_root)
     complexity = _estimate_complexity(task)
-    local_quality_score, local_quality_ready, adaptive_local_quality_score, adaptive_local_threshold = _read_local_quality_snapshot(local_quality_path)
+    local_quality_score, local_quality_ready, adaptive_local_quality_score, adaptive_local_threshold, codex_action_readiness = _read_local_quality_snapshot(local_quality_path)
     reasons: list[str] = []
     action_task = _is_action_task(task)
+    codex_action = classify_codex_action(task)
     effective_local_quality = adaptive_local_quality_score if adaptive_local_quality_score is not None else local_quality_score
     effective_local_threshold = adaptive_local_threshold if adaptive_local_threshold is not None else local_quality_threshold
 
@@ -176,6 +186,8 @@ def route_task(
             adaptive_local_quality_score=adaptive_local_quality_score,
             adaptive_local_threshold=adaptive_local_threshold,
             action_task=action_task,
+            codex_action_label=codex_action.action_label,
+            codex_action_readiness=codex_action_readiness,
         )
 
     if privacy_sensitive:
@@ -190,6 +202,8 @@ def route_task(
             adaptive_local_quality_score=adaptive_local_quality_score,
             adaptive_local_threshold=adaptive_local_threshold,
             action_task=action_task,
+            codex_action_label=codex_action.action_label,
+            codex_action_readiness=codex_action_readiness,
         )
 
     if similarity_score >= similarity_threshold and complexity == "low":
@@ -209,6 +223,8 @@ def route_task(
                 adaptive_local_quality_score=adaptive_local_quality_score,
                 adaptive_local_threshold=adaptive_local_threshold,
                 action_task=action_task,
+                codex_action_label=codex_action.action_label,
+                codex_action_readiness=codex_action_readiness,
             )
         if effective_local_quality is not None and effective_local_quality < effective_local_threshold:
             reasons.append("local quality below threshold")
@@ -222,6 +238,8 @@ def route_task(
                 adaptive_local_quality_score=adaptive_local_quality_score,
                 adaptive_local_threshold=adaptive_local_threshold,
                 action_task=action_task,
+                codex_action_label=codex_action.action_label,
+                codex_action_readiness=codex_action_readiness,
             )
         return RoutingDecision(
             mode=rules.get("high_similarity_task", "local"),
@@ -233,12 +251,22 @@ def route_task(
             adaptive_local_quality_score=adaptive_local_quality_score,
             adaptive_local_threshold=adaptive_local_threshold,
             action_task=action_task,
+            codex_action_label=codex_action.action_label,
+            codex_action_readiness=codex_action_readiness,
         )
 
     if action_task and complexity == "low":
         reasons.append("short action command")
-        if local_quality_ready and effective_local_quality is not None and effective_local_quality >= effective_local_threshold:
+        reasons.append(f"codex action label: {codex_action.action_label}")
+        if (
+            local_quality_ready
+            and effective_local_quality is not None
+            and effective_local_quality >= effective_local_threshold
+            and codex_action_readiness is not None
+            and codex_action_readiness >= codex_action_threshold
+        ):
             reasons.append("adaptive local quality ready")
+            reasons.append("codex action readiness above threshold")
             return RoutingDecision(
                 mode=rules.get("action_task_when_ready", "local"),
                 reasons=reasons,
@@ -249,6 +277,8 @@ def route_task(
                 adaptive_local_quality_score=adaptive_local_quality_score,
                 adaptive_local_threshold=adaptive_local_threshold,
                 action_task=action_task,
+                codex_action_label=codex_action.action_label,
+                codex_action_readiness=codex_action_readiness,
             )
         reasons.append("action task still needs cloud assist")
         return RoutingDecision(
@@ -261,6 +291,8 @@ def route_task(
             adaptive_local_quality_score=adaptive_local_quality_score,
             adaptive_local_threshold=adaptive_local_threshold,
             action_task=action_task,
+            codex_action_label=codex_action.action_label,
+            codex_action_readiness=codex_action_readiness,
         )
 
     if complexity == "high":
@@ -275,6 +307,8 @@ def route_task(
             adaptive_local_quality_score=adaptive_local_quality_score,
             adaptive_local_threshold=adaptive_local_threshold,
             action_task=action_task,
+            codex_action_label=codex_action.action_label,
+            codex_action_readiness=codex_action_readiness,
         )
 
     reasons.append("defaulting to cloud-first for moderate certainty")
@@ -288,4 +322,6 @@ def route_task(
         adaptive_local_quality_score=adaptive_local_quality_score,
         adaptive_local_threshold=adaptive_local_threshold,
         action_task=action_task,
+        codex_action_label=codex_action.action_label,
+        codex_action_readiness=codex_action_readiness,
     )

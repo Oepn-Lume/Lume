@@ -12,4 +12,5 @@ rules:
 thresholds:
   similarity_for_local: 0.85
   local_quality_for_local: 0.7
+  codex_action_readiness_for_local: 0.6
   budget_warning: 0.8
