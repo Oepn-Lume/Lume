@@ -36,6 +36,101 @@ def _trim(text: str, limit: int = 220) -> str:
     return compact[: limit - 3] + "..."
 
 
+def _build_prompt_variants(
+    *,
+    history_lines: list[str],
+    internal_lines: list[str],
+    current_state: str,
+    user_text: str,
+    prompt_role: str,
+) -> list[tuple[str, str]]:
+    history_short = history_lines[-3:] if history_lines else ["No prior session history found"]
+    internal_short = internal_lines[-3:] if internal_lines else ["No recent internal events found"]
+    variants: list[tuple[str, str]] = [
+        (
+            "full",
+            "\n".join(
+                [
+                    "Session_History:",
+                    *(history_lines or ["No prior session history found"]),
+                    "",
+                    "Internal_Events:",
+                    *(internal_lines or ["No recent internal events found"]),
+                    "",
+                    "Current_State:",
+                    current_state,
+                    "",
+                    f"Current_Request: {user_text}",
+                    "",
+                    "Task: continue the live task as an on-site teammate. Stay concise, stateful, and execution-aware.",
+                ]
+            ).strip(),
+        ),
+        (
+            "compact",
+            "\n".join(
+                [
+                    "Session_History:",
+                    *history_short,
+                    "",
+                    "Internal_Events:",
+                    *internal_short,
+                    "",
+                    f"Current_Request: {user_text}",
+                    "",
+                    "Task: continue the current work without resetting context.",
+                ]
+            ).strip(),
+        ),
+        (
+            "action",
+            "\n".join(
+                [
+                    "Current_State:",
+                    current_state,
+                    "",
+                    "Recent_Internal_Events:",
+                    *internal_short,
+                    "",
+                    f"Current_Request: {user_text}",
+                    "",
+                    "Task: choose the next on-site action. Prefer action over explanation.",
+                ]
+            ).strip(),
+        ),
+    ]
+    if prompt_role == "developer":
+        variants.append(
+            (
+                "developer_protocol",
+                "\n".join(
+                    [
+                        "<internal_action>",
+                        f"Current_State: {current_state}",
+                        f"Developer_Command: {user_text}",
+                        "Task: respond as an internal execution agent. Keep the reply extremely brief and action-oriented.",
+                        "</internal_action>",
+                    ]
+                ).strip(),
+            )
+        )
+    else:
+        variants.append(
+            (
+                "short_command",
+                "\n".join(
+                    [
+                        f"Current_Request: {user_text}",
+                        f"Current_State: {current_state}",
+                        "",
+                        "Task: treat short commands as stateful continuations rather than new conversations.",
+                    ]
+                ).strip(),
+            )
+        )
+    return variants
+
+
 def _load_session_events(session_path: Path) -> list[dict[str, Any]]:
     events: list[dict[str, Any]] = []
     for line in session_path.read_text("utf-8", errors="ignore").splitlines():
@@ -118,11 +213,12 @@ def build_onsite_alignment_datasets(reports_root: Path, datasets_root: Path) -> 
     output_alignment = datasets_root / "onsite_alignment_sft.jsonl"
     output_developer = datasets_root / "developer_chain_sft.jsonl"
     output_dpo = datasets_root / "onsite_alignment_dpo.jsonl"
+    output_dpo_augmented = datasets_root / "onsite_alignment_dpo_3000.jsonl"
 
     if not comparison_json.exists():
-        for path in [output_alignment, output_developer, output_dpo]:
+        for path in [output_alignment, output_developer, output_dpo, output_dpo_augmented]:
             path.write_text("", "utf-8")
-        return [output_alignment, output_developer, output_dpo]
+        return [output_alignment, output_developer, output_dpo, output_dpo_augmented]
 
     comparison_payload = _read_json(comparison_json)
     comparisons = comparison_payload.get("comparisons", [])
@@ -133,6 +229,7 @@ def build_onsite_alignment_datasets(reports_root: Path, datasets_root: Path) -> 
     alignment_records: list[dict[str, Any]] = []
     developer_records: list[dict[str, Any]] = []
     dpo_records: list[dict[str, Any]] = []
+    dpo_augmented_records: list[dict[str, Any]] = []
 
     for item in comparisons:
         if not isinstance(item, dict):
@@ -149,22 +246,14 @@ def build_onsite_alignment_datasets(reports_root: Path, datasets_root: Path) -> 
             item,
             supplemental_events=supplemental_events,
         )
-        input_text = "\n".join(
-            [
-                "Session_History:",
-                *(history_lines or ["No prior session history found"]),
-                "",
-                "Internal_Events:",
-                *(internal_lines or ["No recent internal events found"]),
-                "",
-                "Current_State:",
-                current_state,
-                "",
-                f"Current_Request: {user_text}",
-                "",
-                "Task: continue the live task as an on-site teammate. Stay concise, stateful, and execution-aware.",
-            ]
-        ).strip()
+        variants = _build_prompt_variants(
+            history_lines=history_lines,
+            internal_lines=internal_lines,
+            current_state=current_state,
+            user_text=user_text,
+            prompt_role=prompt_role,
+        )
+        input_text = variants[0][1]
 
         base_record = {
             "task_id": comparison_id,
@@ -200,37 +289,53 @@ def build_onsite_alignment_datasets(reports_root: Path, datasets_root: Path) -> 
             )
 
         if gemma_text:
+            base_metadata = {
+                "source": "gemma_vs_cloud_preference",
+                "prompt_role": prompt_role,
+                "session_file": item.get("session_file"),
+                "session_id": item.get("session_id"),
+                "user_index": item.get("user_index"),
+                "assistant_index": item.get("assistant_index"),
+                "assistant_phase": item.get("assistant_phase"),
+                "cloud_char_len": item.get("metrics", {}).get("cloud_char_len"),
+                "gemma_char_len": item.get("metrics", {}).get("gemma_char_len"),
+                "similarity": item.get("metrics", {}).get("similarity"),
+                "cloud_has_code": item.get("metrics", {}).get("cloud_has_code"),
+                "gemma_has_code": item.get("metrics", {}).get("gemma_has_code"),
+            }
             dpo_records.append(
                 {
                     "task_id": f"{comparison_id}-onsite-dpo",
                     "prompt": input_text,
                     "chosen": cloud_text,
                     "rejected": gemma_text,
-                    "metadata": {
-                        "source": "gemma_vs_cloud_preference",
-                        "prompt_role": prompt_role,
-                        "session_file": item.get("session_file"),
-                        "session_id": item.get("session_id"),
-                        "user_index": item.get("user_index"),
-                        "assistant_index": item.get("assistant_index"),
-                        "assistant_phase": item.get("assistant_phase"),
-                        "cloud_char_len": item.get("metrics", {}).get("cloud_char_len"),
-                        "gemma_char_len": item.get("metrics", {}).get("gemma_char_len"),
-                        "similarity": item.get("metrics", {}).get("similarity"),
-                        "cloud_has_code": item.get("metrics", {}).get("cloud_has_code"),
-                        "gemma_has_code": item.get("metrics", {}).get("gemma_has_code"),
-                    },
+                    "metadata": base_metadata,
                 }
             )
+            for variant_name, variant_prompt in variants:
+                dpo_augmented_records.append(
+                    {
+                        "task_id": f"{comparison_id}-onsite-dpo-{variant_name}",
+                        "prompt": variant_prompt,
+                        "chosen": cloud_text,
+                        "rejected": gemma_text,
+                        "metadata": {
+                            **base_metadata,
+                            "source": "gemma_vs_cloud_preference_augmented",
+                            "variant": variant_name,
+                        },
+                    }
+                )
 
     for path, records in [
         (output_alignment, alignment_records),
         (output_developer, developer_records),
         (output_dpo, dpo_records),
+        (output_dpo_augmented, dpo_augmented_records),
     ]:
         path.write_text(
             "\n".join(json.dumps(record, ensure_ascii=False) for record in records)
             + ("\n" if records else ""),
             "utf-8",
         )
-    return [output_alignment, output_developer, output_dpo]
+    return [output_alignment, output_developer, output_dpo, output_dpo_augmented]

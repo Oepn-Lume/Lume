@@ -72,6 +72,7 @@ class BatteryMatrix:
         self,
         task: str,
         *,
+        context_report: str | None = None,
         privacy_sensitive: bool = False,
         confidence_threshold: float = 0.42,
         max_experts: int = 3,
@@ -96,6 +97,7 @@ class BatteryMatrix:
                     f"You are the '{expert.name}' expert battery for domain "
                     f"'{expert.domain}'.\n"
                     f"Description: {expert.description}\n"
+                    f"{context_report + chr(10) if context_report else ''}"
                     f"Task: {task}\n"
                     "Produce a concise local-first plan or answer that fits the current task."
                 )
@@ -104,6 +106,7 @@ class BatteryMatrix:
                     f"You are the '{expert.name}' expert battery for domain "
                     f"'{expert.domain}'.\n"
                     f"Description: {expert.description}\n"
+                    f"{context_report + chr(10) if context_report else ''}"
                     f"Task: {task}\n"
                     f"Primary local draft:\n{previous_output}\n\n"
                     "Refine, tighten, or extend the draft from your domain perspective. "

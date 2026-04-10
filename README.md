@@ -66,6 +66,7 @@ The project wiki is now versioned inside the repository so analysis, memory page
 
 - **Why Gemma4 Still Cannot Replace Cloud Collaboration**: [docs/en/blogs/gemma4-vs-cloud-full-history.md](./docs/en/blogs/gemma4-vs-cloud-full-history.md)
 - **Before the Digital Blackout: Why We Need a Digital Sun Plan**: [docs/en/blogs/digital-sun-before-the-blackout.md](./docs/en/blogs/digital-sun-before-the-blackout.md)
+- **Built for the Worksite: From "Library Researcher" to "Always-On Teammate"**: [docs/en/blogs/built-for-the-worksite.md](./docs/en/blogs/built-for-the-worksite.md)
 - **Gemma4 Analysis in Wiki**: [wiki/analysis/gemma-vs-cloud-overview.md](./wiki/analysis/gemma-vs-cloud-overview.md)
 
 ---
@@ -126,6 +127,7 @@ Lume operates on a continuous improvement cycle:
 | **Battery Cascade Dataset** | Convert expert-to-expert refinement chains into trainable supervision records. | ✅ |
 | **On-site Alignment Dataset** | Turn full session comparisons into stateful cloud-vs-local supervision and DPO pairs. | ✅ |
 | **Dynamic Snapshot Injector** | Inject `<field_report>` context and short-command expansion before local planning. | ✅ |
+| **On-site DPO Augmentation** | Expand full-history cloud-vs-local comparisons into 3000+ preference pairs for state-aware DPO tuning. | ✅ |
 | **Digital Sun Share Manifest** | Local expert-weight share manifests for future federated synchronization. | ✅ |
 | **Battery Model Runtime** | Run `gemma4:31b` through `Ollama` as the local planning layer. | ✅ |
 | **LoRA Training** | PEFT training on local hardware. | ✅ |

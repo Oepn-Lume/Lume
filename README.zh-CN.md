@@ -70,6 +70,7 @@ python main.py pipeline --task "write a short summary"
 
 - **为什么 Gemma4 还不能替代云端协作**：[docs/blogs/gemma4-vs-cloud-full-history.md](./docs/blogs/gemma4-vs-cloud-full-history.md)
 - **数字化大停电前夜：我们为什么需要“数字太阳”计划？**：[docs/blogs/digital-sun-before-the-blackout.md](./docs/blogs/digital-sun-before-the-blackout.md)
+- **为“现场”而生：从“图书馆研究员”到“常驻队友”**：[docs/blogs/built-for-the-worksite.md](./docs/blogs/built-for-the-worksite.md)
 - **Gemma4 分析 Wiki 入口**：[wiki/analysis/gemma-vs-cloud-overview.md](./wiki/analysis/gemma-vs-cloud-overview.md)
 
 ---
@@ -136,6 +137,7 @@ Lume 当前的最小闭环是：
 | **级联训练数据集** | 把专家之间的接力补强过程提炼成可直接训练的监督样本 | ✅ |
 | **现场感对齐数据集** | 把全量 session 对比转成带状态上下文的监督样本和 DPO 偏好对 | ✅ |
 | **动态现场快照注入器** | 在本地规划前注入 `<field_report>` 和短指令扩展，增强现场感 | ✅ |
+| **现场感 DPO 扩增** | 将全量对比扩展成 3000+ 条偏好样本，用于状态感知型 DPO 微调 | ✅ |
 | **数字太阳共享清单** | 为未来联邦同步生成本地专家权重共享清单 | ✅ |
 | **Battery Model Runtime** | 通过 `Ollama` 运行 `gemma4:31b` 作为本地规划层 | ✅ |
 | **LoRA Training** | 在本地硬件上进行 PEFT 训练 | ✅ |
