@@ -128,6 +128,7 @@ Lume operates on a continuous improvement cycle:
 | **On-site Alignment Dataset** | Turn full session comparisons into stateful cloud-vs-local supervision and DPO pairs. | ✅ |
 | **Dynamic Snapshot Injector** | Inject `<field_report>` context and short-command expansion before local planning. | ✅ |
 | **On-site DPO Augmentation** | Expand full-history cloud-vs-local comparisons into 3000+ preference pairs for state-aware DPO tuning. | ✅ |
+| **On-site GRPO Loop** | Convert grouped on-site candidates into minimal GRPO-style optimization for action-first local adaptation. | ✅ |
 | **Digital Sun Share Manifest** | Local expert-weight share manifests for future federated synchronization. | ✅ |
 | **Battery Model Runtime** | Run `gemma4:31b` through `Ollama` as the local planning layer. | ✅ |
 | **LoRA Training** | PEFT training on local hardware. | ✅ |

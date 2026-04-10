@@ -8,6 +8,23 @@ from typing import Any
 
 from lume.logging.codex_sessions import normalize_session_event
 
+ACTION_COMMANDS = {
+    "continue",
+    "publish",
+    "fix",
+    "implement",
+    "retry",
+    "next",
+    "deploy",
+    "debug",
+    "继续",
+    "发布",
+    "修复",
+    "实现",
+    "下一步",
+    "部署",
+}
+
 
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text("utf-8"))
@@ -34,6 +51,38 @@ def _trim(text: str, limit: int = 220) -> str:
     if len(compact) <= limit:
         return compact
     return compact[: limit - 3] + "..."
+
+
+def _is_action_request(text: str) -> bool:
+    tokens = [token.strip(".,:;!?()[]{}").lower() for token in str(text).split() if token.strip()]
+    return len(tokens) <= 5 and any(token in ACTION_COMMANDS for token in tokens)
+
+
+def _preference_weight(
+    *,
+    user_text: str,
+    prompt_role: str,
+    cloud_text: str,
+    gemma_text: str,
+    similarity: float | None,
+    cloud_has_code: bool,
+    gemma_has_code: bool,
+    variant_name: str,
+) -> float:
+    weight = 1.0
+    if prompt_role == "developer":
+        weight += 0.35
+    if _is_action_request(user_text):
+        weight += 0.35
+    if similarity is not None:
+        weight += max(0.0, 0.25 - min(float(similarity), 0.25))
+    if len(gemma_text) > max(len(cloud_text) * 1.5, len(cloud_text) + 80):
+        weight += 0.25
+    if gemma_has_code and not cloud_has_code:
+        weight += 0.2
+    if variant_name in {"action", "developer_protocol", "short_command"}:
+        weight += 0.15
+    return round(weight, 4)
 
 
 def _build_prompt_variants(
@@ -214,11 +263,12 @@ def build_onsite_alignment_datasets(reports_root: Path, datasets_root: Path) -> 
     output_developer = datasets_root / "developer_chain_sft.jsonl"
     output_dpo = datasets_root / "onsite_alignment_dpo.jsonl"
     output_dpo_augmented = datasets_root / "onsite_alignment_dpo_3000.jsonl"
+    output_grpo = datasets_root / "onsite_alignment_grpo.jsonl"
 
     if not comparison_json.exists():
-        for path in [output_alignment, output_developer, output_dpo, output_dpo_augmented]:
+        for path in [output_alignment, output_developer, output_dpo, output_dpo_augmented, output_grpo]:
             path.write_text("", "utf-8")
-        return [output_alignment, output_developer, output_dpo, output_dpo_augmented]
+        return [output_alignment, output_developer, output_dpo, output_dpo_augmented, output_grpo]
 
     comparison_payload = _read_json(comparison_json)
     comparisons = comparison_payload.get("comparisons", [])
@@ -230,6 +280,7 @@ def build_onsite_alignment_datasets(reports_root: Path, datasets_root: Path) -> 
     developer_records: list[dict[str, Any]] = []
     dpo_records: list[dict[str, Any]] = []
     dpo_augmented_records: list[dict[str, Any]] = []
+    grpo_records: list[dict[str, Any]] = []
 
     for item in comparisons:
         if not isinstance(item, dict):
@@ -289,6 +340,9 @@ def build_onsite_alignment_datasets(reports_root: Path, datasets_root: Path) -> 
             )
 
         if gemma_text:
+            similarity = item.get("metrics", {}).get("similarity")
+            cloud_has_code = bool(item.get("metrics", {}).get("cloud_has_code"))
+            gemma_has_code = bool(item.get("metrics", {}).get("gemma_has_code"))
             base_metadata = {
                 "source": "gemma_vs_cloud_preference",
                 "prompt_role": prompt_role,
@@ -299,30 +353,72 @@ def build_onsite_alignment_datasets(reports_root: Path, datasets_root: Path) -> 
                 "assistant_phase": item.get("assistant_phase"),
                 "cloud_char_len": item.get("metrics", {}).get("cloud_char_len"),
                 "gemma_char_len": item.get("metrics", {}).get("gemma_char_len"),
-                "similarity": item.get("metrics", {}).get("similarity"),
-                "cloud_has_code": item.get("metrics", {}).get("cloud_has_code"),
-                "gemma_has_code": item.get("metrics", {}).get("gemma_has_code"),
+                "similarity": similarity,
+                "cloud_has_code": cloud_has_code,
+                "gemma_has_code": gemma_has_code,
             }
+            base_weight = _preference_weight(
+                user_text=user_text,
+                prompt_role=prompt_role,
+                cloud_text=cloud_text,
+                gemma_text=gemma_text,
+                similarity=similarity if isinstance(similarity, (int, float)) else None,
+                cloud_has_code=cloud_has_code,
+                gemma_has_code=gemma_has_code,
+                variant_name="full",
+            )
             dpo_records.append(
                 {
                     "task_id": f"{comparison_id}-onsite-dpo",
                     "prompt": input_text,
                     "chosen": cloud_text,
                     "rejected": gemma_text,
-                    "metadata": base_metadata,
+                    "weight": base_weight,
+                    "metadata": {
+                        **base_metadata,
+                        "preference_weight": base_weight,
+                    },
                 }
             )
             for variant_name, variant_prompt in variants:
+                variant_weight = _preference_weight(
+                    user_text=user_text,
+                    prompt_role=prompt_role,
+                    cloud_text=cloud_text,
+                    gemma_text=gemma_text,
+                    similarity=similarity if isinstance(similarity, (int, float)) else None,
+                    cloud_has_code=cloud_has_code,
+                    gemma_has_code=gemma_has_code,
+                    variant_name=variant_name,
+                )
                 dpo_augmented_records.append(
                     {
                         "task_id": f"{comparison_id}-onsite-dpo-{variant_name}",
                         "prompt": variant_prompt,
                         "chosen": cloud_text,
                         "rejected": gemma_text,
+                        "weight": variant_weight,
                         "metadata": {
                             **base_metadata,
                             "source": "gemma_vs_cloud_preference_augmented",
                             "variant": variant_name,
+                            "preference_weight": variant_weight,
+                        },
+                    }
+                )
+                grpo_records.append(
+                    {
+                        "task_id": f"{comparison_id}-onsite-grpo-{variant_name}",
+                        "prompt": variant_prompt,
+                        "candidates": [
+                            {"text": cloud_text, "score": variant_weight, "label": "chosen"},
+                            {"text": gemma_text, "score": 0.0, "label": "rejected"},
+                        ],
+                        "metadata": {
+                            **base_metadata,
+                            "source": "gemma_vs_cloud_group_preference",
+                            "variant": variant_name,
+                            "preference_weight": variant_weight,
                         },
                     }
                 )
@@ -332,10 +428,11 @@ def build_onsite_alignment_datasets(reports_root: Path, datasets_root: Path) -> 
         (output_developer, developer_records),
         (output_dpo, dpo_records),
         (output_dpo_augmented, dpo_augmented_records),
+        (output_grpo, grpo_records),
     ]:
         path.write_text(
             "\n".join(json.dumps(record, ensure_ascii=False) for record in records)
             + ("\n" if records else ""),
             "utf-8",
         )
-    return [output_alignment, output_developer, output_dpo, output_dpo_augmented]
+    return [output_alignment, output_developer, output_dpo, output_dpo_augmented, output_grpo]

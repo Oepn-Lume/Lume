@@ -53,3 +53,11 @@ def test_build_onsite_alignment_augmented_dpo(tmp_path: Path) -> None:
     augmented = datasets_root / "onsite_alignment_dpo_3000.jsonl"
     lines = [line for line in augmented.read_text("utf-8").splitlines() if line.strip()]
     assert len(lines) == 4
+    records = [json.loads(line) for line in lines]
+    assert all(float(record["metadata"]["preference_weight"]) >= 1.0 for record in records)
+
+    grpo = datasets_root / "onsite_alignment_grpo.jsonl"
+    grpo_lines = [line for line in grpo.read_text("utf-8").splitlines() if line.strip()]
+    assert len(grpo_lines) == 4
+    grpo_records = [json.loads(line) for line in grpo_lines]
+    assert all(len(record["candidates"]) == 2 for record in grpo_records)

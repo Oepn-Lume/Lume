@@ -103,6 +103,10 @@ class PreferenceDataset(Dataset[dict[str, Any]]):
                     "rejected_input_ids": torch.tensor(rejected_full, dtype=torch.long),
                     "rejected_attention_mask": torch.ones(len(rejected_full), dtype=torch.long),
                     "rejected_labels": self._masked_labels(rejected_full, len(prompt_ids)),
+                    "weight": torch.tensor(
+                        float(record.get("weight", record.get("metadata", {}).get("preference_weight", 1.0))),
+                        dtype=torch.float32,
+                    ),
                 }
             )
 
@@ -147,6 +151,7 @@ def _collate_preference_batch(samples: list[dict[str, Any]], pad_token_id: int) 
             [sample["rejected_attention_mask"] for sample in samples], 0
         ),
         "rejected_labels": _pad_tensor_list([sample["rejected_labels"] for sample in samples], -100),
+        "weights": torch.stack([sample["weight"] for sample in samples], dim=0),
     }
 
 
@@ -277,7 +282,9 @@ def train_preference_model(config: PreferenceTrainingConfig) -> Path:
             preference_logits = config.beta * (
                 (chosen_policy - rejected_policy) - (chosen_reference - rejected_reference)
             )
-            loss = -torch.nn.functional.logsigmoid(preference_logits).mean()
+            losses = -torch.nn.functional.logsigmoid(preference_logits)
+            normalized_weights = batch["weights"] / batch["weights"].mean().clamp_min(1e-6)
+            loss = (losses * normalized_weights).mean()
             (loss / max(config.gradient_accumulation_steps, 1)).backward()
 
             running_loss += float(loss.item())
