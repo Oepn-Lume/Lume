@@ -183,6 +183,7 @@ This exports `data/datasets/sar_protocol.jsonl`, making task runs available thro
 | **Adaptive Battery Routing** | Feed onsite DPO/GRPO gains back into routing so short action tasks expand local takeover when the Battery Model improves. | ✅ |
 | **Diurnal Shadow Charging** | Split daytime shadow collection from nighttime retraining so the Battery Model evolves only during idle, charging windows. | ✅ |
 | **SAR Protocol Dataset** | Export task runs into a standardized State-Action-Reward interface so future agents can plug into the Battery Model as a shared protocol. | ✅ |
+| **Cross-Domain SAR Adapters** | Start extending SAR beyond software tasks with adapter-based exports for robotics-style traces and future edge agents. | ✅ |
 | **Continuous Retraining** | Run `Build -> Train -> Evaluate -> Route` through `python main.py cycle`. | ✅ |
 
 ---

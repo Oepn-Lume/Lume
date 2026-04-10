@@ -6,6 +6,7 @@ from lume.spi import (
     SAR_PROTOCOL_VERSION,
     ActionEnvelope,
     DomainType,
+    RoboticsTraceAdapter,
     RewardEnvelope,
     SARAdapterRegistry,
     SARRecord,
@@ -99,3 +100,29 @@ def test_registry_returns_first_matching_adapter(tmp_path: Path) -> None:
     registry.register(adapter)
 
     assert registry.resolve(task_payload, task_dir) is adapter
+
+
+def test_robotics_adapter_builds_motion_record(tmp_path: Path) -> None:
+    task_dir = tmp_path / "robot-task"
+    task_dir.mkdir(parents=True)
+    (task_dir / "robot_trace.json").write_text(
+        '{"environment":"warehouse-a","pose":{"x":1.2,"y":3.4},"sensors":{"lidar":"clear"},"motion_summary":{"path_efficiency":0.88,"collision_count":0,"energy_used":12.5,"latency_ms":120},"trace_steps":[{"step_index":1,"intent":"approach shelf","controller_mode":"assist","action":"move_to_pose","target_pose":{"x":2.0,"y":4.0},"confidence":0.81}],"result_status":"completed","executor":"robot-agent"}\n',
+        "utf-8",
+    )
+    task_payload = {
+        "task_id": "robot-task",
+        "timestamp": "2026-04-10T00:00:00+00:00",
+        "user_goal": "approach shelf",
+        "domain": "robotics",
+        "agent_type": "robot-agent",
+        "result_status": "completed",
+    }
+
+    adapter = RoboticsTraceAdapter()
+    assert adapter.supports(task_payload, task_dir)
+    record = adapter.build_record(task_payload, task_dir)
+
+    assert record.agent_type == "robot-agent"
+    assert record.state.domain == "robotics"
+    assert record.action.action_type == "motion_command"
+    assert record.metadata["adapter"] == "robotics-trace"

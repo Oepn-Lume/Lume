@@ -235,8 +235,12 @@ Each adapter must answer two questions:
 The current default adapter is:
 
 - `SoftwareTaskRunAdapter`
+- `RoboticsTraceAdapter`
 
-It maps existing `task_runs` into `software-agent` records.
+They currently map:
+
+- existing software `task_runs` into `software-agent` records
+- robotics-style `robot_trace.json` sources into `robot-agent` records
 
 The adapter registry exists so future domains can be added cleanly, for example:
 

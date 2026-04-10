@@ -155,6 +155,101 @@ class SoftwareTaskRunAdapter:
         )
 
 
+@dataclass(slots=True)
+class RoboticsTraceAdapter:
+    """SAR adapter for robotics-style traces with motion feedback."""
+
+    name: str = "robotics-trace"
+
+    def supports(self, task_payload: dict[str, Any], task_dir: Path) -> bool:
+        domain = str(task_payload.get("domain", "")).lower()
+        agent_type = str(task_payload.get("agent_type", "")).lower()
+        return (task_dir / "robot_trace.json").exists() or domain == "robotics" or agent_type == "robot-agent"
+
+    def build_record(self, task_payload: dict[str, Any], task_dir: Path) -> SARRecord:
+        robot_trace = _read_json(task_dir / "robot_trace.json") if (task_dir / "robot_trace.json").exists() else {}
+        trace_steps = robot_trace.get("trace_steps", [])
+        latest_step = trace_steps[-1] if trace_steps else {}
+        motion_summary = robot_trace.get("motion_summary", {})
+
+        state = StateEnvelope(
+            domain=DomainType.ROBOTICS.value,
+            world_snapshot={
+                "task_id": task_payload.get("task_id"),
+                "environment": robot_trace.get("environment", "unknown"),
+                "pose": robot_trace.get("pose", {}),
+                "sensors": robot_trace.get("sensors", {}),
+                "active_goal": task_payload.get("user_goal", task_payload.get("goal", "")),
+            },
+            intent_trajectory=[
+                {
+                    "step_index": step.get("step_index"),
+                    "intent": step.get("intent"),
+                    "controller_mode": step.get("controller_mode"),
+                }
+                for step in trace_steps[-3:]
+                if isinstance(step, dict)
+            ],
+            feedback_signals={
+                "result_status": task_payload.get("result_status", robot_trace.get("result_status")),
+                "path_efficiency": motion_summary.get("path_efficiency", 0.0),
+                "collision_count": motion_summary.get("collision_count", 0),
+                "energy_used": motion_summary.get("energy_used", 0.0),
+                "latency_ms": motion_summary.get("latency_ms", 0.0),
+            },
+            metadata={
+                "task_dir": str(task_dir),
+                "adapter": self.name,
+            },
+        )
+
+        action = ActionEnvelope(
+            action_type=ActionType.MOTION_COMMAND.value,
+            action_payload={
+                "command": latest_step.get("action", robot_trace.get("final_action", "hold_position")),
+                "target_pose": latest_step.get("target_pose", {}),
+                "motion_summary": motion_summary,
+            },
+            confidence=float(latest_step.get("confidence", 0.75) or 0.75),
+            executor=str(robot_trace.get("executor", "local-robot-agent")),
+            metadata={"environment": robot_trace.get("environment", "unknown")},
+        )
+
+        success = str(task_payload.get("result_status", robot_trace.get("result_status", ""))).lower() == "completed"
+        reward_env = 1.0 if success else 0.0
+        reward_align = float(motion_summary.get("path_efficiency", 0.0) or 0.0)
+        reward_short = max(0.0, 1.0 - min(float(motion_summary.get("latency_ms", 0.0) or 0.0) / 1000.0, 1.0))
+        energy_penalty = round(min(float(motion_summary.get("energy_used", 0.0) or 0.0) / 100.0, 0.3), 3)
+        total_reward = round((0.45 * reward_env) + (0.4 * reward_align) + (0.15 * reward_short) - energy_penalty, 4)
+        reward = RewardEnvelope(
+            total_reward=total_reward,
+            reward_align=round(reward_align, 4),
+            reward_env=round(reward_env, 4),
+            reward_short=round(reward_short, 4),
+            energy_penalty=energy_penalty,
+            success=success,
+            metadata={
+                "collision_count": motion_summary.get("collision_count", 0),
+                "energy_used": motion_summary.get("energy_used", 0.0),
+            },
+        )
+
+        return SARRecord(
+            record_id=f"{task_payload.get('task_id')}-sar",
+            agent_type=AgentType.ROBOT_AGENT.value,
+            state=state,
+            action=action,
+            reward=reward,
+            protocol_version=SAR_PROTOCOL_VERSION,
+            metadata={
+                "source": "robot_trace",
+                "protocol": SAR_PROTOCOL_VERSION,
+                "timestamp": task_payload.get("timestamp"),
+                "adapter": self.name,
+            },
+        )
+
+
 class SARAdapterRegistry:
     """Registry for selecting SAR adapters by task payload and source directory."""
 
@@ -177,5 +272,6 @@ class SARAdapterRegistry:
 
 def build_default_sar_registry() -> SARAdapterRegistry:
     registry = SARAdapterRegistry()
+    registry.register(RoboticsTraceAdapter())
     registry.register(SoftwareTaskRunAdapter())
     return registry

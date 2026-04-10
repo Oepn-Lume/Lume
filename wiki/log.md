@@ -59,6 +59,7 @@
 - milestones | `milestones/2026-04-10-auto-device-state-for-shadow-charging.md` | title=2026-04-10 Auto Device State for Shadow Charging
 - milestones | `milestones/2026-04-10-battery-model-2-blog.md` | title=2026-04-10 Battery Model 2.0 Blog
 - milestones | `milestones/2026-04-10-milestone-logging-rule.md` | title=2026-04-10 Milestone Logging Rule
+- milestones | `milestones/2026-04-10-robotics-sar-adapter.md` | title=2026-04-10 Robotics SAR Adapter
 - milestones | `milestones/2026-04-10-sar-adapter-registry.md` | title=2026-04-10 SAR Adapter Registry
 - milestones | `milestones/2026-04-10-sar-protocol-foundation.md` | title=2026-04-10 SAR Protocol Foundation
 - milestones | `milestones/2026-04-10-sar-spec-definition.md` | title=2026-04-10 SAR Spec Definition
