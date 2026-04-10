@@ -37,6 +37,9 @@ python main.py sync
 # Run the full continuous retraining loop
 python main.py cycle
 
+# Run the guarded night-side charging loop
+python main.py charge
+
 # Run the end-to-end demo pipeline for a task
 python main.py pipeline --task "write a short summary"
 ```
@@ -67,6 +70,7 @@ The project wiki is now versioned inside the repository so analysis, memory page
 - **Why Gemma4 Still Cannot Replace Cloud Collaboration**: [docs/en/blogs/gemma4-vs-cloud-full-history.md](./docs/en/blogs/gemma4-vs-cloud-full-history.md)
 - **Before the Digital Blackout: Why We Need a Digital Sun Plan**: [docs/en/blogs/digital-sun-before-the-blackout.md](./docs/en/blogs/digital-sun-before-the-blackout.md)
 - **Built for the Worksite: From "Library Researcher" to "Always-On Teammate"**: [docs/en/blogs/built-for-the-worksite.md](./docs/en/blogs/built-for-the-worksite.md)
+- **From Shadow to Intuition: A Diurnal Intelligence Evolution Framework**: [docs/en/blogs/from-shadow-to-intuition.md](./docs/en/blogs/from-shadow-to-intuition.md)
 - **Gemma4 Analysis in Wiki**: [wiki/analysis/gemma-vs-cloud-overview.md](./wiki/analysis/gemma-vs-cloud-overview.md)
 
 ---
@@ -114,6 +118,23 @@ Lume operates on a continuous improvement cycle:
 
 ---
 
+## Diurnal Shadow Charging
+
+Lume now supports a day/night operating rhythm for the Battery Model:
+
+- **By day**: remain in low-impact shadow mode and accumulate task traces as charging assets
+- **By night**: only when the machine is idle and charging, convert those assets into local retraining runs
+
+Use:
+
+```bash
+python main.py charge
+```
+
+This launches a guarded night-watch flow that builds a shadow-charge ledger and only then triggers the retraining cycle.
+
+---
+
 ## 🛠 Project Progress & Milestones
 
 | Feature | Description | Status |
@@ -137,6 +158,8 @@ Lume operates on a continuous improvement cycle:
 | **Execution Dataset Expansion** | Extract real code files, function-call outputs, hybrid artifacts, and tool-level feedback into trainable datasets. | ✅ |
 | **RLEF Layer** | Reinforcement Learning from Execution Feedback datasets and minimal preference optimization. | 🏗️ In Progress |
 | **Energy-Aware RLEF** | Add action alignment, verbosity penalties, and expert-cost penalties to reward shaping for on-device learning. | ✅ |
+| **Adaptive Battery Routing** | Feed onsite DPO/GRPO gains back into routing so short action tasks expand local takeover when the Battery Model improves. | ✅ |
+| **Diurnal Shadow Charging** | Split daytime shadow collection from nighttime retraining so the Battery Model evolves only during idle, charging windows. | ✅ |
 | **Continuous Retraining** | Run `Build -> Train -> Evaluate -> Route` through `python main.py cycle`. | ✅ |
 
 ---

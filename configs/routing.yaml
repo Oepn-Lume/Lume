@@ -6,6 +6,8 @@ rules:
   high_similarity_task: "local"
   cloud_unavailable: "local"
   quality_gated_task: "hybrid"
+  action_task_when_ready: "local"
+  action_task_when_unready: "hybrid"
 
 thresholds:
   similarity_for_local: 0.85

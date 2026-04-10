@@ -17,6 +17,29 @@ def quality_from_perplexity(perplexity: float | None) -> float:
     return max(0.0, min(1.0, 1.0 / (1.0 + (perplexity / 3.0))))
 
 
+def _read_json(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text("utf-8"))
+    except json.JSONDecodeError:
+        return None
+
+
+def _discover_preference_training_metrics(distilled_root: Path) -> dict[str, Any]:
+    candidates: list[tuple[str, Path]] = [
+        ("onsite_dpo_weighted", distilled_root / "transformers-dpo-onsite-weighted-smoke" / "metrics.json"),
+        ("onsite_grpo", distilled_root / "transformers-grpo-onsite-smoke" / "metrics.json"),
+        ("onsite_dpo", distilled_root / "transformers-dpo-onsite-smoke" / "metrics.json"),
+    ]
+    metrics_map: dict[str, Any] = {}
+    for key, path in candidates:
+        payload = _read_json(path)
+        if payload is not None:
+            metrics_map[key] = payload
+    return metrics_map
+
+
 def build_quality_snapshot(
     model_root: Path,
     datasets_root: Path,
@@ -46,6 +69,8 @@ def build_quality_snapshot(
     full_fidelity_perplexity = evaluations.get("full_fidelity", {}).get("perplexity")
     code_execution_perplexity = evaluations.get("code_execution", {}).get("perplexity")
     hybrid_refinement_perplexity = evaluations.get("hybrid_refinement", {}).get("perplexity")
+    distilled_root = datasets_root.parent / "distilled"
+    preference_metrics = _discover_preference_training_metrics(distilled_root)
 
     quality_components = [
         (0.35, quality_from_perplexity(bootstrap_perplexity if isinstance(bootstrap_perplexity, (int, float)) else None)),
@@ -60,18 +85,44 @@ def build_quality_snapshot(
         else 0.0
     )
 
+    onsite_dpo_margin = preference_metrics.get("onsite_dpo_weighted", {}).get("avg_preference_margin")
+    if onsite_dpo_margin is None:
+        onsite_dpo_margin = preference_metrics.get("onsite_dpo", {}).get("avg_preference_margin")
+    onsite_grpo_margin = preference_metrics.get("onsite_grpo", {}).get("avg_preference_margin")
+
+    onsite_alignment_components: list[float] = []
+    for margin in [onsite_dpo_margin, onsite_grpo_margin]:
+        if isinstance(margin, (int, float)):
+            onsite_alignment_components.append(max(0.0, min(1.0, float(margin) / 0.25)))
+    onsite_alignment_score = (
+        round(sum(onsite_alignment_components) / len(onsite_alignment_components), 3)
+        if onsite_alignment_components
+        else 0.0
+    )
+    adaptive_local_quality = round(
+        min(1.0, weighted_quality + (0.20 * onsite_alignment_score)),
+        3,
+    )
+    adaptive_local_threshold = round(max(0.45, 0.7 - (0.20 * onsite_alignment_score)), 3)
+
     return {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "battery_model_ready": bool(evaluations),
         "local_quality_score": round(weighted_quality, 3),
+        "adaptive_local_quality_score": adaptive_local_quality,
+        "adaptive_local_threshold": adaptive_local_threshold,
         "model_root": str(model_root),
         "max_examples": max_examples,
         "bootstrap_perplexity": bootstrap_perplexity,
         "full_fidelity_perplexity": full_fidelity_perplexity,
         "hybrid_refinement_perplexity": hybrid_refinement_perplexity,
         "code_execution_perplexity": code_execution_perplexity,
+        "onsite_dpo_margin": onsite_dpo_margin,
+        "onsite_grpo_margin": onsite_grpo_margin,
+        "onsite_alignment_score": onsite_alignment_score,
+        "preference_training_metrics": preference_metrics,
         "evaluations": evaluations,
-        "notes": "Auto-generated routing quality snapshot based on local model evaluation across bootstrap, full-fidelity, hybrid-refinement, and code-execution datasets.",
+        "notes": "Auto-generated routing quality snapshot based on local model evaluation plus on-site DPO/GRPO preference metrics.",
     }
 
 

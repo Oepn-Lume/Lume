@@ -101,3 +101,38 @@ def test_route_task_gates_local_mode_when_quality_is_low(tmp_path: Path) -> None
     )
     assert decision.mode == "hybrid"
     assert "local quality below threshold" in decision.reasons
+
+
+def test_route_task_uses_adaptive_local_quality_for_action_commands(tmp_path: Path) -> None:
+    config = tmp_path / "routing.yaml"
+    config.write_text(
+        'default_mode: "cloud"\n'
+        'rules:\n'
+        '  novel_complex_task: "cloud"\n'
+        '  privacy_sensitive_task: "hybrid"\n'
+        '  high_similarity_task: "local"\n'
+        '  cloud_unavailable: "local"\n'
+        '  quality_gated_task: "hybrid"\n'
+        '  action_task_when_ready: "local"\n'
+        '  action_task_when_unready: "hybrid"\n'
+        'thresholds:\n'
+        '  similarity_for_local: 0.95\n'
+        '  local_quality_for_local: 0.7\n',
+        "utf-8",
+    )
+    quality = tmp_path / "local_quality.json"
+    quality.write_text(
+        '{"battery_model_ready": true, "local_quality_score": 0.4, "adaptive_local_quality_score": 0.82, "adaptive_local_threshold": 0.55}',
+        "utf-8",
+    )
+    task_runs = tmp_path / "task_runs"
+    task_runs.mkdir(parents=True)
+    decision = route_task(
+        "continue",
+        routing_config_path=config,
+        task_runs_root=task_runs,
+        local_quality_path=quality,
+    )
+    assert decision.mode == "local"
+    assert decision.action_task is True
+    assert "adaptive local quality ready" in decision.reasons

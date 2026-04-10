@@ -29,10 +29,12 @@
 - [Battery Model V1](docs/battery-model-v1-md.md) | path=`battery-model-v1.md` | lang=mixed
 - [为“现场”而生：从“图书馆研究员”到“常驻队友”，如何重构本地 AI 的工程实践](docs/blogs-built-for-the-worksite-md.md) | path=`blogs/built-for-the-worksite.md` | lang=mixed
 - [数字化大停电前夜：我们为什么需要“数字太阳”计划？](docs/blogs-digital-sun-before-the-blackout-md.md) | path=`blogs/digital-sun-before-the-blackout.md` | lang=mixed
+- [从影子到直觉：一种昼夜分治的智能进化框架](docs/blogs-from-shadow-to-intuition-md.md) | path=`blogs/from-shadow-to-intuition.md` | lang=mixed
 - [为什么 Gemma4 还不能替代云端协作](docs/blogs-gemma4-vs-cloud-full-history-md.md) | path=`blogs/gemma4-vs-cloud-full-history.md` | lang=mixed
 - [Battery Model V1](docs/en-battery-model-v1-md.md) | path=`en/battery-model-v1.md` | lang=en
 - [Built for the Worksite: From "Library Researcher" to "Always-On Teammate"](docs/en-blogs-built-for-the-worksite-md.md) | path=`en/blogs/built-for-the-worksite.md` | lang=en
 - [Before the Digital Blackout: Why We Need a “Digital Sun” Plan](docs/en-blogs-digital-sun-before-the-blackout-md.md) | path=`en/blogs/digital-sun-before-the-blackout.md` | lang=en
+- [From Shadow to Intuition: A Diurnal Intelligence Evolution Framework](docs/en-blogs-from-shadow-to-intuition-md.md) | path=`en/blogs/from-shadow-to-intuition.md` | lang=en
 - [Why Gemma4 Still Cannot Replace Cloud Collaboration](docs/en-blogs-gemma4-vs-cloud-full-history-md.md) | path=`en/blogs/gemma4-vs-cloud-full-history.md` | lang=en
 - [Lume Sentinel 2026 Implementation Plan V1](docs/en-implementation-plan-v1-md.md) | path=`en/implementation-plan-v1.md` | lang=en
 - [LLM Wiki Adaptation](docs/en-llm-wiki-adaptation-md.md) | path=`en/llm-wiki-adaptation.md` | lang=en
@@ -60,6 +62,7 @@
 
 ## Milestones
 - [2026-04-10 Milestone Logging Rule](milestones/2026-04-10-milestone-logging-rule.md)
+- [2026-04-10 Shadow Charging Loop](milestones/2026-04-10-shadow-charging-loop.md)
 
 ## Memory
 - [Assistant Operating Memory](memory/assistant-operating-memory.md)

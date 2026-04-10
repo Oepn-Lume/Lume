@@ -26,10 +26,12 @@
 - docs | `battery-model-v1.md` | title=Battery Model V1 | lang=mixed
 - docs | `blogs/built-for-the-worksite.md` | title=为“现场”而生：从“图书馆研究员”到“常驻队友”，如何重构本地 AI 的工程实践 | lang=mixed
 - docs | `blogs/digital-sun-before-the-blackout.md` | title=数字化大停电前夜：我们为什么需要“数字太阳”计划？ | lang=mixed
+- docs | `blogs/from-shadow-to-intuition.md` | title=从影子到直觉：一种昼夜分治的智能进化框架 | lang=mixed
 - docs | `blogs/gemma4-vs-cloud-full-history.md` | title=为什么 Gemma4 还不能替代云端协作 | lang=mixed
 - docs | `en/battery-model-v1.md` | title=Battery Model V1 | lang=en
 - docs | `en/blogs/built-for-the-worksite.md` | title=Built for the Worksite: From "Library Researcher" to "Always-On Teammate" | lang=en
 - docs | `en/blogs/digital-sun-before-the-blackout.md` | title=Before the Digital Blackout: Why We Need a “Digital Sun” Plan | lang=en
+- docs | `en/blogs/from-shadow-to-intuition.md` | title=From Shadow to Intuition: A Diurnal Intelligence Evolution Framework | lang=en
 - docs | `en/blogs/gemma4-vs-cloud-full-history.md` | title=Why Gemma4 Still Cannot Replace Cloud Collaboration | lang=en
 - docs | `en/implementation-plan-v1.md` | title=Lume Sentinel 2026 Implementation Plan V1 | lang=en
 - docs | `en/llm-wiki-adaptation.md` | title=LLM Wiki Adaptation | lang=en
@@ -53,5 +55,6 @@
 - analysis | `gemma-vs-cloud-lowest-similarity` | title=Lowest Similarity Cases
 - analysis | `gemma-vs-cloud-code-mismatch` | title=Code Mismatch Cases
 - milestones | `milestones/2026-04-10-milestone-logging-rule.md` | title=2026-04-10 Milestone Logging Rule
+- milestones | `milestones/2026-04-10-shadow-charging-loop.md` | title=2026-04-10 Shadow Charging Loop
 - memory | `memory/assistant-operating-memory.md` | title=Assistant Operating Memory
 
