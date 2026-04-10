@@ -121,6 +121,8 @@ Lume operates on a continuous improvement cycle:
 | **LLM Wiki Memory** | Distill task runs into reusable structured memory pages. | ✅ |
 | **One-Command Launcher** | Start shadow logging or common workflows through `python main.py`. | ✅ |
 | **Battery Routing** | Hybrid cloud/local execution based on complexity and local quality. | ✅ |
+| **Expert Battery Matrix** | Smart-gated local experts for general, code, creative, and privacy tasks. | ✅ |
+| **Digital Sun Share Manifest** | Local expert-weight share manifests for future federated synchronization. | ✅ |
 | **Battery Model Runtime** | Run `gemma4:31b` through `Ollama` as the local planning layer. | ✅ |
 | **LoRA Training** | PEFT training on local hardware. | ✅ |
 | **Evaluation Reports** | Persist local quality snapshots, reports, and historical evaluation records. | ✅ |

@@ -19,37 +19,13 @@
 - [write-a-short-short-summary-pipeline-demo](tasks/write-a-short-short-summary-pipeline-demo.md) | 2026-04-09T12:57:17.279007+00:00 | score=0.94
 - [write-a-a-short-summary-pipeline-demo](tasks/write-a-a-short-summary-pipeline-demo.md) | 2026-04-09T12:57:17.279441+00:00 | score=0.94
 - [write-a-short-summary-summary-pipeline-demo](tasks/write-a-short-summary-summary-pipeline-demo.md) | 2026-04-09T12:57:17.279441+00:00 | score=0.94
+- [debug-this-python-code-patch-pipeline-demo](tasks/debug-this-python-code-patch-pipeline-demo.md) | 2026-04-10T02:09:05.935430+00:00 | score=0.94
 
 ## Document Pages
-- [Battery Model V1](docs/battery-model-v1-md.md) | path=`battery-model-v1.md` | lang=mixed
-- [数字化大停电前夜：我们为什么需要“数字太阳”计划？](docs/blogs-digital-sun-before-the-blackout-md.md) | path=`blogs/digital-sun-before-the-blackout.md` | lang=mixed
-- [为什么 Gemma4 还不能替代云端协作](docs/blogs-gemma4-vs-cloud-full-history-md.md) | path=`blogs/gemma4-vs-cloud-full-history.md` | lang=mixed
-- [Battery Model V1](docs/en-battery-model-v1-md.md) | path=`en/battery-model-v1.md` | lang=en
-- [Before the Digital Blackout: Why We Need a “Digital Sun” Plan](docs/en-blogs-digital-sun-before-the-blackout-md.md) | path=`en/blogs/digital-sun-before-the-blackout.md` | lang=en
-- [Why Gemma4 Still Cannot Replace Cloud Collaboration](docs/en-blogs-gemma4-vs-cloud-full-history-md.md) | path=`en/blogs/gemma4-vs-cloud-full-history.md` | lang=en
-- [Lume Sentinel 2026 Implementation Plan V1](docs/en-implementation-plan-v1-md.md) | path=`en/implementation-plan-v1.md` | lang=en
-- [LLM Wiki Adaptation](docs/en-llm-wiki-adaptation-md.md) | path=`en/llm-wiki-adaptation.md` | lang=en
-- [Lume Documentation (English Edition)](docs/en-readme-md.md) | path=`en/README.md` | lang=en
-- [Starfire Protocol V1 Draft](docs/en-starfire-protocol-v1-md.md) | path=`en/starfire-protocol-v1.md` | lang=en
-- [System Architecture Appendix V1](docs/en-system-architecture-appendix-v1-md.md) | path=`en/system-architecture-appendix-v1.md` | lang=en
-- [Lume Sentinel 2026 Whitepaper V1](docs/en-whitepaper-v1-md.md) | path=`en/whitepaper-v1.md` | lang=en
-- [Github About](docs/github-about-txt.md) | path=`github-about.txt` | lang=mixed
-- [Lume Sentinel 2026 技术实施方案 V1](docs/implementation-plan-v1-md.md) | path=`implementation-plan-v1.md` | lang=mixed
-- [LLM Wiki Adaptation](docs/llm-wiki-adaptation-md.md) | path=`llm-wiki-adaptation.md` | lang=mixed
-- [Starfire Protocol V1 Draft](docs/starfire-protocol-v1-md.md) | path=`starfire-protocol-v1.md` | lang=mixed
-- [Lume Sentinel 2026 系统架构图附录 V1](docs/system-architecture-appendix-v1-md.md) | path=`system-architecture-appendix-v1.md` | lang=mixed
-- [Lume Sentinel 2026 白皮书 V1 正式版](docs/whitepaper-v1-md.md) | path=`whitepaper-v1.md` | lang=mixed
-- [X Marketing Playbook V1](docs/x-marketing-playbook-v1-md.md) | path=`x-marketing-playbook-v1.md` | lang=mixed
-- [Zhihu Marketing Playbook V1](docs/zhihu-marketing-playbook-v1-md.md) | path=`zhihu-marketing-playbook-v1.md` | lang=zh
+- No document pages yet.
 
 ## Analysis Pages
-- [Gemma vs Cloud Overview](analysis/gemma-vs-cloud-overview.md) | section=gemma-vs-cloud
-- [Gemma Context Continuation Gap](analysis/gemma-vs-cloud-context-gap.md) | section=gemma-vs-cloud
-- [Developer and Codex Internal Message Gap](analysis/gemma-vs-cloud-developer-chain.md) | section=gemma-vs-cloud
-- [Gemma Overproduces Code](analysis/gemma-vs-cloud-code-overproduction.md) | section=gemma-vs-cloud
-- [Process Event Coverage](analysis/gemma-vs-cloud-process-events.md) | section=gemma-vs-cloud
-- [Lowest Similarity Cases](analysis/gemma-vs-cloud-lowest-similarity.md) | section=gemma-vs-cloud
-- [Code Mismatch Cases](analysis/gemma-vs-cloud-code-mismatch.md) | section=gemma-vs-cloud
+- No analysis pages yet.
 
 ## Notes
 - Task pages are generated from `data/task_runs/` shadow logs.

@@ -15,6 +15,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+from lume.battery import BatteryMatrix
 from lume.distill import build_distill_datasets
 from lume.execution import ObservedRuntime, OllamaLocalHandler, OpenAICloudHandler, RuntimeModels
 from lume.memory import build_wiki
@@ -145,7 +146,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--wiki-root",
-        default=str(ROOT / "data" / "wiki"),
+        default=str(ROOT / "wiki"),
     )
     parser.add_argument(
         "--datasets-root",
@@ -158,6 +159,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--models-config",
         default=str(ROOT / "configs" / "models.yaml"),
+    )
+    parser.add_argument(
+        "--battery-matrix-config",
+        default=str(ROOT / "configs" / "battery_matrix.yaml"),
     )
     parser.add_argument(
         "--local-quality-config",
@@ -178,6 +183,8 @@ def main() -> None:
     planning_cloud_available = True
     ollama_local = OllamaLocalHandler(model=local_model_name)
     local_available = ollama_local.available
+    battery_matrix = BatteryMatrix(config_path=Path(args.battery_matrix_config))
+    matrix_available = battery_matrix.available
 
     decision = route_task(
         args.task,
@@ -195,6 +202,7 @@ def main() -> None:
         "cloud_simulated": not cloud_available,
         "local_provider": local_config.get("battery_model_provider", "ollama"),
         "local_available": local_available,
+        "battery_matrix_available": matrix_available,
         "routing_decision": decision.to_dict(),
     }
     strategy = choose_planning_strategy(
@@ -230,23 +238,104 @@ def main() -> None:
     runtime.user(args.task)
     planning_prompt = f"Create a plan for the task: {args.task}"
     if strategy == "local" and runtime.local:
-        plan = runtime.local.complete(
-            planning_prompt,
-            message_type="local_reasoning",
-            metadata={
-                "stage": "planning",
-                "complexity": decision.task_complexity,
-                "output_source": output_source,
-            },
-        )
+        if matrix_available:
+            matrix_result = battery_matrix.complete(args.task)
+            runtime.session.artifact(
+                "battery_dispatch",
+                {
+                    "task_id": task_id,
+                    "route_mode": decision.mode,
+                    "output_source": output_source,
+                    "primary_expert": matrix_result.dispatch.primary_expert.name,
+                    "domain": matrix_result.dispatch.primary_expert.domain,
+                    "confidence": matrix_result.dispatch.confidence,
+                    "cloud_assist_recommended": matrix_result.dispatch.cloud_assist_recommended,
+                    "privacy_sensitive": matrix_result.dispatch.privacy_sensitive,
+                    "matched_keywords": matrix_result.dispatch.matched_keywords,
+                    "candidate_scores": matrix_result.dispatch.candidate_scores,
+                    "local_model": matrix_result.local_model,
+                    "adapter": matrix_result.adapter,
+                },
+            )
+            runtime.codex.tool(
+                "battery_matrix_dispatch",
+                arguments={
+                    "task": args.task,
+                    "primary_expert": matrix_result.dispatch.primary_expert.name,
+                    "confidence": matrix_result.dispatch.confidence,
+                    "cloud_assist_recommended": matrix_result.dispatch.cloud_assist_recommended,
+                },
+                output_summary="Selected a local expert battery for planning.",
+                metadata={"stage": "planning", "output_source": output_source},
+            )
+            plan = runtime.local.complete(
+                matrix_result.output,
+                message_type="local_reasoning",
+                metadata={
+                    "stage": "planning",
+                    "complexity": decision.task_complexity,
+                    "output_source": output_source,
+                    "battery_expert": matrix_result.dispatch.primary_expert.name,
+                    "battery_confidence": matrix_result.dispatch.confidence,
+                },
+            )
+        else:
+            plan = runtime.local.complete(
+                planning_prompt,
+                message_type="local_reasoning",
+                metadata={
+                    "stage": "planning",
+                    "complexity": decision.task_complexity,
+                    "output_source": output_source,
+                },
+            )
     elif strategy == "hybrid" and runtime.local:
+        battery_metadata: dict[str, Any] = {}
+        if matrix_available:
+            matrix_result = battery_matrix.complete(args.task)
+            battery_metadata = {
+                "battery_expert": matrix_result.dispatch.primary_expert.name,
+                "battery_confidence": matrix_result.dispatch.confidence,
+            }
+            runtime.session.artifact(
+                "battery_dispatch",
+                {
+                    "task_id": task_id,
+                    "route_mode": decision.mode,
+                    "output_source": output_source,
+                    "primary_expert": matrix_result.dispatch.primary_expert.name,
+                    "domain": matrix_result.dispatch.primary_expert.domain,
+                    "confidence": matrix_result.dispatch.confidence,
+                    "cloud_assist_recommended": matrix_result.dispatch.cloud_assist_recommended,
+                    "privacy_sensitive": matrix_result.dispatch.privacy_sensitive,
+                    "matched_keywords": matrix_result.dispatch.matched_keywords,
+                    "candidate_scores": matrix_result.dispatch.candidate_scores,
+                    "local_model": matrix_result.local_model,
+                    "adapter": matrix_result.adapter,
+                },
+            )
+            runtime.codex.tool(
+                "battery_matrix_dispatch",
+                arguments={
+                    "task": args.task,
+                    "primary_expert": matrix_result.dispatch.primary_expert.name,
+                    "confidence": matrix_result.dispatch.confidence,
+                    "cloud_assist_recommended": matrix_result.dispatch.cloud_assist_recommended,
+                },
+                output_summary="Selected a local expert battery before cloud refinement.",
+                metadata={"stage": "planning", "hybrid": True, "output_source": output_source},
+            )
+            local_seed = matrix_result.output
+        else:
+            local_seed = planning_prompt
         local_draft = runtime.local.complete(
-            planning_prompt,
+            local_seed,
             message_type="local_reasoning",
             metadata={
                 "stage": "planning",
                 "complexity": decision.task_complexity,
                 "output_source": output_source,
+                **battery_metadata,
             },
         )
         plan = runtime.cloud.complete(

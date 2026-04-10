@@ -1,0 +1,79 @@
+experts:
+  - name: "base-expert"
+    domain: "general"
+    description: "General dialogue, task framing, and local planning."
+    model: "gemma4:31b"
+    adapter: "data/distilled/transformers-lora-v2-realcloud/adapter"
+    privacy_sensitive: false
+    confidence_bias: 0.12
+    keywords:
+      - "summary"
+      - "plan"
+      - "write"
+      - "explain"
+      - "analyze"
+      - "task"
+
+  - name: "code-expert"
+    domain: "code"
+    description: "Code generation, patch planning, debugging, and repository work."
+    model: "gemma4:31b"
+    adapter: "data/distilled/transformers-lora-v2-realcloud/adapter"
+    privacy_sensitive: false
+    confidence_bias: 0.18
+    keywords:
+      - "code"
+      - "python"
+      - "bug"
+      - "patch"
+      - "script"
+      - "repo"
+      - "function"
+      - "test"
+
+  - name: "creative-expert"
+    domain: "creative"
+    description: "Creative writing, essays, naming, and narrative content."
+    model: "gemma4:31b"
+    adapter: "data/distilled/transformers-lora-v2-realcloud/adapter"
+    privacy_sensitive: false
+    confidence_bias: 0.1
+    keywords:
+      - "essay"
+      - "poem"
+      - "story"
+      - "creative"
+      - "blog"
+      - "title"
+
+  - name: "logic-expert"
+    domain: "reasoning"
+    description: "Math, structured reasoning, planning, and multi-step logic."
+    model: "gemma4:31b"
+    adapter: "data/distilled/transformers-lora-v2-realcloud/adapter"
+    privacy_sensitive: false
+    confidence_bias: 0.16
+    keywords:
+      - "reason"
+      - "logic"
+      - "math"
+      - "proof"
+      - "plan"
+      - "architecture"
+      - "system"
+      - "pipeline"
+
+  - name: "privacy-expert"
+    domain: "private"
+    description: "Sensitive local tasks, private notes, and on-device personal context."
+    model: "gemma4:31b"
+    adapter: "data/distilled/transformers-lora-v2-realcloud/adapter"
+    privacy_sensitive: true
+    confidence_bias: 0.15
+    keywords:
+      - "private"
+      - "local"
+      - "personal"
+      - "schedule"
+      - "memory"
+      - "sensitive"

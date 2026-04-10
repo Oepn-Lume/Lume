@@ -16,7 +16,7 @@ def parse_args() -> argparse.Namespace:
         "mode",
         nargs="?",
         default="shadow",
-        choices=["shadow", "sync", "pipeline", "cycle"],
+        choices=["shadow", "sync", "pipeline", "cycle", "share"],
         help="Launch mode. Defaults to shadow.",
     )
     parser.add_argument("--task", help="Task text for pipeline mode.")
@@ -24,6 +24,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--iterations", type=int, default=0)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--skip-train", action="store_true")
+    parser.add_argument("--expert-name")
+    parser.add_argument("--domain")
     return parser.parse_args()
 
 
@@ -68,6 +70,22 @@ def main() -> None:
                     str(ROOT / "scripts" / "run_continuous_cycle.py"),
                     "--device",
                     args.device,
+                ]
+            )
+        )
+
+    if args.mode == "share":
+        expert_name = args.expert_name or "base-expert"
+        domain = args.domain or "general"
+        raise SystemExit(
+            _run(
+                [
+                    python_exe,
+                    str(ROOT / "scripts" / "build_expert_share_manifest.py"),
+                    "--expert-name",
+                    expert_name,
+                    "--domain",
+                    domain,
                 ]
             )
         )
