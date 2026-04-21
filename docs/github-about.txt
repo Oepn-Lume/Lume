@@ -1,2 +1,2 @@
-English: Lume Treasury is a local-first AI system that turns cloud conversations into reusable local assets through shadow logging, LoRA distillation, and a Gemma4 Battery Model.
-中文：Lume Treasury 是一个本地优先的 AI 系统，通过影子日志、LoRA 蒸馏和 Gemma4 Battery Model，把云端对话转化为可复用的本地资产。
+English: Lume is an augmentation layer for coding agents. Current public result: Codex + Lume = B, OpenClaw + Lume = stable B-, Claude Code + Lume = stable B-.
+中文：Lume 不是替代 agent，而是给现有 coding agent 加的一层增强。当前公开结果：Codex + Lume = B，OpenClaw + Lume = stable B-，Claude Code + Lume = stable B-。
